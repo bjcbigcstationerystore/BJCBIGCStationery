@@ -1,5 +1,85 @@
 <!doctype html>
 <html lang="th">
-<head> ... </head>
-<body> ... </body>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>BJC Big C Stationery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:'Mitr',sans-serif}</style>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-2xl font-bold text-emerald-800">📦 BJC Big C Stationery</h1>
+    <p class="text-slate-600">เชื่อมต่อกับ Google Sheet แบบเร็วสุด</p>
+
+    <!-- ส่วนแสดงข้อมูล -->
+    <section class="bg-white rounded-xl shadow p-4 mt-6">
+      <h2 class="font-semibold mb-2">รายการในชีต</h2>
+      <button id="btnLoad" class="px-4 py-2 rounded-xl bg-emerald-700 text-white">โหลดข้อมูล</button>
+      <span id="status" class="ml-2 text-sm text-slate-500"></span>
+      <table class="min-w-full mt-4 text-sm">
+        <thead id="thead" class="bg-slate-100"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </section>
+
+    <!-- ส่วนเพิ่มข้อมูล -->
+    <section class="bg-white rounded-xl shadow p-4 mt-6">
+      <h2 class="font-semibold mb-2">เพิ่มข้อมูลใหม่</h2>
+      <form id="frm" class="grid gap-3 max-w-md">
+        <input name="ID" placeholder="ID (timestamp)" class="border rounded px-3 py-2">
+        <input name="Name" placeholder="ชื่อสินค้า" class="border rounded px-3 py-2">
+        <input name="Qty" placeholder="จำนวน" class="border rounded px-3 py-2">
+        <button class="px-4 py-2 rounded-xl bg-emerald-700 text-white">บันทึก</button>
+      </form>
+      <div id="writeStatus" class="text-sm text-slate-500 mt-2"></div>
+    </section>
+  </div>
+
+  <script>
+    const SHEET_ID  = '1CzpZGPkkWQ7pu-J1SsjZ4rjs0VS-GORjCq4z3A47-eQ';
+    const SHEET_TAB = 'Stationery Data';
+    const API_URL   = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
+
+    const gvizUrl = () => {
+      const tq = encodeURIComponent('select *');
+      return `https://docs.google.com/spreadsheets/d/${1CzpZGPkkWQ7pu-J1SsjZ4rjs0VS-GORjCq4z3A47-eQ}/gviz/tq?tqx=out:json&sheet=${SHEET_TAB}&tq=${tq}`;
+    };
+
+    function parseGviz(txt){
+      const json = JSON.parse(txt.substring(47).slice(0, -2));
+      const cols = json.table.cols.map(c => c.label);
+      const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ''));
+      return {cols, rows};
+    }
+
+    async function loadData(){
+      const res = await fetch(gvizUrl());
+      const txt = await res.text();
+      const {cols, rows} = parseGviz(txt);
+      thead.innerHTML = `<tr>${cols.map(c=>`<th class='px-3 py-2 text-left'>${c}</th>`).join('')}</tr>`;
+      tbody.innerHTML = rows.map(r=>`<tr>${r.map(v=>`<td class='border-t px-3 py-2'>${v}</td>`).join('')}</tr>`).join('');
+      status.textContent = `โหลดแล้ว ${rows.length} รายการ`;
+    }
+
+    async function appendRow(data){
+      const res = await fetch(API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({action:'append', data})
+      });
+      return res.json();
+    }
+
+    btnLoad.onclick = loadData;
+    frm.onsubmit = async e => {
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(frm).entries());
+      writeStatus.textContent = 'กำลังบันทึก...';
+      const out = await appendRow(payload);
+      writeStatus.textContent = out.success ? '✅ บันทึกสำเร็จ' : '❌ เกิดข้อผิดพลาด';
+      if (out.success) frm.reset();
+    };
+  </script>
+</body>
 </html>
