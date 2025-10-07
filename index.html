@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BJC Big C Stationery Store - ฟอร์มการเบิกอุปกรณ์สำนักงาน</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,34 +11,57 @@
     .gradient-bg{background:linear-gradient(135deg,#064e3b 0%,#065f46 50%,#047857 100%)}
     .card-shadow{box-shadow:0 20px 40px rgba(0,0,0,.15)}
     .hover-scale{transition:transform .2s ease-in-out}.hover-scale:hover{transform:scale(1.02)}
-    .category-item{transition:.3s}.category-item:hover{background:#f0fdf4;border-color:#22c55e;transform:translateY(-2px)}
+    .category-item{transition:all .3s}.category-item:hover{background:#f0fdf4;border-color:#22c55e;transform:translateY(-2px)}
     .category-item.selected{background:#22c55e;color:#fff;border-color:#16a34a}
-    .company-card{transition:.3s;cursor:pointer}.company-card:hover{transform:translateY(-5px);box-shadow:0 25px 50px rgba(0,0,0,.2)}
+    .company-card{transition:all .3s;cursor:pointer}.company-card:hover{transform:translateY(-5px);box-shadow:0 25px 50px rgba(0,0,0,.2)}
     .company-card.selected{border:4px solid #22c55e;background:#f0fdf4}
-    .item-card{transition:.3s;cursor:pointer}.item-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(0,0,0,.1)}
+    .item-card{transition:all .3s;cursor:pointer}.item-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(0,0,0,.1)}
     .item-card.selected{border-color:#22c55e;background:#f0fdf4}
     .item-card.hidden-item{opacity:.5;background:#fee2e2;border-color:#ef4444}
-    .quantity-input{transition:.3s}
+    .quantity-input{transition:all .3s}
     .logo-container{width:200px;height:120px;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff}
     .logo-container img{max-width:180px;max-height:100px;object-fit:contain}
-    .admin-company-card{transition:.3s}.admin-company-card:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(0,0,0,.15)}
+    .admin-company-card{transition:all .3s}.admin-company-card:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(0,0,0,.15)}
     .admin-company-card.selected{border-color:#22c55e;background:#f0fdf4}
-    .admin-category-item{transition:.3s;cursor:pointer}.admin-category-item:hover{background:#f0fdf4;border-color:#22c55e;transform:translateY(-2px)}
-    .admin-item-card{transition:.3s}.admin-item-card.hidden-item{background:#fee2e2;border-color:#ef4444}
-    .hide-button{transition:.3s}.hide-button:hover{transform:scale(1.05)}
+    .admin-category-item{transition:all .3s;cursor:pointer}.admin-category-item:hover{background:#f0fdf4;border-color:#22c55e;transform:translateY(-2px)}
+    .admin-item-card{transition:all .3s}.admin-item-card.hidden-item{background:#fee2e2;border-color:#ef4444}
+    .hide-button{transition:all .3s}.hide-button:hover{transform:scale(1.05)}
+  </style>
+
+  <!-- ⬇️ เพิ่มสไตล์ย่อทั้งแอป (รองรับทุกเบราว์เซอร์) -->
+  <style>
+    /* ย่อคอนเทนต์ทุกอย่างใน wrapper เหลือ 70% และคงตำแหน่งจากด้านบนกึ่งกลาง */
+    #app-scale{
+      transform: scale(0.7);
+      transform-origin: top center;
+      width: calc(100% / 0.7);   /* ขยายพื้นที่กลับเพื่อกันสกรอลล์แนวนอน */
+      margin: 0 auto;
+    }
+    /* กันสกรอลล์แนวนอนทั้งหน้า */
+    html, body { overflow-x: hidden; }
+
+    /* จอเล็ก (แท็บเล็ต/มือถือ) ให้กลับเป็น 100% */
+    @media (max-width:1024px){
+      #app-scale{ transform:none; width:100%; }
+    }
   </style>
 </head>
+
 <body class="gradient-bg min-h-screen">
-  <!-- Admin Button -->
+  <!-- ===== Admin Button (fixed) — อยู่นอก wrapper เพื่อคงตำแหน่ง/ขนาด ===== -->
   <div class="fixed top-4 right-4 z-50">
     <button onclick="showAdminLogin()"
-      class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-full text-sm shadow-lg">👤 Admin</button>
+      class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-full text-sm shadow-lg">
+      👤 Admin
+    </button>
   </div>
 
-  <!-- Admin Login Modal -->
-  <div id="adminLoginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+  <!-- ===== Admin Login Modal (fullscreen) — อยู่นอก wrapper ===== -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">เข้าสู่ระบบ Admin<br><span class="text-sm text-gray-500">Admin Login</span></h3>
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+        เข้าสู่ระบบ Admin<br><span class="text-sm font-normal text-gray-500">Admin Login</span>
+      </h3>
       <div class="mb-6">
         <label class="block text-gray-700 text-sm font-bold mb-2">รหัสพนักงาน Admin</label>
         <input type="password" id="adminPassword"
@@ -52,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Admin Panel -->
+  <!-- ===== Admin Panel (fullscreen) — อยู่นอก wrapper ===== -->
   <div id="adminPanel" class="fixed inset-0 bg-white z-40 overflow-y-auto hidden">
     <div class="container mx-auto px-6 py-8">
       <div class="flex justify-between items-center mb-8">
@@ -60,32 +83,32 @@
         <button onclick="exitAdmin()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg">ออกจากระบบ</button>
       </div>
 
+      <!-- เลือกบริษัท -->
       <div id="adminCompanySelection" class="bg-white rounded-2xl shadow-lg p-8 mb-8">
         <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">เลือกบริษัทที่ต้องการจัดการ</h3>
         <div class="grid md:grid-cols-2 gap-8">
           <div class="admin-company-card bg-white border-4 border-gray-200 rounded-2xl p-6 cursor-pointer" onclick="selectAdminCompany('BJC')">
             <div class="logo-container mx-auto mb-4">
-              <img src="https://i.postimg.cc/k4M71Cj9/BJC-logo.jpg" alt="BJC Logo" onerror="this.style.display='none'">
+              <img src="https://i.postimg.cc/k4M71Cj9/BJC-logo.jpg" alt="BJC" onerror="this.style.display='none'">
             </div>
             <h4 class="text-xl text-center">BJC</h4>
           </div>
           <div class="admin-company-card bg-white border-4 border-gray-200 rounded-2xl p-6 cursor-pointer" onclick="selectAdminCompany('BigC')">
             <div class="logo-container mx-auto mb-4">
-              <img src="https://i.postimg.cc/50m6ypr9/logo-big.webp" alt="Big C Logo" onerror="this.style.display='none'">
+              <img src="https://i.postimg.cc/50m6ypr9/logo-big.webp" alt="Big C" onerror="this.style.display='none'">
             </div>
             <h4 class="text-xl text-center">Big C</h4>
           </div>
         </div>
       </div>
 
+      <!-- มุมมองจัดการสินค้า -->
       <div id="adminMainView" class="bg-white rounded-2xl shadow-lg p-8 hidden">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-2xl font-bold text-gray-800">จัดการสินค้า <span id="adminSelectedCompany" class="text-emerald-600"></span></h3>
           <button onclick="backToAdminCompanySelection()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-lg">เปลี่ยนบริษัท</button>
         </div>
-
         <div id="adminCategoryView" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
-
         <div id="adminItemsView" class="hidden">
           <div class="flex items-center justify-between mb-8">
             <h4 id="adminCategoryTitle" class="text-2xl font-bold text-emerald-800"></h4>
@@ -97,170 +120,240 @@
     </div>
   </div>
 
-  <!-- Page 1 -->
-  <div id="page1" class="min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="bg-white rounded-3xl card-shadow p-12 max-w-5xl w-full text-center">
-      <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="" class="mx-auto mb-10 max-w-lg w-full h-auto" onerror="this.style.display='none'">
-      <h1 class="text-5xl font-bold text-emerald-800 mb-8">BJC Big C Stationery Store<br><span class="text-3xl font-normal text-emerald-600">ฟอร์มการเบิกอุปกรณ์สำนักงาน</span></h1>
-      <div class="text-gray-700 text-lg leading-relaxed mb-8 max-w-4xl mx-auto space-y-4">
-        <p>หลังจากที่ท่านกดส่งคำร้อง… จะมีอีเมล์แจ้งรายละเอียดจาก <b>bjcbigcstationerystore@gmail.com</b></p>
-        <p>กรุณาส่งไปยังคุณนพดา ตั้งกวิลฤทัย Email: <b>Noppada.tan@bigc.co.th</b></p>
-        <p class="text-red-600 font-bold">*จำกัดสิทธิ์ให้เฉพาะ BU Admin เป็นตัวแทนเบิกให้กับ BU*</p>
-        <p class="text-gray-800 font-bold">สงสัย เพิ่มเติม กรุณาติดต่อ 02-1465959 #4384</p>
-      </div>
-      <button onclick="goToPage(2)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-12 rounded-full text-2xl hover-scale shadow-lg">เริ่มต้น</button>
-    </div>
-  </div>
+  <!-- ========== BEGIN wrapper: ย่อทุกหน้าเหลือ 70% ========== -->
+  <div id="app-scale">
 
-  <!-- Page 2 -->
-  <div id="page2" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
-    <div class="bg-white rounded-3xl card-shadow p-12 max-w-5xl w-full text-center">
-      <h2 class="text-4xl font-bold text-emerald-800 mb-12">กรุณาเลือกบริษัทที่ท่านสังกัด</h2>
-      <div class="grid md:grid-cols-2 gap-12 mb-12">
-        <div class="company-card bg-white border-4 border-gray-200 rounded-2xl p-8" onclick="selectCompany(event,'BJC')">
-          <div class="logo-container mx-auto mb-6"><img src="https://i.postimg.cc/k4M71Cj9/BJC-logo.jpg" alt="" onerror="this.style.display='none'"></div>
-          <h3 class="text-2xl text-gray-800">BJC</h3>
+    <!-- Page 1 -->
+    <div id="page1" class="min-h-screen flex flex-col items-center justify-center p-6">
+      <div class="bg-white rounded-3xl card-shadow p-12 max-w-5xl w-full text-center">
+        <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
+             alt="BJC Big C Logo" class="mx-auto mb-10 max-w-lg w-full h-auto" onerror="this.style.display='none'">
+        <h1 class="text-5xl font-bold text-emerald-800 mb-8 leading-tight">
+          BJC Big C Stationery Store<br>
+          <span class="text-3xl font-normal text-emerald-600">ฟอร์มการเบิกอุปกรณ์สำนักงาน</span>
+        </h1>
+        <div class="text-gray-700 text-lg leading-relaxed mb-8 max-w-4xl mx-auto space-y-4">
+          <p>หลังจากที่ท่านกดส่งคำร้อง… จะมีอีเมล์แจ้งรายละเอียดจาก <b>bjcbigcstationerystore@gmail.com</b></p>
+          <p>กรุณาส่งไปยังคุณนพดา ตั้งกวิลฤทัย Email: <b>Noppada.tan@bigc.co.th</b></p>
+          <p class="text-red-600 font-bold">*จำกัดสิทธิ์ให้เฉพาะ BU Admin เป็นตัวแทนเบิกให้กับ BU*</p>
+          <p class="text-gray-800 font-bold">สงสัย เพิ่มเติม กรุณาติดต่อ 02-1465959 #4384</p>
         </div>
-        <div class="company-card bg-white border-4 border-gray-200 rounded-2xl p-8" onclick="selectCompany(event,'BigC')">
-          <div class="logo-container mx-auto mb-6"><img src="https://i.postimg.cc/50m6ypr9/logo-big.webp" alt="" onerror="this.style.display='none'"></div>
-          <h3 class="text-2xl text-gray-800">Big C</h3>
-        </div>
-      </div>
-      <button id="nextBtn2" onclick="goToPage(3)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale opacity-50 cursor-not-allowed shadow-lg" disabled>ถัดไป</button>
-    </div>
-  </div>
-
-  <!-- Page 3 -->
-  <div id="page3" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
-    <div class="bg-white rounded-3xl card-shadow p-12 max-w-6xl w-full">
-      <h2 class="text-4xl font-bold text-emerald-800 mb-12 text-center">กรุณาเลือกประเภทสิ่งของ</h2>
-
-      <!-- หมวดหมู่ (จำนวนจะแสดงจากข้อมูลจริงเมื่อโหลดแล้ว) -->
-      <div id="categoryView" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('แฟ้มและอุปกรณ์ประกอบ')"><div class="text-4xl mb-4">📁</div><span class="font-bold text-lg">แฟ้มและอุปกรณ์ประกอบ</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('อุปกรณ์ตัด')"><div class="text-4xl mb-4">✂️</div><span class="font-bold text-lg">อุปกรณ์ตัด</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('อุปกรณ์เจาะ')"><div class="text-4xl mb-4">🕳️</div><span class="font-bold text-lg">อุปกรณ์เจาะ</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('คลิปหนีบกระดาษ')"><div class="text-4xl mb-4">📎</div><span class="font-bold text-lg">คลิปหนีบกระดาษ</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('เครื่องเขียน')"><div class="text-4xl mb-4">✏️</div><span class="font-bold text-lg">เครื่องเขียน</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-        <div class="category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showCategoryItems('สกอตเทป,กาวและโพสอิท')"><div class="text-4xl mb-4">🏷️</div><span class="font-bold text-lg">สกอตเทป,กาวและโพสอิท</span><div class="text-sm text-gray-500 mt-2">0 รายการ</div></div>
-      </div>
-
-      <div id="itemsView" class="hidden">
-        <div class="flex items-center justify-between mb-8">
-          <h3 id="categoryTitle" class="text-3xl font-bold text-emerald-800"></h3>
-          <button onclick="backToCategories()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-full">← กลับ</button>
-        </div>
-        <div id="itemsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
-      </div>
-
-      <div class="text-center">
-        <button id="nextBtn3" onclick="goToPage(4)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale opacity-50 cursor-not-allowed shadow-lg" disabled>ถัดไป</button>
+        <button onclick="goToPage(2)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-12 rounded-full text-2xl hover-scale shadow-lg">เริ่มต้น</button>
       </div>
     </div>
-  </div>
 
-  <!-- Page 4 -->
-  <div id="page4" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
-    <div class="bg-white rounded-3xl card-shadow p-12 max-w-6xl w-full">
-      <div class="grid lg:grid-cols-2 gap-12">
-        <div class="bg-emerald-50 border-3 border-emerald-300 rounded-2xl p-8">
-          <h3 class="text-2xl font-bold text-emerald-800 mb-8 text-center">ข้อมูลพนักงาน</h3>
-          <div class="mb-8">
-            <label class="block text-emerald-800 text-xl font-bold mb-3">รหัสพนักงาน</label>
-            <input type="text" id="employeeId" class="w-full px-6 py-4 border-3 border-emerald-400 rounded-xl focus:border-emerald-600 focus:outline-none text-lg bg-white shadow-lg" placeholder="กรุณากรอกรหัสพนักงาน">
+    <!-- Page 2 -->
+    <div id="page2" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
+      <div class="bg-white rounded-3xl card-shadow p-12 max-w-5xl w-full text-center">
+        <h2 class="text-4xl font-bold text-emerald-800 mb-12">
+          กรุณาเลือกบริษัทที่ท่านสังกัด<br><span class="text-lg font-normal text-gray-500">Please select your company</span>
+        </h2>
+        <div class="grid md:grid-cols-2 gap-12 mb-12">
+          <div class="company-card bg-white border-4 border-gray-200 rounded-2xl p-8" onclick="selectCompany('BJC')">
+            <div class="logo-container mx-auto mb-6">
+              <img src="https://i.postimg.cc/k4M71Cj9/BJC-logo.jpg" alt="BJC" onerror="this.style.display='none'">
+            </div>
+            <h3 class="text-2xl text-gray-800">BJC</h3>
           </div>
-          <div class="mb-4">
-            <label class="block text-emerald-800 text-xl font-bold mb-3">หมายเหตุ</label>
-            <textarea id="remarks" rows="6" class="w-full px-6 py-4 border-3 border-emerald-400 rounded-xl focus:border-emerald-600 focus:outline-none text-lg bg-white shadow-lg" placeholder="กรุณากรอกหมายเหตุ (ถ้ามี)"></textarea>
+          <div class="company-card bg-white border-4 border-gray-200 rounded-2xl p-8" onclick="selectCompany('BigC')">
+            <div class="logo-container mx-auto mb-6">
+              <img src="https://i.postimg.cc/50m6ypr9/logo-big.webp" alt="Big C" onerror="this.style.display='none'">
+            </div>
+            <h3 class="text-2xl text-gray-800">Big C</h3>
           </div>
         </div>
+        <button id="nextBtn2" onclick="goToPage(3)"
+          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale opacity-50 cursor-not-allowed shadow-lg" disabled>
+          ถัดไป<br><span class="text-sm font-normal">Next</span>
+        </button>
+      </div>
+    </div>
 
-        <div class="bg-emerald-50 border-3 border-emerald-200 rounded-2xl p-8">
-          <h3 class="text-2xl font-bold text-emerald-800 mb-6">สรุปการเบิก</h3>
-          <div id="selectedItems" class="mb-6 max-h-96 overflow-y-auto"><p class="text-gray-600 text-lg">ยังไม่ได้เลือกรายการ</p></div>
-          <div class="border-t-3 border-emerald-200 pt-6">
-            <p class="text-2xl font-bold text-emerald-800">ราคารวม: <span id="totalPrice">0</span> บาท</p>
+    <!-- Page 3 -->
+    <div id="page3" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
+      <div class="bg-white rounded-3xl card-shadow p-12 max-w-6xl w-full">
+        <h2 class="text-4xl font-bold text-emerald-800 mb-12 text-center">
+          กรุณาเลือกประเภทสิ่งของที่ท่านต้องการเบิก<br>
+          <span class="text-lg font-normal text-gray-500">Please select the type of items you want to request</span>
+        </h2>
+
+        <div id="categoryView" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('แฟ้มและอุปกรณ์ประกอบ')">
+            <div class="text-4xl mb-4">📁</div><span class="font-bold text-lg">แฟ้มและอุปกรณ์ประกอบ</span>
+            <div class="text-sm text-gray-500 mt-2">8 รายการ</div>
+          </div>
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('อุปกรณ์ตัด')">
+            <div class="text-4xl mb-4">✂️</div><span class="font-bold text-lg">อุปกรณ์ตัด</span>
+            <div class="text-sm text-gray-500 mt-2">6 รายการ</div>
+          </div>
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('อุปกรณ์เจาะ')">
+            <div class="text-4xl mb-4">🕳️</div><span class="font-bold text-lg">อุปกรณ์เจาะ</span>
+            <div class="text-sm text-gray-500 mt-2">4 รายการ</div>
+          </div>
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('คลิปหนีบกระดาษ')">
+            <div class="text-4xl mb-4">📎</div><span class="font-bold text-lg">คลิปหนีบกระดาษ</span>
+            <div class="text-sm text-gray-500 mt-2">5 รายการ</div>
+          </div>
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('เครื่องเขียน')">
+            <div class="text-4xl mb-4">✏️</div><span class="font-bold text-lg">เครื่องเขียน</span>
+            <div class="text-sm text-gray-500 mt-2">12 รายการ</div>
+          </div>
+          <div class="category-item border-3 border-gray-200 rounded-xl p-6 cursor-pointer text-center" onclick="showCategoryItems('สกอตเทป,กาวและโพสอิท')">
+            <div class="text-4xl mb-4">🏷️</div><span class="font-bold text-lg">สกอตเทป,กาวและโพสอิท</span>
+            <div class="text-sm text-gray-500 mt-2">7 รายการ</div>
           </div>
         </div>
-      </div>
 
-      <div class="text-center mt-12">
-        <button onclick="submitForm(event)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-12 rounded-full text-2xl hover-scale shadow-lg">ส่งคำร้องขอ</button>
+        <div id="itemsView" class="hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h3 id="categoryTitle" class="text-3xl font-bold text-emerald-800"></h3>
+            <button onclick="backToCategories()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-full">← กลับ</button>
+          </div>
+          <div id="itemsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+        </div>
+
+        <div class="text-center">
+          <button id="nextBtn3" onclick="goToPage(4)"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale opacity-50 cursor-not-allowed shadow-lg" disabled>
+            ถัดไป<br><span class="text-sm font-normal">Next</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Success -->
-  <div id="successPage" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
-    <div class="bg-white rounded-3xl card-shadow p-12 max-w-3xl w-full text-center">
-      <div class="text-emerald-600 text-8xl mb-8">✓</div>
-      <h2 class="text-4xl font-bold text-emerald-800 mb-6">ส่งคำร้องขอเรียบร้อยแล้ว!</h2>
-      <p class="text-gray-700 text-xl mb-12 leading-relaxed">ระบบได้บันทึกข้อมูลเรียบร้อยแล้ว</p>
-      <button onclick="resetForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale shadow-lg">เริ่มใหม่</button>
+    <!-- Page 4 -->
+    <div id="page4" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
+      <div class="bg-white rounded-3xl card-shadow p-12 max-w-6xl w-full">
+        <div class="grid lg:grid-cols-2 gap-12">
+          <div class="bg-emerald-50 border-3 border-emerald-300 rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-emerald-800 mb-8 text-center">ข้อมูลพนักงาน</h3>
+            <div class="mb-8">
+              <label class="block text-emerald-800 text-xl font-bold mb-3">รหัสพนักงาน</label>
+              <input type="text" id="employeeId"
+                class="w-full px-6 py-4 border-3 border-emerald-400 rounded-xl focus:border-emerald-600 focus:outline-none text-lg bg-white shadow-lg"
+                placeholder="กรุณากรอกรหัสพนักงาน">
+            </div>
+            <div class="mb-4">
+              <label class="block text-emerald-800 text-xl font-bold mb-3">หมายเหตุ</label>
+              <textarea id="remarks" rows="6"
+                class="w-full px-6 py-4 border-3 border-emerald-400 rounded-xl focus:border-emerald-600 focus:outline-none text-lg bg-white shadow-lg"
+                placeholder="กรุณากรอกหมายเหตุ (ถ้ามี)"></textarea>
+            </div>
+          </div>
+
+          <div class="bg-emerald-50 border-3 border-emerald-200 rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-emerald-800 mb-6">สรุปการเบิก</h3>
+            <div id="selectedItems" class="mb-6 max-h-96 overflow-y-auto">
+              <p class="text-gray-600 text-lg">ยังไม่ได้เลือกรายการ</p>
+            </div>
+            <div class="border-t-3 border-emerald-200 pt-6">
+              <p class="text-2xl font-bold text-emerald-800">
+                ราคารวมสินค้าที่ท่านเบิกทั้งหมด: <span id="totalPrice">0</span> บาท
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12">
+          <button onclick="submitForm()"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-12 rounded-full text-2xl hover-scale shadow-lg">
+            ส่งคำร้องขอ
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- Success Page -->
+    <div id="successPage" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
+      <div class="bg-white rounded-3xl card-shadow p-12 max-w-3xl w-full text-center">
+        <div class="text-emerald-600 text-8xl mb-8">✓</div>
+        <h2 class="text-4xl font-bold text-emerald-800 mb-6">ส่งคำร้องขอเรียบร้อยแล้ว!</h2>
+        <p class="text-gray-700 text-xl mb-12 leading-relaxed">ระบบได้บันทึกข้อมูลเรียบร้อยแล้ว</p>
+        <button onclick="resetForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full text-xl hover-scale shadow-lg">เริ่มใหม่</button>
+      </div>
+    </div>
+
   </div>
+  <!-- ========== END wrapper ========== -->
 
   <script>
-    /* ======= CONFIG ======= */
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/PUT_YOUR_DEPLOYMENT_ID/exec'; // <-- ใส่ของคุณ
-
-    /* ======= STATE ======= */
-    let selectedCompany = '';
-    let selectedItems = {};
-    let currentCategory = '';
-    let itemsData = {};
-    let hiddenItems = new Set();
-    let isAdminMode = false, adminSelectedCompany = '', adminCurrentCategory = '';
-
+    /* ===== CONFIG ===== */
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // ใส่ URL /exec ของคุณ
     const ADMIN_CODES = ['BJC_ADMIN_2024','BIGC_MANAGER_001','STATIONERY_SUPER_ADMIN'];
 
-    /* ======= ADMIN ======= */
-    function showAdminLogin(){ adminLoginModal.classList.remove('hidden') }
-    function hideAdminLogin(){ adminLoginModal.classList.add('hidden'); adminPassword.value='' }
-    function adminLogin(){
-      const pw = adminPassword.value;
-      if(ADMIN_CODES.includes(pw)){ isAdminMode=true; hideAdminLogin(); showAdminPanel(); }
-      else{ alert('รหัสพนักงาน Admin ไม่ถูกต้อง'); adminPassword.value=''; }
-    }
-    function showAdminPanel(){ adminPanel.classList.remove('hidden'); adminCompanySelection.classList.remove('hidden'); adminMainView.classList.add('hidden') }
-    function exitAdmin(){ isAdminMode=false; adminSelectedCompany=''; adminCurrentCategory=''; adminPanel.classList.add('hidden'); adminCompanySelection.classList.remove('hidden'); adminMainView.classList.add('hidden') }
-    function selectAdminCompany(company){
-      adminSelectedCompany=company; document.getElementById('adminSelectedCompany').textContent=company;
-      adminCompanySelection.classList.add('hidden'); adminMainView.classList.remove('hidden');
-      if(!Object.keys(itemsData).length) loadAdminProductData(); else loadAdminCategoryView();
-    }
-    function backToAdminCompanySelection(){ adminCompanySelection.classList.remove('hidden'); adminMainView.classList.add('hidden'); adminCategoryView.classList.remove('hidden'); adminItemsView.classList.add('hidden'); adminSelectedCompany=''; adminCurrentCategory='' }
+    /* ===== STATE ===== */
+    let selectedCompany='', selectedItems={}, currentCategory='';
+    let itemsData={}, hiddenItems=new Set();
+    let isAdminMode=false, adminSelectedCompany='', adminCurrentCategory='';
 
+    /* ===== Admin ===== */
+    function showAdminLogin(){ document.getElementById('adminLoginModal').classList.remove('hidden'); }
+    function hideAdminLogin(){ document.getElementById('adminLoginModal').classList.add('hidden'); document.getElementById('adminPassword').value=''; }
+    function adminLogin(){
+      const pw=document.getElementById('adminPassword').value;
+      if(ADMIN_CODES.includes(pw)){ isAdminMode=true; hideAdminLogin(); showAdminPanel(); }
+      else { alert('รหัสพนักงาน Admin ไม่ถูกต้อง'); document.getElementById('adminPassword').value=''; }
+    }
+    function showAdminPanel(){
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('adminCompanySelection').classList.remove('hidden');
+      document.getElementById('adminMainView').classList.add('hidden');
+    }
+    function exitAdmin(){
+      isAdminMode=false; adminSelectedCompany=''; adminCurrentCategory='';
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('adminCompanySelection').classList.remove('hidden');
+      document.getElementById('adminMainView').classList.add('hidden');
+    }
+    function selectAdminCompany(company){
+      adminSelectedCompany=company;
+      document.getElementById('adminSelectedCompany').textContent=company;
+      document.getElementById('adminCompanySelection').classList.add('hidden');
+      document.getElementById('adminMainView').classList.remove('hidden');
+      if(!Object.keys(itemsData).length){ loadAdminProductData(); }
+      else { loadAdminCategoryView(); }
+    }
+    function backToAdminCompanySelection(){
+      document.getElementById('adminCompanySelection').classList.remove('hidden');
+      document.getElementById('adminMainView').classList.add('hidden');
+      document.getElementById('adminCategoryView').classList.remove('hidden');
+      document.getElementById('adminItemsView').classList.add('hidden');
+      adminSelectedCompany=''; adminCurrentCategory='';
+    }
     async function loadAdminProductData(){
       try{
         const sheetName = adminSelectedCompany==='BigC' ? 'Prod BigC' : 'Prod BJC';
-        const r = await fetch(`${GAS_WEB_APP_URL}?action=getProducts&company=${encodeURIComponent(adminSelectedCompany)}&sheet=${encodeURIComponent(sheetName)}`);
-        const data = await r.json();
-        if(data.success){ itemsData = data.products; loadAdminCategoryView(); }
+        const res = await fetch(`${GAS_WEB_APP_URL}?action=getProducts&company=${adminSelectedCompany}&sheet=${encodeURIComponent(sheetName)}`);
+        const data = await res.json();
+        if(data.success){ itemsData=data.products; loadAdminCategoryView(); }
         else { loadFallbackData(); loadAdminCategoryView(); }
-      }catch(_){ loadFallbackData(); loadAdminCategoryView(); }
+      }catch(err){ loadFallbackData(); loadAdminCategoryView(); }
     }
     function loadAdminCategoryView(){
-      const categories = Object.keys(itemsData);
-      adminCategoryView.innerHTML = categories.map(cat=>{
-        const items = itemsData[cat]||[];
-        const hiddenCount = items.filter(it=>hiddenItems.has(`${cat}-${it.name}`)).length;
-        const visibleCount = items.length - hiddenCount;
-        return `<div class="admin-category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showAdminCategoryItems('${cat}')">
-          <div class="text-4xl mb-4">${getDefaultEmoji(cat)}</div>
-          <span class="font-bold text-lg">${cat}</span>
+      const categories=Object.keys(itemsData);
+      const view=document.getElementById('adminCategoryView');
+      view.innerHTML = categories.map(category=>{
+        const items=itemsData[category]||[];
+        const hiddenCount=items.filter(it=>hiddenItems.has(`${category}-${it.name}`)).length;
+        const visibleCount=items.length - hiddenCount;
+        return `<div class="admin-category-item border-3 border-gray-200 rounded-xl p-6 text-center" onclick="showAdminCategoryItems('${category}')">
+          <div class="text-4xl mb-4">${getDefaultEmoji(category)}</div>
+          <span class="font-bold text-lg">${category}</span>
           <div class="text-sm text-gray-600 mt-2"><div class="text-green-600 font-medium">${visibleCount} รายการแสดง</div>${hiddenCount?`<div class="text-red-600 font-medium">${hiddenCount} รายการซ่อน</div>`:''}</div>
         </div>`;
       }).join('');
     }
     function showAdminCategoryItems(category){
-      adminCurrentCategory=category; adminCategoryView.classList.add('hidden'); adminItemsView.classList.remove('hidden'); adminCategoryTitle.textContent=category;
-      const items = itemsData[category]||[];
-      adminItemsList.innerHTML = items.map(item=>{
-        const key = `${category}-${item.name}`, isHidden = hiddenItems.has(key);
+      adminCurrentCategory=category;
+      document.getElementById('adminCategoryView').classList.add('hidden');
+      document.getElementById('adminItemsView').classList.remove('hidden');
+      document.getElementById('adminCategoryTitle').textContent=category;
+      const items=itemsData[category]||[];
+      document.getElementById('adminItemsList').innerHTML = items.map(item=>{
+        const key=`${category}-${item.name}`, isHidden=hiddenItems.has(key);
         return `<div class="admin-item-card bg-white border-2 rounded-xl p-6 ${isHidden?'hidden-item border-red-300':'border-gray-200'}">
           <div class="text-center">
-            ${item.image && /^https?:/.test(item.image) ? `<img src="${item.image}" alt="${item.name}" class="w-24 h-24 mx-auto mb-4 object-contain rounded-lg border" onerror="this.style.display='none'">` : `<div class="text-3xl mb-4">${item.image||'📦'}</div>`}
+            ${item.image && /^https?:/.test(item.image) ? `<img src="${item.image}" alt="${item.name}" class="w-24 h-24 mx-auto mb-4 object-contain rounded-lg border" onerror="this.style.display='none'">`:`<div class="text-3xl mb-4">${item.image||'📦'}</div>`}
             <h4 class="font-bold text-lg mb-2">${item.name}</h4>
             ${item.description?`<p class="text-gray-600 text-sm mb-2">${item.description}</p>`:''}
             <p class="text-emerald-600 font-bold text-lg mb-4">${item.price} บาท/${item.unit||'ชิ้น'}</p>
@@ -270,58 +363,77 @@
         </div>`;
       }).join('');
     }
-    function backToAdminCategories(){ adminCategoryView.classList.remove('hidden'); adminItemsView.classList.add('hidden'); adminCurrentCategory=''; loadAdminCategoryView() }
-    function getDefaultEmoji(cat){ const m={'แฟ้มและอุปกรณ์ประกอบ':'📁','อุปกรณ์ตัด':'✂️','อุปกรณ์เจาะ':'🕳️','คลิปหนีบกระดาษ':'📎','เครื่องเขียน':'✏️','สกอตเทป,กาวและโพสอิท':'🏷️','ถ่าน':'🔋','ซองเอกสาร':'📮','อุปกรณ์ทำความสะอาด':'🧽','เครื่องดื่ม':'☕','อื่นๆ':'📦'}; return m[cat]||'📦' }
-    function toggleItemVisibility(category,name){
-      const key=`${category}-${name}`; if(hiddenItems.has(key)) hiddenItems.delete(key); else hiddenItems.add(key);
+    function backToAdminCategories(){
+      document.getElementById('adminCategoryView').classList.remove('hidden');
+      document.getElementById('adminItemsView').classList.add('hidden');
+      adminCurrentCategory=''; loadAdminCategoryView();
+    }
+    function getDefaultEmoji(category){
+      const map={'แฟ้มและอุปกรณ์ประกอบ':'📁','อุปกรณ์ตัด':'✂️','อุปกรณ์เจาะ':'🕳️','คลิปหนีบกระดาษ':'📎','เครื่องเขียน':'✏️','สกอตเทป,กาวและโพสอิท':'🏷️','ถ่าน':'🔋','ซองเอกสาร':'📮','อุปกรณ์ทำความสะอาด':'🧽','เครื่องดื่ม':'☕','อื่นๆ':'📦'};
+      return map[category]||'📦';
+    }
+    function toggleItemVisibility(category,itemName){
+      const key=`${category}-${itemName}`;
+      if(hiddenItems.has(key)) hiddenItems.delete(key); else hiddenItems.add(key);
       localStorage.setItem('hiddenItems', JSON.stringify([...hiddenItems]));
-      if(adminCurrentCategory===category && !adminItemsView.classList.contains('hidden')) showAdminCategoryItems(category);
-      if(!adminCategoryView.classList.contains('hidden')) loadAdminCategoryView();
-      if(!categoryView.classList.contains('hidden')) updateCategoryView();
-      if(currentCategory===category && !itemsView.classList.contains('hidden')) showCategoryItems(category);
+      if(adminCurrentCategory===category && !document.getElementById('adminItemsView').classList.contains('hidden')) showAdminCategoryItems(category);
+      if(!document.getElementById('adminCategoryView').classList.contains('hidden')) loadAdminCategoryView();
+      if(!document.getElementById('categoryView').classList.contains('hidden')) updateCategoryView();
+      if(currentCategory===category && !document.getElementById('itemsView').classList.contains('hidden')) showCategoryItems(category);
     }
 
-    /* ======= USER FLOW ======= */
-    function goToPage(n){ for(let i=1;i<=4;i++) document.getElementById(`page${i}`).classList.add('hidden'); successPage.classList.add('hidden'); document.getElementById(`page${n}`).classList.remove('hidden') }
-    function selectCompany(ev,company){
+    /* ===== User pages ===== */
+    function goToPage(n){
+      for(let i=1;i<=4;i++){ document.getElementById(`page${i}`).classList.add('hidden'); }
+      document.getElementById('successPage').classList.add('hidden');
+      document.getElementById(`page${n}`).classList.remove('hidden');
+    }
+    function selectCompany(company){
       selectedCompany=company;
       document.querySelectorAll('.company-card').forEach(c=>c.classList.remove('selected'));
-      ev.currentTarget.classList.add('selected');
-      nextBtn2.disabled=false; nextBtn2.classList.remove('opacity-50','cursor-not-allowed');
+      event.target.closest('.company-card').classList.add('selected');   // ใช้ event global (Chrome/Edge)
+      const nextBtn=document.getElementById('nextBtn2');
+      nextBtn.disabled=false; nextBtn.classList.remove('opacity-50','cursor-not-allowed');
       loadProductData();
     }
-
     async function loadProductData(){
       try{
-        const sheet = selectedCompany==='BigC' ? 'Prod BigC' : 'Prod BJC';
-        const r = await fetch(`${GAS_WEB_APP_URL}?action=getProducts&company=${encodeURIComponent(selectedCompany)}&sheet=${encodeURIComponent(sheet)}`);
-        const d = await r.json();
-        if(d.success){ itemsData=d.products; updateCategoryView(); } else { loadFallbackData(); updateCategoryView(); }
-      }catch(_){ loadFallbackData(); updateCategoryView(); }
+        const sheetName = selectedCompany==='BigC' ? 'Prod BigC' : 'Prod BJC';
+        const res = await fetch(`${GAS_WEB_APP_URL}?action=getProducts&company=${selectedCompany}&sheet=${encodeURIComponent(sheetName)}`);
+        const data = await res.json();
+        if(data.success){ itemsData=data.products; updateCategoryView(); }
+        else { console.error('Error loading:', data.error); loadFallbackData(); updateCategoryView(); }
+      }catch(err){ console.error('Fetch error:', err); loadFallbackData(); updateCategoryView(); }
     }
-
     function updateCategoryView(){
       document.querySelectorAll('.category-item').forEach(el=>{
-        const m = el.getAttribute('onclick').match(/'([^']+)'/); if(!m) return;
-        const cat = m[1]; const items=itemsData[cat]||[]; const visible=items.filter(it=>!hiddenItems.has(`${cat}-${it.name}`));
-        const countEl = el.querySelector('.text-sm.text-gray-500.mt-2'); if(countEl) countEl.textContent = `${visible.length} รายการ`;
+        const m=el.getAttribute('onclick').match(/'([^']+)'/); if(!m) return;
+        const categoryName=m[1];
+        const items=itemsData[categoryName]||[];
+        const visible=items.filter(item=>!hiddenItems.has(`${categoryName}-${item.name}`));
+        const countEl=el.querySelector('.text-sm.text-gray-500.mt-2');
+        if(countEl) countEl.textContent=`${visible.length} รายการ`;
       });
     }
-
     function showCategoryItems(category){
-      currentCategory=category; categoryView.classList.add('hidden'); itemsView.classList.remove('hidden'); categoryTitle.textContent=category;
+      currentCategory=category;
+      document.getElementById('categoryView').classList.add('hidden');
+      document.getElementById('itemsView').classList.remove('hidden');
+      document.getElementById('categoryTitle').textContent=category;
+
       const items = (itemsData[category]||[]).filter(it=>!hiddenItems.has(`${category}-${it.name}`));
-      itemsList.innerHTML = items.map(item=>{
-        const key = item.name.replace(/\s+/g,'');
-        return `<div class="item-card bg-white border-2 border-gray-200 rounded-xl p-6" onclick="toggleItem(event,'${category}','${item.name}',${item.price},'${item.unit||'ชิ้น'}')">
+      const list=document.getElementById('itemsList');
+      list.innerHTML = items.map(item=>{
+        const key=item.name.replace(/\s+/g,'');
+        return `<div class="item-card bg-white border-2 border-gray-200 rounded-xl p-6" onclick="toggleItem('${category}','${item.name}',${item.price},'${item.unit||'ชิ้น'}')">
           <div class="text-center">
-            ${item.image && /^https?:/.test(item.image) ? `<img src='${item.image}' alt='${item.name}' class='w-32 h-32 mx-auto mb-4 object-contain rounded-lg border' onerror="this.style.display='none'">` : `<div class='text-4xl mb-4'>${item.image||'📦'}</div>`}
+            ${item.image && /^https?:/.test(item.image) ? `<img src="${item.image}" alt="${item.name}" class="w-32 h-32 mx-auto mb-4 object-contain rounded-lg border" onerror="this.style.display='none'">`:`<div class="text-4xl mb-4">${item.image||'📦'}</div>`}
             <h4 class="font-bold text-lg mb-2">${item.name}</h4>
             ${item.description?`<p class="text-gray-600 text-sm mb-2">${item.description}</p>`:''}
             <p class="text-emerald-600 font-bold text-xl mb-2">${item.price} บาท/${item.unit||'ชิ้น'}</p>
             <div id="quantity-${key}" class="quantity-input hidden">
               <label class="block text-sm font-medium text-gray-700 mb-2">จำนวน (${item.unit||'ชิ้น'})</label>
-              <input type="number" min="1" value="1" class="w-full px-3 py-2 border rounded-lg focus:border-emerald-500"
+              <input type="number" min="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none"
                 onchange="updateQuantity('${category}','${item.name}',${item.price},this.value,'${item.unit||'ชิ้น'}')">
               <div class="mt-2 text-sm text-emerald-600 font-semibold">รวม: <span id="total-${key}">${item.price}</span> บาท</div>
             </div>
@@ -329,73 +441,78 @@
         </div>`;
       }).join('');
     }
-    function backToCategories(){ categoryView.classList.remove('hidden'); itemsView.classList.add('hidden') }
-
-    function toggleItem(ev,category,name,price,unit){
-      const key=`${category}-${name}`; const qdiv=document.getElementById(`quantity-${name.replace(/\s+/g,'')}`); const card=ev.currentTarget;
+    function backToCategories(){
+      document.getElementById('categoryView').classList.remove('hidden');
+      document.getElementById('itemsView').classList.add('hidden');
+    }
+    function toggleItem(category,itemName,price,unit){
+      const key=`${category}-${itemName}`;
+      const qdiv=document.getElementById(`quantity-${itemName.replace(/\s+/g,'')}`);
+      const card=event.target.closest('.item-card');
       if(selectedItems[key]){ delete selectedItems[key]; card.classList.remove('selected'); qdiv.classList.add('hidden'); }
-      else { selectedItems[key]={category,name,price,unit,quantity:1,total:price}; card.classList.add('selected'); qdiv.classList.remove('hidden'); }
+      else { selectedItems[key]={category,name:itemName,price,unit,quantity:1,total:price}; card.classList.add('selected'); qdiv.classList.remove('hidden'); }
       updateNextButton(); updateSummary();
     }
-
-    function updateQuantity(category,name,price,quantity,unit){
-      const key=`${category}-${name}`; const qty=parseInt(quantity)||1; const total=price*qty;
+    function updateQuantity(category,itemName,price,quantity,unit){
+      const key=`${category}-${itemName}`; const qty=parseInt(quantity)||1; const total=price*qty;
       if(selectedItems[key]){ selectedItems[key].quantity=qty; selectedItems[key].total=total; selectedItems[key].unit=unit; }
-      document.getElementById(`total-${name.replace(/\s+/g,'')}`).textContent=total; updateSummary();
+      document.getElementById(`total-${itemName.replace(/\s+/g,'')}`).textContent=total;
+      updateSummary();
     }
-
     function updateNextButton(){
-      if(Object.keys(selectedItems).length>0){ nextBtn3.disabled=false; nextBtn3.classList.remove('opacity-50','cursor-not-allowed'); }
-      else { nextBtn3.disabled=true; nextBtn3.classList.add('opacity-50','cursor-not-allowed'); }
+      const btn=document.getElementById('nextBtn3');
+      if(Object.keys(selectedItems).length>0){ btn.disabled=false; btn.classList.remove('opacity-50','cursor-not-allowed'); }
+      else { btn.disabled=true; btn.classList.add('opacity-50','cursor-not-allowed'); }
     }
-
     function updateSummary(){
-      const div=selectedItemsDiv, totalSpan=totalPrice;
-      if(!Object.keys(selectedItems).length){ div.innerHTML='<p class="text-gray-600 text-lg">ยังไม่ได้เลือกรายการ</p>'; totalSpan.textContent='0'; return }
-      const groups={}; let grand=0;
-      Object.values(selectedItems).forEach(it=>{ groups[it.category]??={items:[],sum:0}; groups[it.category].items.push(it); groups[it.category].sum+=it.total; grand+=it.total; });
+      const selectedDiv=document.getElementById('selectedItems');
+      const totalSpan=document.getElementById('totalPrice');
+      if(Object.keys(selectedItems).length===0){ selectedDiv.innerHTML='<p class="text-gray-600 text-lg">ยังไม่ได้เลือกรายการ</p>'; totalSpan.textContent='0'; return; }
+      const group={}; let grand=0;
+      Object.values(selectedItems).forEach(it=>{ group[it.category]??={items:[],sum:0}; group[it.category].items.push(it); group[it.category].sum+=it.total; grand+=it.total; });
       let html='<div class="space-y-6">';
-      Object.entries(groups).forEach(([cat,g])=>{
+      Object.entries(group).forEach(([cat,data])=>{
         html+=`<div class="border-b border-emerald-200 pb-4"><h4 class="font-bold text-lg text-emerald-800 mb-3">${cat}</h4><div class="space-y-2 ml-4">`;
-        g.items.forEach(it=>{ html+=`<div class="flex justify-between items-center text-sm"><span class="text-gray-700">${it.name}</span><div class="text-right"><div class="text-gray-600">${it.quantity} ${it.unit} × ${it.price} บาท</div><div class="font-semibold text-emerald-600">${it.total} บาท</div></div></div>`; });
-        html+=`</div><div class="text-right mt-3 font-bold text-emerald-700">ราคารวม ${cat}: ${g.sum.toLocaleString()} บาท</div></div>`;
-      });
-      html+='</div>'; div.innerHTML=html; totalSpan.textContent=grand.toLocaleString();
-    }
-
-    async function submitForm(ev){
-      const employeeId = document.getElementById('employeeId').value.trim();
-      const remarks = document.getElementById('remarks').value.trim();
-      if(!employeeId){ alert('กรุณากรอกรหัสพนักงาน'); return }
-      const btn=ev.currentTarget, old=btn.innerHTML; btn.disabled=true; btn.innerHTML='กำลังส่ง...';
-      try{
-        const res = await fetch(GAS_WEB_APP_URL, {
-          method:'POST',
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body: JSON.stringify({ action:'submitForm', company:selectedCompany, items:selectedItems, employeeId, remarks, totalPrice: totalPrice.textContent, timestamp:new Date().toISOString() })
+        data.items.forEach(it=>{
+          html+=`<div class="flex justify-between items-center text-sm"><span class="text-gray-700">${it.name}</span><div class="text-right"><div class="text-gray-600">${it.quantity} ${it.unit||'ชิ้น'} × ${it.price} บาท</div><div class="font-semibold text-emerald-600">${it.total} บาท</div></div></div>`;
         });
-        const out = await res.json();
-        if(out.success){ page4.classList.add('hidden'); successPage.classList.remove('hidden'); }
-        else { alert('ส่งข้อมูลไม่สำเร็จ: '+(out.error||'')); }
-      }catch(e){ alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); }
-      finally{ btn.disabled=false; btn.innerHTML=old; }
+        html+=`</div><div class="text-right mt-3 font-bold text-emerald-700">ราคารวม ${cat}: ${data.sum.toLocaleString()} บาท</div></div>`;
+      });
+      html+='</div>'; selectedDiv.innerHTML=html; totalSpan.textContent=grand.toLocaleString();
     }
 
+    async function submitForm(){
+      const employeeId=document.getElementById('employeeId').value;
+      const remarks=document.getElementById('remarks').value;
+      if(!employeeId.trim()){ alert('กรุณากรอกรหัสพนักงาน'); return; }
+      const btn=event.target, old=btn.innerHTML; btn.innerHTML='กำลังส่ง...'; btn.disabled=true;
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            action:'submitForm', company:selectedCompany, items:selectedItems,
+            employeeId, remarks, totalPrice: document.getElementById('totalPrice').textContent,
+            timestamp: new Date().toISOString()
+          })
+        });
+        const out=await res.json();
+        if(out.success){ document.getElementById('page4').classList.add('hidden'); document.getElementById('successPage').classList.remove('hidden'); }
+        else{ alert('เกิดข้อผิดพลาดในการส่งข้อมูล: '+(out.error||'')); btn.innerHTML=old; btn.disabled=false; }
+      }catch(err){ alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); btn.innerHTML=old; btn.disabled=false; }
+    }
     function resetForm(){
       selectedCompany=''; selectedItems={}; currentCategory='';
       document.getElementById('employeeId').value=''; document.getElementById('remarks').value='';
       document.querySelectorAll('.company-card').forEach(c=>c.classList.remove('selected'));
-      nextBtn2.disabled=true; nextBtn2.classList.add('opacity-50','cursor-not-allowed');
-      nextBtn3.disabled=true; nextBtn3.classList.add('opacity-50','cursor-not-allowed');
+      const nb2=document.getElementById('nextBtn2'); nb2.disabled=true; nb2.classList.add('opacity-50','cursor-not-allowed');
+      const nb3=document.getElementById('nextBtn3'); nb3.disabled=true; nb3.classList.add('opacity-50','cursor-not-allowed');
       backToCategories(); goToPage(1);
     }
 
-    function loadHiddenItems(){
-      const saved=localStorage.getItem('hiddenItems'); if(saved) hiddenItems=new Set(JSON.parse(saved));
-    }
-
+    function loadHiddenItems(){ const saved=localStorage.getItem('hiddenItems'); if(saved) hiddenItems=new Set(JSON.parse(saved)); }
     function loadFallbackData(){
-      // ข้อมูลตัวอย่าง (จะถูกแทนที่เมื่อ backend ตอบ)
+      // ข้อมูลสำรองเมื่อ backend ล่ม/ยังไม่ตั้งค่า
       itemsData={
         'แฟ้มและอุปกรณ์ประกอบ':[
           {name:'ลิ้นแฟ้มอะลูมิเนียมรุ่น223',price:45,image:'https://i.postimg.cc/c4LbLsfS/T8-223.jpg',unit:'ชิ้น',description:'ลิ้นแฟ้มอะลูมิเนียมคุณภาพดี'},
@@ -412,9 +529,7 @@
       };
     }
 
-    // Init
     window.addEventListener('load', ()=>{ loadHiddenItems(); });
-
   </script>
 </body>
 </html>
