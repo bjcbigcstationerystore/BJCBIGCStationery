@@ -110,19 +110,26 @@
                   autocomplete="off"
                   inputmode="text"
                   oninput="searchEmployee()">
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 md:pr-4">
-              <div id="loadingSpinner" class="hidden">
-                <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-              <svg id="searchIcon" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 102 2m-2-2a2 2 0 012 2m0 0V9a2 2 0 002-2m-2 2H7a2 2 0 00-2-2"></path>
-              </svg>
-            </div>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+  <div id="loadingSpinner" class="hidden">
+    <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>
+
+  <!-- แว่นขยาย -->
+  <svg id="searchIcon"
+       xmlns="http://www.w3.org/2000/svg"
+       class="w-5 h-5 text-gray-400 ml-2"
+       viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2"
+       aria-hidden="true">
+    <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round"></circle>
+    <line x1="16.65" y1="16.65" x2="21" y2="21" stroke-linecap="round" stroke-linejoin="round"></line>
+  </svg>
+</div>
           </div>
 
           <!-- แสดงข้อมูลพนักงาน -->
