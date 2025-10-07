@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BJC Big C Stationery Store - ฟอร์มการเบิกอุปกรณ์สำนักงาน</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ===== Base ===== */
-    body{ box-sizing:border-box; font-family:'Prompt', sans-serif }
+    body{ box-sizing:border-box; font-family:'Mitr',sans-serif }
     .gradient-bg{ background:linear-gradient(135deg,#064e3b 0%,#065f46 50%,#047857 100%) }
     .card-shadow{ box-shadow:0 20px 40px rgba(0,0,0,.15) }
     .hover-scale{ transition:transform .2s ease-in-out } .hover-scale:hover{ transform:scale(1.02) }
@@ -26,32 +26,34 @@
     .admin-item-card.hidden-item{ background:#fee2e2; border-color:#ef4444 }
     .hide-button{ transition:all .3s } .hide-button:hover{ transform:scale(1.05) }
 
-    /* ===== Centering + Scale (แก้ปัญหาชิดขวา) ===== */
+    /* ===== Center + Scale (แก้ชิดขวาแบบชัวร์) ===== */
     #scale-outer{
       width:100%;
-      overflow-x:hidden;         /* กันสกรอลล์แนวนอน */
-      display:grid;
-      justify-items:center;      /* จัดกลางแนวนอน */
+      overflow-x:hidden;      /* กันแถบสกรอลล์แนวนอน */
+      position:relative;      /* เพื่อเป็นฐานให้ left:50% ของลูก */
+      min-height:100vh;
     }
     #app-scale{
-      transform:scale(0.7);
+      position:relative;
+      left:50%;
+      transform:translateX(-50%) scale(0.7);  /* จัดกลาง + ย่อ 70% */
       transform-origin:top center;
     }
     @media (max-width:1024px){
-      #app-scale{ transform:none; }
+      #app-scale{ left:0; transform:none; }   /* มือถือให้ 100% */
     }
   </style>
 </head>
 
 <body class="gradient-bg min-h-screen">
-  <!-- ===== Admin Button (fixed) — นอก wrapper เพื่อคงตำแหน่ง/ขนาด ===== -->
+  <!-- Admin Button (fixed) -->
   <div class="fixed top-4 right-4 z-50">
     <button onclick="showAdminLogin()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-full text-sm shadow-lg">
       👤 Admin
     </button>
   </div>
 
-  <!-- ===== Admin Login Modal (fullscreen) — นอก wrapper ===== -->
+  <!-- Admin Login Modal -->
   <div id="adminLoginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
       <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -68,14 +70,13 @@
     </div>
   </div>
 
-  <!-- ===== Admin Panel (fullscreen) — นอก wrapper ===== -->
+  <!-- Admin Panel -->
   <div id="adminPanel" class="fixed inset-0 bg-white z-40 overflow-y-auto hidden">
     <div class="container mx-auto px-6 py-8">
       <div class="flex justify-between items-center mb-8">
         <h2 class="text-3xl font-bold text-emerald-800">แผงควบคุม Admin</h2>
         <button onclick="exitAdmin()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg">ออกจากระบบ</button>
       </div>
-
       <div id="adminCompanySelection" class="bg-white rounded-2xl shadow-lg p-8 mb-8">
         <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">เลือกบริษัทที่ต้องการจัดการ</h3>
         <div class="grid md:grid-cols-2 gap-8">
@@ -107,7 +108,7 @@
     </div>
   </div>
 
-  <!-- ========== BEGIN wrapper (กลางจอ + scale 70%) ========== -->
+  <!-- ===== Wrapper จัดกลาง + Scale ===== -->
   <div id="scale-outer">
     <div id="app-scale">
 
@@ -247,7 +248,7 @@
 
     </div>
   </div>
-  <!-- ========== END wrapper ========== -->
+  <!-- ===== End Wrapper ===== -->
 
   <script>
     /* ===== Helper ===== */
