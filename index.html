@@ -7,27 +7,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{ --page-scale: .8; }
+    :root{ --page-scale: .0.7; }
     body { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
 
     /* Desktop: ย่อทั้งหน้าที่ 80% */
     @media (min-width: 1024px){
       html{ zoom: var(--page-scale); }
     }
-    /* Fallback ถ้าเบราว์เซอร์ไม่รองรับ zoom */
+    /* Fallback (Safari/Firefox): ใช้ transform scale */
     @supports not (zoom: 1){
-      @media (min-width: 1024px){
-        #app-root{
-          transform: scale(var(--page-scale));
-          transform-origin: top center;
-          /* ให้กว้างพอดีเมื่อโดน scale */
-          width: calc(100% / var(--page-scale));
-          margin: 0 auto;
-        }
-        /* ชดเชยความสูงไม่ให้ตัดขอบเมื่อ scale */
-        body{ min-height: calc(100vh / var(--page-scale)); }
+    @media (min-width: 1024px){
+      #app-root{
+        transform: scale(var(--page-scale));
+        transform-origin: top center;
+        width: calc(100% / var(--page-scale));
+        margin: 0 auto;
       }
+      body{ min-height: calc(100vh / var(--page-scale)); }
     }
+  }
 
     /* มือถือ/แท็บเล็ต: อ่านง่าย = 100% */
     @media (max-width: 1023.98px){
