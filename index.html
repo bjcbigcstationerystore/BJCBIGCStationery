@@ -59,10 +59,12 @@
       border-radius:12px;
     }
 
+    /* กล่องข้อมูลพนักงาน — ขอบโค้ง 2 ฝั่ง */
     .emp-frame{
       border:2px solid #059669;
-      border-radius:1rem;
+      border-radius:16px;             /* 🔹 โค้งทั้ง 4 มุม */
       background:#fff;
+      box-shadow:0 0 15px rgba(5,150,105,0.08); /* เพิ่มมิติเล็กน้อย */
     }
     .dot{
       width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem;
@@ -164,7 +166,15 @@
 
     function getEmployeeData(id){
       const data={
-        '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department'}
+        '1001':{
+          id:'1001',
+          name:'สมชาย ใจดี',
+          company:'BJC Big C Supercenter',
+          status:'Active',
+          formatName:'Mr. Somchai Jaidee',
+          divisionName:'IT Department',
+          costCenter:'CC-1010 - Information Technology'
+        }
       };
       return data[id]||null;
     }
@@ -172,7 +182,6 @@
     function showEmployeeInfo(emp){
       const div=document.getElementById('employeeInfo');
       const msgBox=document.getElementById('message');
-      // แสดงข้อความแจ้งเตือนเพียงครั้งเดียว
       msgBox.className='alert-success p-4 mb-4 text-center text-base';
       msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
       msgBox.classList.remove('hidden');
@@ -183,9 +192,10 @@
         <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
         <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
         <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
-        <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>Active</span></span></div>
+        <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
         <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
         <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
+        <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
       </div>
       <button class="btn-primary w-full text-white font-semibold py-3 mt-5 rounded-full text-lg shadow-lg" onclick="proceedToForm()">ดำเนินการต่อ</button>`;
       div.classList.remove('hidden');
