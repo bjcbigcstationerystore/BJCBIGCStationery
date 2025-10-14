@@ -59,12 +59,11 @@
       border-radius:12px;
     }
 
-    /* กล่องข้อมูลพนักงาน — ขอบโค้ง 2 ฝั่ง */
     .emp-frame{
       border:2px solid #059669;
-      border-radius:16px;             /* 🔹 โค้งทั้ง 4 มุม */
+      border-radius:16px;
       background:#fff;
-      box-shadow:0 0 15px rgba(5,150,105,0.08); /* เพิ่มมิติเล็กน้อย */
+      box-shadow:0 0 15px rgba(5,150,105,0.08);
     }
     .dot{
       width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem;
@@ -115,8 +114,9 @@
 
         <div class="max-w-xl mx-auto">
           <label class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
-          <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" onkeypress="handleEnterKey(event)"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"/>
+          <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"
+                 oninput="autoVerifyEmployee(this.value.trim())"/>
 
           <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
           <div id="employeeInfo" class="hidden mt-4"></div>
@@ -141,10 +141,17 @@
       document.getElementById('message').classList.add('hidden');
     }
 
-    function handleEnterKey(e){ if(e.key==='Enter') verifyEmployee(); }
+    function autoVerifyEmployee(value){
+      if(value.length >= 4){
+        verifyEmployee(value);
+      } else {
+        hideEmployeeInfo();
+        document.getElementById('message').classList.add('hidden');
+      }
+    }
 
-    function verifyEmployee(){
-      const id=document.getElementById('employeeId').value.trim();
+    function verifyEmployee(idValue){
+      const id = idValue || document.getElementById('employeeId').value.trim();
       const msgBox=document.getElementById('message');
       const showMsg=(txt,type)=>{
         msgBox.className='mt-4 p-4 rounded-lg text-center '+
@@ -153,15 +160,14 @@
            type==='loading'?'bg-blue-100 text-blue-700 border border-blue-200':'');
         msgBox.textContent=txt; msgBox.classList.remove('hidden');
       };
-      if(!id){showMsg('กรุณากรอกรหัสพนักงาน','error');hideEmployeeInfo();return;}
-      if(id.length<4){showMsg('รหัสพนักงานต้องมีอย่างน้อย 4 หลัก','error');hideEmployeeInfo();return;}
+      if(!id){return;}
       showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
       hideEmployeeInfo();
       setTimeout(()=>{
         const emp=getEmployeeData(id);
         if(emp){ showEmployeeInfo(emp); } 
         else { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error'); hideEmployeeInfo(); }
-      },800);
+      },400);
     }
 
     function getEmployeeData(id){
@@ -174,6 +180,15 @@
           formatName:'Mr. Somchai Jaidee',
           divisionName:'IT Department',
           costCenter:'CC-1010 - Information Technology'
+        },
+        '2002':{
+          id:'2002',
+          name:'ประยุทธ มั่นใจ',
+          company:'BJC Big C Supercenter',
+          status:'Active',
+          formatName:'Mr. Prayuth Manjai',
+          divisionName:'Operations Department',
+          costCenter:'CC-2022 - Operations'
         }
       };
       return data[id]||null;
