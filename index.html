@@ -1,213 +1,206 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJC Big C Stationery Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-            font-family: 'Prompt', sans-serif;
-        }
-        
-        html, body {
-            height: 100%;
-        }
-        
-        .bg-custom {
-            background-color: #064e3b;
-        }
-        
-        .logo-container {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-        
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-        
-        .start-button {
-            background: linear-gradient(135deg, #10b981, #059669);
-            transition: all 0.3s ease;
-        }
-        
-        .start-button:hover {
-            background: linear-gradient(135deg, #059669, #047857);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BJC Big C Stationery Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --emerald-900:#064e3b;
+      --emerald-700:#047857;
+      --emerald-600:#059669;
+      --emerald-500:#10b981;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:'Prompt',sans-serif;
+      background-color:#064e3b;
+      overflow:hidden;
+    }
+
+    .page-container{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      width:100%;
+      padding:1rem;
+    }
+
+    .content-card{
+      background:rgba(255,255,255,0.96);
+      border-radius:20px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.15);
+      width:100%;
+      max-width:850px;
+      max-height:90vh;
+      overflow-y:auto;
+      backdrop-filter:blur(10px);
+      padding:2.5rem;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));
+      transition:all .25s ease;
+    }
+    .btn-primary:hover{
+      background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700));
+      transform:translateY(-2px);
+      box-shadow:0 10px 25px rgba(16,185,129,.3);
+    }
+
+    .alert-success{
+      background:#ecfdf5;
+      border:1px solid #bbf7d0;
+      color:#065f46;
+      border-radius:12px;
+    }
+
+    .emp-frame{
+      border:2px solid #059669;
+      border-radius:1rem;
+      background:#fff;
+    }
+    .dot{
+      width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem;
+    }
+    .field-row{
+      display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb;
+    }
+    .field-row:last-child{border-bottom:0}
+    .field-label{color:#4b5563;font-weight:600}
+    .field-value{color:#111827;font-weight:500}
+    .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem}
+    .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
+  </style>
 </head>
-<body class="bg-custom min-h-full">
-    <div class="min-h-full flex items-center justify-center p-4">
-        <div class="content-card p-8 md:p-12 max-w-4xl w-full text-center">
-            <!-- Logo -->
-            <div class="logo-container mb-8">
-                <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" 
-                     alt="BJC Big C Logo" 
-                     class="w-full h-auto"
-                     onerror="this.src=''; this.alt='โลโก้ BJC Big C'; this.style.display='none';">
-            </div>
-            
-            <!-- Home Content -->
-            <div id="homeContent">
-                <!-- Main Title -->
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                    BJC Big C Stationery Store
-                </h1>
-                
-                <!-- Subtitle -->
-                <h2 class="text-xl md:text-2xl font-semibold text-emerald-700 mb-8">
-                    ฟอร์มการเบิกอุปกรณ์สำนักงาน
-                </h2>
-                
-                <!-- Description -->
-                <div class="bg-emerald-50 p-6 mb-8 text-left rounded-lg">
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        หลังจากที่ท่านกดส่งคำร้องขอเบิกอุปกรณ์สำนักงานแล้ว จะมีอีเมล์แจ้งรายละเอียดการเบิกเป็นแบบฟอร์มขออนุมัติ
-                    </p>
-                    <div class="flex items-center justify-center mt-4 pt-4 border-t border-emerald-200">
-                        <div class="flex items-center text-emerald-700">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-                            </svg>
-                            <span class="font-medium">สงสัย เพิ่มเติม กรุณาติดต่อ 02-1465959 #4384</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Start Button -->
-                <button onclick="startForm()" 
-                        class="start-button text-white font-semibold py-4 px-12 rounded-full text-lg shadow-lg">
-                    เริ่มต้นการเบิกอุปกรณ์
-                </button>
-            </div>
+<body>
+  <div class="page-container">
+    <div class="content-card text-center" id="mainCard">
+      <!-- หน้า Home -->
+      <div id="homeContent">
+        <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="mx-auto w-64 mb-8" alt="Logo"/>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">BJC Big C Stationery Store</h1>
+        <h2 class="text-xl font-semibold text-emerald-700 mb-8">ฟอร์มการเบิกอุปกรณ์สำนักงาน</h2>
 
-            <!-- Verify Identity Content -->
-            <div id="verifyContent" style="display: none;">
-                <!-- Back Button -->
-                <div class="flex justify-start mb-6">
-                    <button onclick="goBack()" 
-                            class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                        </svg>
-                        กลับ
-                    </button>
-                </div>
-
-                <!-- Verify Title -->
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                    ยืนยันตัวตน
-                </h1>
-                
-                <h2 class="text-xl md:text-2xl font-semibold text-emerald-700 mb-8">
-                    กรุณากรอกรหัสพนักงาน
-                </h2>
-
-                <!-- Employee ID Form -->
-                <div class="max-w-md mx-auto">
-                    <div class="mb-6">
-                        <label for="employeeId" class="block text-left text-gray-700 font-medium mb-3">
-                            รหัสพนักงาน
-                        </label>
-                        <input type="text" 
-                               id="employeeId" 
-                               placeholder="กรอกรหัสพนักงาน"
-                               onkeypress="handleEnterKey(event)"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-lg">
-                    </div>
-
-                    <!-- Message Area -->
-                    <div id="message" style="display: none;"></div>
-
-                    <!-- Verify Button -->
-                    <button onclick="verifyEmployee()" 
-                            class="start-button text-white font-semibold py-3 px-8 rounded-full text-lg shadow-lg w-full">
-                        ยืนยันตัวตน
-                    </button>
-                </div>
-
-                <!-- Instructions -->
-                <div class="mt-8 bg-blue-50 p-4 rounded-lg">
-                    <p class="text-blue-700 text-sm">
-                        💡 กรอกรหัสพนักงานของคุณเพื่อยืนยันตัวตนก่อนเข้าใช้งานระบบ
-                    </p>
-                </div>
-            </div>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-6 mb-8 text-left">
+          <p class="text-gray-700 leading-relaxed mb-4">
+            หลังจากที่ท่านกดส่งคำร้องขอเบิกอุปกรณ์สำนักงานแล้ว จะมีอีเมล์แจ้งรายละเอียดการเบิกเป็นแบบฟอร์มขออนุมัติ
+          </p>
+          <div class="flex justify-center text-emerald-700 border-t border-emerald-200 pt-4">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            <span class="font-medium">สงสัยเพิ่มเติม โทร 02-1465959 #4384</span>
+          </div>
         </div>
+
+        <button onclick="startForm()" class="btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg shadow-lg">
+          เริ่มต้นการเบิกอุปกรณ์
+        </button>
+      </div>
+
+      <!-- หน้า Verify -->
+      <div id="verifyContent" class="hidden text-left">
+        <button onclick="goBack()" class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium mb-6">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          กลับ
+        </button>
+
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">ยืนยันตัวตน</h1>
+        <h2 class="text-xl font-semibold text-emerald-700 text-center mb-8">กรุณากรอกรหัสพนักงาน</h2>
+
+        <div class="max-w-xl mx-auto">
+          <label class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
+          <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" onkeypress="handleEnterKey(event)"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"/>
+
+          <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
+          <div id="employeeInfo" class="hidden mt-4"></div>
+
+          <button id="verifyBtn" onclick="verifyEmployee()" class="btn-primary w-full text-white font-semibold py-3 mt-4 rounded-full text-lg shadow-lg">
+            ยืนยันตัวตน
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let currentPage = 'home';
+  <script>
+    function startForm(){ togglePage(true); }
+    function goBack(){ togglePage(false); }
 
-        function startForm() {
-            showPage('verify');
-        }
+    function togglePage(isVerify){
+      document.getElementById('homeContent').classList.toggle('hidden',isVerify);
+      document.getElementById('verifyContent').classList.toggle('hidden',!isVerify);
+      document.getElementById('employeeId').value="";
+      hideEmployeeInfo();
+      document.getElementById('message').classList.add('hidden');
+    }
 
-        function showPage(page) {
-            currentPage = page;
-            const homeContent = document.getElementById('homeContent');
-            const verifyContent = document.getElementById('verifyContent');
-            
-            if (page === 'home') {
-                homeContent.style.display = 'block';
-                verifyContent.style.display = 'none';
-            } else if (page === 'verify') {
-                homeContent.style.display = 'none';
-                verifyContent.style.display = 'block';
-            }
-        }
+    function handleEnterKey(e){ if(e.key==='Enter') verifyEmployee(); }
 
-        function goBack() {
-            showPage('home');
-        }
+    function verifyEmployee(){
+      const id=document.getElementById('employeeId').value.trim();
+      const msgBox=document.getElementById('message');
+      const showMsg=(txt,type)=>{
+        msgBox.className='mt-4 p-4 rounded-lg text-center '+
+          (type==='error'?'bg-red-100 text-red-700 border border-red-200':
+           type==='success'?'alert-success':
+           type==='loading'?'bg-blue-100 text-blue-700 border border-blue-200':'');
+        msgBox.textContent=txt; msgBox.classList.remove('hidden');
+      };
+      if(!id){showMsg('กรุณากรอกรหัสพนักงาน','error');hideEmployeeInfo();return;}
+      if(id.length<4){showMsg('รหัสพนักงานต้องมีอย่างน้อย 4 หลัก','error');hideEmployeeInfo();return;}
+      showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
+      hideEmployeeInfo();
+      setTimeout(()=>{
+        const emp=getEmployeeData(id);
+        if(emp){ showEmployeeInfo(emp); } 
+        else { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error'); hideEmployeeInfo(); }
+      },800);
+    }
 
-        function verifyEmployee() {
-            const employeeId = document.getElementById('employeeId').value.trim();
-            
-            if (!employeeId) {
-                showMessage('กรุณากรอกรหัสพนักงาน', 'error');
-                return;
-            }
+    function getEmployeeData(id){
+      const data={
+        '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department'}
+      };
+      return data[id]||null;
+    }
 
-            if (employeeId.length < 4) {
-                showMessage('รหัสพนักงานต้องมีอย่างน้อย 4 หลัก', 'error');
-                return;
-            }
+    function showEmployeeInfo(emp){
+      const div=document.getElementById('employeeInfo');
+      const msgBox=document.getElementById('message');
+      // แสดงข้อความแจ้งเตือนเพียงครั้งเดียว
+      msgBox.className='alert-success p-4 mb-4 text-center text-base';
+      msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
+      msgBox.classList.remove('hidden');
 
-            // จำลองการตรวจสอบรหัสพนักงาน
-            showMessage('กำลังตรวจสอบรหัสพนักงาน...', 'loading');
-            
-            setTimeout(() => {
-                showMessage('ยืนยันตัวตนสำเร็จ! กำลังไปยังฟอร์มการเบิก...', 'success');
-                // ในขั้นตอนถัดไปจะเพิ่มหน้าฟอร์มการเบิก
-            }, 1500);
-        }
+      div.innerHTML=`
+      <div class="emp-frame p-6">
+        <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
+        <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
+        <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
+        <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
+        <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>Active</span></span></div>
+        <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
+        <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
+      </div>
+      <button class="btn-primary w-full text-white font-semibold py-3 mt-5 rounded-full text-lg shadow-lg" onclick="proceedToForm()">ดำเนินการต่อ</button>`;
+      div.classList.remove('hidden');
 
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = message;
-            messageDiv.className = `mt-4 p-3 rounded-lg text-center ${
-                type === 'error' ? 'bg-red-100 text-red-700 border border-red-200' :
-                type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' :
-                type === 'loading' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                'bg-gray-100 text-gray-700 border border-gray-200'
-            }`;
-            messageDiv.style.display = 'block';
-        }
+      const btn=document.getElementById('verifyBtn');btn.textContent='ดำเนินการต่อ';btn.onclick=proceedToForm;
+    }
 
-        function handleEnterKey(event) {
-            if (event.key === 'Enter') {
-                verifyEmployee();
-            }
-        }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e60a11f63f7b54',t:'MTc2MDQzNDAzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    function hideEmployeeInfo(){
+      const div=document.getElementById('employeeInfo');div.classList.add('hidden');div.innerHTML='';
+      const btn=document.getElementById('verifyBtn');btn.textContent='ยืนยันตัวตน';btn.onclick=verifyEmployee;
+    }
+
+    function proceedToForm(){
+      alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
+    }
+  </script>
+</body>
 </html>
