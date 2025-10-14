@@ -7,38 +7,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{ --page-scale: 1; } /* ใช้ scale แบบไดนามิกที่การ์ด ไม่ยุ่งทั้งหน้า */
-    body { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+    :root{
+      --page-scale-min: .6;          /* 🔧 ปรับค่าน้อยสุดได้ */
+      --page-padding: 2rem;          /* 🔧 ระยะห่างรอบๆ */
+      --frame-max-width: 72rem;      /* 🔧 ความกว้างกรอบสูงสุด */
+    }
+    body{ box-sizing: border-box; font-family: 'Prompt', sans-serif; }
 
     /* มือถือคง 100% และอนุญาตสกรอลตามปกติ */
-    @media (max-width: 1023.98px){
-      html{ zoom: 1; }
-    }
+    @media (max-width: 1023.98px){ html{ zoom: 1; } }
 
-    /* ความกว้างการ์ดพื้นฐาน (ก่อนถูก scale) */
-    .card-max{ max-width: 46rem; }      /* หน้าแรก */
-    .card-max-lg{ max-width: 60rem; }   /* หน้า employee */
+    /* พื้นหลัง */
+    body.bg-emerald-800{ background-color:#065f46; }
 
     /* ล็อกหน้าไม่ให้เลื่อน (เวลาขึ้นข้อมูล) */
     .lock-scroll { overflow: hidden; }
 
-    /* คอนเทนเนอร์การ์ดที่ต้องการ “ย่อให้พอดีจอ” */
-    #emp-card {
-      /* กรอบที่ยึดกลางจอและไม่ให้เกิดสกรอล */
-      height: calc(100vh - 2rem);   /* หัก padding หน้าจอ 2rem */
-      width: min(100%, 72rem);      /* กันกว้างเกินบนจอใหญ่ */
-      display: grid;
-      place-items: center;          /* จัดกลางทั้งแกน */
-      overflow: hidden;
-      margin-inline: auto;
+    /* กรอบการ์ดที่จะย่อให้พอดีจอ */
+    #emp-card{
+      height: calc(100vh - var(--page-padding));
+      width: min(100%, var(--frame-max-width));
+      display: grid; place-items: center;
+      overflow: hidden; margin-inline: auto;
+      padding: .5rem; /* กันติดขอบเล็กน้อย */
     }
 
-    /* เนื้อหาการ์ดจริง จะถูก scale กับ transform-origin: top center */
-    #emp-card-content {
+    /* เนื้อหาการ์ดจริง */
+    #emp-card-content{
       transform-origin: top center;
-      /* อยากให้เนื้อหาด้านในเลื่อนเองกรณีข้อมูลยาวมาก ให้เปิดบรรทัดล่าง */
-      /* overflow: auto; max-height: calc(100vh - 2rem); */
+      will-change: transform;
+      /* ปล่อยให้ JS เป็นคน toggle overflow เมื่อ scale < 1 */
     }
+    /* เมื่อถูกย่อ จะเปิดสกรอลเฉพาะด้านใน */
+    .scroll-inner{ overflow: auto; max-height: calc(100vh - var(--page-padding)); }
   </style>
 </head>
 <body class="bg-emerald-800 min-h-screen">
@@ -52,7 +53,7 @@
   <div id="app-root">
     <!-- หน้าที่ 1: หน้าแรก -->
     <div id="page1" class="min-h-screen flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl shadow-lg p-6 md:p-8 card-max w-full text-center">
+      <div class="bg-white rounded-3xl shadow-lg p-6 md:p-8 max-w-[46rem] w-full text-center">
         <div class="mb-6 md:mb-8">
           <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
                alt="BJC Big C Logo"
@@ -78,7 +79,7 @@
       </div>
     </div>
 
-    <!-- หน้าที่ 2: ข้อมูลพนักงาน (สูงเท่าจอ และไม่ให้หน้าเลื่อน) -->
+    <!-- หน้าที่ 2: ข้อมูลพนักงาน (สูงเท่าจอ และหน้าไม่เลื่อน) -->
     <div id="page2" class="h-screen flex items-center justify-center p-4 hidden overflow-hidden">
       <!-- กรอบที่จะย่อทั้งการ์ดให้พอดีจอ -->
       <div id="emp-card" class="w-full">
@@ -258,6 +259,7 @@
       updateNextButton();
       // ปลดล็อกสกรอลจนกว่าจะเจอข้อมูล
       document.body.classList.remove('lock-scroll');
+      requestAnimationFrame(fitCardToViewport);
     }
     function goToPage1() {
       document.getElementById('page2').classList.add('hidden');
@@ -268,7 +270,7 @@
       document.body.classList.remove('lock-scroll');
     }
 
-    // ====== Fit card to viewport (scale แบบอัตโนมัติ) ======
+    // ====== Fit card to viewport (auto scale) ======
     function fitCardToViewport() {
       const wrapper = document.getElementById('emp-card');
       const content = document.getElementById('emp-card-content');
@@ -276,20 +278,45 @@
 
       // รีเซ็ตก่อนคำนวณ
       content.style.transform = 'scale(1)';
-      // ขนาดจริงของเนื้อหา
-      const rect = content.getBoundingClientRect();
-      const realW = rect.width;
-      const realH = rect.height;
+
+      // ใช้ขนาดจริงของเนื้อหา (รวมส่วนที่ล้น)
+      const realW = Math.max(content.scrollWidth, content.getBoundingClientRect().width);
+      const realH = Math.max(content.scrollHeight, content.getBoundingClientRect().height);
 
       // พื้นที่ที่มีให้วาง (ภายใน wrapper)
-      const availW = wrapper.clientWidth - 16;  // กันติดขอบเล็กน้อย
-      const availH = wrapper.clientHeight - 16;
+      const availW = wrapper.clientWidth - 8;  // กันติดขอบ
+      const availH = wrapper.clientHeight - 8;
 
       // สัดส่วนย่อลงให้พอดีทั้งกว้างและสูง
-      const scale = Math.min(1, availW / realW, availH / realH);
+      let scale = Math.min(1, availW / realW, availH / realH);
+      const minScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale-min')) || 0.6;
+      scale = Math.max(minScale, Math.min(1, scale));
 
       content.style.transform = `scale(${scale})`;
+
+      // เปิด/ปิดสกรอลภายในเมื่อถูกย่อ
+      if (scale < 1) {
+        content.classList.add('scroll-inner');
+      } else {
+        content.classList.remove('scroll-inner');
+      }
     }
+
+    // เฝ้าหน้าต่างเปลี่ยนขนาดด้วย debounce via rAF
+    (function attachResizeListener(){
+      let raf = null;
+      window.addEventListener('resize', () => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(fitCardToViewport);
+      });
+    })();
+
+    // เฝ้าเนื้อหาการ์ดเปลี่ยนขนาด (เช่น ข้อมูลโชว์/ซ่อน)
+    const _ro = new ResizeObserver(() => fitCardToViewport());
+    window.addEventListener('DOMContentLoaded', () => {
+      const content = document.getElementById('emp-card-content');
+      if (content) _ro.observe(content);
+    });
 
     // ====== Employee Search (debounce 500ms) ======
     function searchEmployee() {
@@ -299,6 +326,7 @@
       if (employeeId.length < 3) {
         hideEmployeeInfo();
         updateNextButton();
+        requestAnimationFrame(fitCardToViewport);
         return;
       }
 
@@ -330,21 +358,12 @@
 
           // ล็อกหน้าไม่ให้เลื่อน + ย่อการ์ดให้พอดีจอ
           document.body.classList.add('lock-scroll');
-          fitCardToViewport();
-
-          // เฝ้า resize แล้วคำนวณใหม่ (debounce)
-          if (!window._fitRaf) {
-            let raf = null;
-            window.addEventListener('resize', () => {
-              if (raf) cancelAnimationFrame(raf);
-              raf = requestAnimationFrame(() => fitCardToViewport());
-            });
-            window._fitRaf = true;
-          }
+          requestAnimationFrame(fitCardToViewport);
         } else {
           currentEmployeeData = null;
           showEmployeeNotFound();
           document.body.classList.remove('lock-scroll');
+          requestAnimationFrame(fitCardToViewport);
         }
       } catch (err) {
         console.error('Error fetching employee data:', err);
@@ -352,6 +371,7 @@
         currentEmployeeData = null;
         showEmployeeNotFound();
         document.body.classList.remove('lock-scroll');
+        requestAnimationFrame(fitCardToViewport);
       } finally {
         updateNextButton();
       }
@@ -366,12 +386,20 @@
 
       document.getElementById('employeeInfo').classList.remove('hidden');
       document.getElementById('employeeNotFound').classList.add('hidden');
+
+      // รอ DOM วาดเสร็จแล้วค่อยคำนวณ scale
+      requestAnimationFrame(fitCardToViewport);
     }
 
     function hideEmployeeInfo() {
       document.getElementById('employeeInfo').classList.add('hidden');
       document.getElementById('employeeNotFound').classList.add('hidden');
       currentEmployeeData = null;
+      const content = document.getElementById('emp-card-content');
+      if (content) {
+        content.style.transform = 'scale(1)';
+        content.classList.remove('scroll-inner');
+      }
     }
 
     function showEmployeeNotFound() {
@@ -403,23 +431,18 @@
     }
 
     // ====== Admin Modal ======
-    function showAdminLogin() {
-      document.getElementById('adminModal').classList.remove('hidden');
-    }
+    function showAdminLogin() { document.getElementById('adminModal').classList.remove('hidden'); }
     function closeAdminModal() {
       document.getElementById('adminModal').classList.add('hidden');
       document.getElementById('adminPassword').value = '';
     }
     function checkAdminPassword() {
       const password = document.getElementById('adminPassword').value;
-      if (password === 'admin123') {
-        isAdmin = true;
-        closeAdminModal();
+      if (password === adminPassword) {
+        isAdmin = true; closeAdminModal();
         alert('เข้าสู่ระบบแอดมินสำเร็จ! ตอนนี้คุณสามารถแก้ไขรายการได้');
         showAdminIndicator();
-      } else {
-        alert('รหัสผ่านไม่ถูกต้อง');
-      }
+      } else { alert('รหัสผ่านไม่ถูกต้อง'); }
     }
     function showAdminIndicator() {
       if (document.getElementById('adminIndicator')) return;
@@ -438,5 +461,5 @@
       if (e.key === 'Enter') checkAdminPassword();
     });
   </script>
-</body>m
+</body>
 </html>
