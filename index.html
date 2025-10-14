@@ -8,50 +8,46 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
-      --page-scale-min: .6;          /* 🔧 ปรับค่าน้อยสุดได้ */
-      --page-padding: 2rem;          /* 🔧 ระยะห่างรอบๆ */
-      --frame-max-width: 72rem;      /* 🔧 ความกว้างกรอบสูงสุด */
+      --page-scale-min: .55;         /* ย่อเล็กสุด */
+      --page-scale-max: 1.35;        /* ขยายใหญ่สุด */
+      --frame-max-width: 72rem;      /* กรอบกว้างสุด */
     }
     body{ box-sizing: border-box; font-family: 'Prompt', sans-serif; }
-
-    /* มือถือคง 100% และอนุญาตสกรอลตามปกติ */
     @media (max-width: 1023.98px){ html{ zoom: 1; } }
 
     /* พื้นหลัง */
     body.bg-emerald-800{ background-color:#065f46; }
 
-    /* ล็อกหน้าไม่ให้เลื่อน (เวลาขึ้นข้อมูล) */
-    .lock-scroll { overflow: hidden; }
+    /* ล็อกสกรอลเมื่ออยู่หน้า employee */
+    .lock-scroll { overflow: hidden; height: 100vh; }
 
-    /* กรอบการ์ดที่จะย่อให้พอดีจอ */
+    /* กรอบที่จะย่อ/ขยายให้พอดีจอ */
     #emp-card{
-      height: calc(100vh - var(--page-padding));
       width: min(100%, var(--frame-max-width));
+      height: 100vh;
       display: grid; place-items: center;
-      overflow: hidden; margin-inline: auto;
-      padding: .5rem; /* กันติดขอบเล็กน้อย */
+      margin-inline: auto;
+      overflow: hidden;
+      padding: .5rem;
     }
 
     /* เนื้อหาการ์ดจริง */
     #emp-card-content{
       transform-origin: top center;
       will-change: transform;
-      /* ปล่อยให้ JS เป็นคน toggle overflow เมื่อ scale < 1 */
+      overflow: hidden;               /* ❗ ต้องการไม่ให้เลื่อนภายใน */
     }
-    /* เมื่อถูกย่อ จะเปิดสกรอลเฉพาะด้านใน */
-    .scroll-inner{ overflow: auto; max-height: calc(100vh - var(--page-padding)); }
   </style>
 </head>
 <body class="bg-emerald-800 min-h-screen">
-  <!-- ปุ่ม Admin (fixed อิงกับ viewport จริง) -->
+  <!-- ปุ่ม Admin -->
   <button onclick="showAdminLogin()"
           class="fixed top-4 right-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1 rounded-full shadow-lg transition-colors duration-200 z-30">
     Admin
   </button>
 
-  <!-- ครอบทั้งแอป -->
   <div id="app-root">
-    <!-- หน้าที่ 1: หน้าแรก -->
+    <!-- หน้าที่ 1 -->
     <div id="page1" class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl shadow-lg p-6 md:p-8 max-w-[46rem] w-full text-center">
         <div class="mb-6 md:mb-8">
@@ -60,18 +56,13 @@
                class="mx-auto h-16 md:h-20 object-contain"
                onerror="this.src=''; this.alt='Logo failed to load'; this.style.display='none';">
         </div>
-
         <h1 class="text-xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 leading-snug">
           BJC Big C Stationery Store<br>ฟอร์มการเบิกอุปกรณ์สำนักงาน
         </h1>
-
         <p class="text-gray-600 mb-3 md:mb-4 leading-relaxed">
           หลังจากที่ท่านกดส่งคำร้องขอเบิกอุปกรณ์สำนักงานแล้วจะมีอีเมล์แจ้งรายละเอียดการเบิกเป็นแบบฟอร์มขออนุมัติ
         </p>
-        <p class="text-gray-600 mb-6 md:mb-8">
-          สงสัย เพิ่มเติม กรุณาติดต่อ 02-1465959 #4384
-        </p>
-
+        <p class="text-gray-600 mb-6 md:mb-8">สงสัย เพิ่มเติม กรุณาติดต่อ 02-1465959 #4384</p>
         <button onclick="goToPage2()"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
           Start
@@ -79,12 +70,10 @@
       </div>
     </div>
 
-    <!-- หน้าที่ 2: ข้อมูลพนักงาน (สูงเท่าจอ และหน้าไม่เลื่อน) -->
+    <!-- หน้าที่ 2 -->
     <div id="page2" class="h-screen flex items-center justify-center p-4 hidden overflow-hidden">
-      <!-- กรอบที่จะย่อทั้งการ์ดให้พอดีจอ -->
       <div id="emp-card" class="w-full">
-        <!-- เนื้อหาการ์ดจริง: ตัวนี้จะถูก transform: scale(...) -->
-        <div id="emp-card-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-[70%] max-w-[42rem] mx-auto relative overflow-hidden">
+        <div id="emp-card-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-[70%] max-w-[42rem] mx-auto relative">
           <!-- Header -->
           <div class="text-center mb-6 md:mb-8 relative z-10">
             <div class="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-emerald-100 rounded-full mb-3 md:mb-4">
@@ -97,40 +86,37 @@
             <p class="text-gray-600 text-sm md:text-base">กรุณากรอกข้อมูลเพื่อเริ่มต้นการเบิกอุปกรณ์</p>
           </div>
 
-          <!-- ช่องกรอกรหัสพนักงาน -->
+          <!-- ช่องกรอกรหัส -->
           <div class="mb-8 md:mb-10 relative z-10">
             <div class="w-full md:max-w-[700px] mx-auto">
               <label class="block text-gray-700 font-semibold mb-2 md:mb-3 text-base md:text-lg">รหัสพนักงาน</label>
               <div class="relative">
                 <input
                   type="text" id="employeeId"
-                  class="w-full px-4 md:px-6 py-3 md:py-4
-                         border-[2px] border-gray-200 rounded-xl
-                         focus:outline-none focus:ring-1 focus:ring-emerald-400/50
-                         focus:border-emerald-500
+                  class="w-full px-4 md:px-6 py-3 md:py-4 border-[2px] border-gray-200 rounded-xl
+                         focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-500
                          transition-all duration-200 text-base md:text-lg"
-                  placeholder="กรอกรหัสพนักงานของคุณ"
-                  autocomplete="off" inputmode="text"
+                  placeholder="กรอกรหัสพนักงานของคุณ" autocomplete="off" inputmode="text"
                   oninput="searchEmployee()">
                 <div class="absolute inset-y-0 right-0 flex items-center pr-4">
                   <div id="loadingSpinner" class="hidden">
                     <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                   </div>
                   <svg id="searchIcon" xmlns="http://www.w3.org/2000/svg"
                        class="w-5 h-5 text-gray-400 ml-2" viewBox="0 0 24 24" fill="none"
                        stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round"></circle>
-                    <line x1="16.65" y1="16.65" x2="21" y2="21" stroke-linecap="round" stroke-linejoin="round"></line>
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
                   </svg>
                 </div>
               </div>
             </div>
 
-            <!-- แสดงข้อมูลพนักงาน -->
+            <!-- การ์ดข้อมูล -->
             <div id="employeeInfo" class="hidden mt-6 p-5 md:p-6 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl border-2 border-emerald-200 shadow-lg">
               <div class="flex items-center mb-4 md:mb-6">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-500 rounded-full flex items-center justify-center mr-3 md:mr-4 shadow-md">
@@ -149,7 +135,7 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
                   <label class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -159,7 +145,7 @@
                   </label>
                   <p id="empName" class="text-base md:text-lg font-bold text-gray-800 mt-2">-</p>
                 </div>
-                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
                   <label class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -169,7 +155,7 @@
                   </label>
                   <p id="empCompany" class="text-base md:text-lg font-bold text-gray-800 mt-2">-</p>
                 </div>
-                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
                   <label class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -179,7 +165,7 @@
                   </label>
                   <p id="empStatus" class="text-base md:text-lg font-bold text-gray-800 mt-2">-</p>
                 </div>
-                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
                   <label class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -212,10 +198,8 @@
                     class="order-2 sm:order-1 text-emerald-600 hover:text-emerald-700 font-medium px-6 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200">
               ← กลับหน้าแรก
             </button>
-
             <button id="nextBtn" onclick="goToEquipmentPage()"
-              class="order-1 sm:order-2 bg-[#0EA47A] hover:bg-[#0A7D67] active:bg-[#0A7D67]
-                     text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow
+              class="order-1 sm:order-2 bg-[#0EA47A] hover:bg-[#0A7D67] active:bg-[#0A7D67] text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0A7D67]"
               disabled>
               ถัดไป →
@@ -225,7 +209,7 @@
       </div>
     </div>
 
-    <!-- Modal สำหรับ Admin Login -->
+    <!-- Modal Admin -->
     <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full">
         <h3 class="text-lg font-semibold mb-4">เข้าสู่ระบบแอดมิน</h3>
@@ -238,11 +222,10 @@
         </div>
       </div>
     </div>
-  </div> <!-- /#app-root -->
+  </div>
 
-  <!-- ==================== SCRIPTS ==================== -->
   <script>
-    // ====== CONFIG (Frontend) ======
+    // ====== CONFIG ======
     const GAS_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
     const adminPassword = 'admin123';
 
@@ -257,7 +240,8 @@
       document.getElementById('employeeId').value = '';
       hideEmployeeInfo();
       updateNextButton();
-      // ปลดล็อกสกรอลจนกว่าจะเจอข้อมูล
+
+      // ปลดล็อกก่อนแล้วค่อยล็อกเมื่อมีข้อมูลยืนยัน
       document.body.classList.remove('lock-scroll');
       requestAnimationFrame(fitCardToViewport);
     }
@@ -270,39 +254,34 @@
       document.body.classList.remove('lock-scroll');
     }
 
-    // ====== Fit card to viewport (auto scale) ======
+    // ====== Auto fit UP/DOWN & lock no-scroll ======
     function fitCardToViewport() {
       const wrapper = document.getElementById('emp-card');
       const content = document.getElementById('emp-card-content');
       if (!wrapper || !content) return;
 
-      // รีเซ็ตก่อนคำนวณ
+      // รีเซ็ตก่อนวัด
       content.style.transform = 'scale(1)';
 
-      // ใช้ขนาดจริงของเนื้อหา (รวมส่วนที่ล้น)
+      // วัดขนาดจริงของเนื้อหา
       const realW = Math.max(content.scrollWidth, content.getBoundingClientRect().width);
       const realH = Math.max(content.scrollHeight, content.getBoundingClientRect().height);
 
-      // พื้นที่ที่มีให้วาง (ภายใน wrapper)
-      const availW = wrapper.clientWidth - 8;  // กันติดขอบ
+      // พื้นที่ที่มีให้วาง
+      const availW = wrapper.clientWidth - 8;
       const availH = wrapper.clientHeight - 8;
 
-      // สัดส่วนย่อลงให้พอดีทั้งกว้างและสูง
-      let scale = Math.min(1, availW / realW, availH / realH);
-      const minScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale-min')) || 0.6;
-      scale = Math.max(minScale, Math.min(1, scale));
+      // คำนวณสเกล (ขยาย/ย่อ)
+      let scale = Math.min(availW / realW, availH / realH);
+      const styles = getComputedStyle(document.documentElement);
+      const minScale = parseFloat(styles.getPropertyValue('--page-scale-min')) || 0.55;
+      const maxScale = parseFloat(styles.getPropertyValue('--page-scale-max')) || 1.35;
+      scale = Math.max(minScale, Math.min(maxScale, scale));
 
       content.style.transform = `scale(${scale})`;
-
-      // เปิด/ปิดสกรอลภายในเมื่อถูกย่อ
-      if (scale < 1) {
-        content.classList.add('scroll-inner');
-      } else {
-        content.classList.remove('scroll-inner');
-      }
     }
 
-    // เฝ้าหน้าต่างเปลี่ยนขนาดด้วย debounce via rAF
+    // resize -> re-fit
     (function attachResizeListener(){
       let raf = null;
       window.addEventListener('resize', () => {
@@ -311,7 +290,7 @@
       });
     })();
 
-    // เฝ้าเนื้อหาการ์ดเปลี่ยนขนาด (เช่น ข้อมูลโชว์/ซ่อน)
+    // แสดง/ซ่อนข้อมูล -> re-fit
     const _ro = new ResizeObserver(() => fitCardToViewport());
     window.addEventListener('DOMContentLoaded', () => {
       const content = document.getElementById('emp-card-content');
@@ -331,9 +310,7 @@
       }
 
       showLoading(true);
-      searchTimeout = setTimeout(() => {
-        fetchEmployeeData(employeeId);
-      }, 500);
+      searchTimeout = setTimeout(() => { fetchEmployeeData(employeeId); }, 500);
     }
 
     async function fetchEmployeeData(employeeId) {
@@ -356,7 +333,7 @@
           });
           currentEmployeeData = emp;
 
-          // ล็อกหน้าไม่ให้เลื่อน + ย่อการ์ดให้พอดีจอ
+          // 🔒 ล็อคการเลื่อนหน้าจอ และฟิตสเกลพอดีจอ
           document.body.classList.add('lock-scroll');
           requestAnimationFrame(fitCardToViewport);
         } else {
@@ -387,7 +364,6 @@
       document.getElementById('employeeInfo').classList.remove('hidden');
       document.getElementById('employeeNotFound').classList.add('hidden');
 
-      // รอ DOM วาดเสร็จแล้วค่อยคำนวณ scale
       requestAnimationFrame(fitCardToViewport);
     }
 
@@ -395,11 +371,9 @@
       document.getElementById('employeeInfo').classList.add('hidden');
       document.getElementById('employeeNotFound').classList.add('hidden');
       currentEmployeeData = null;
+
       const content = document.getElementById('emp-card-content');
-      if (content) {
-        content.style.transform = 'scale(1)';
-        content.classList.remove('scroll-inner');
-      }
+      if (content) content.style.transform = 'scale(1)';
     }
 
     function showEmployeeNotFound() {
@@ -408,18 +382,12 @@
     }
 
     function showLoading(show) {
-      if (show) {
-        document.getElementById('loadingSpinner').classList.remove('hidden');
-        document.getElementById('searchIcon').classList.add('hidden');
-      } else {
-        document.getElementById('loadingSpinner').classList.add('hidden');
-        document.getElementById('searchIcon').classList.remove('hidden');
-      }
+      document.getElementById('loadingSpinner').classList.toggle('hidden', !show ? true : false);
+      document.getElementById('searchIcon').classList.toggle('hidden', show ? true : false);
     }
 
     function updateNextButton() {
-      const hasEmployeeData = !!currentEmployeeData;
-      document.getElementById('nextBtn').disabled = !hasEmployeeData;
+      document.getElementById('nextBtn').disabled = !currentEmployeeData;
     }
 
     function goToEquipmentPage() {
@@ -453,13 +421,8 @@
       document.body.appendChild(indicator);
     }
 
-    // ปิด modal เมื่อคลิกฉากหลัง / Enter
-    document.getElementById('adminModal').addEventListener('click', function(e) {
-      if (e.target === this) closeAdminModal();
-    });
-    document.getElementById('adminPassword').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') checkAdminPassword();
-    });
+    document.getElementById('adminModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAdminModal(); });
+    document.getElementById('adminPassword').addEventListener('keypress', e => { if (e.key === 'Enter') checkAdminPassword(); });
   </script>
 </body>
 </html>
