@@ -14,7 +14,6 @@
       --emerald-500:#10b981;
     }
 
-    /* พื้นหลังเดิม + เลื่อนทั้งหน้า */
     html,body{
       height:100%;
       margin:0;
@@ -24,27 +23,25 @@
       scrollbar-gutter: stable both-edges;
     }
 
-    /* 🫧 ซ่อน scrollbar เมื่อมีคลาส .no-scrollbar (ยังเลื่อนได้ตามปกติ) */
+    /* ซ่อนแค่รูปร่าง scrollbar (ยังเลื่อนได้) เมื่ออยู่หน้า verify */
     html.no-scrollbar, body.no-scrollbar{
-      -ms-overflow-style: none;     /* IE/Edge legacy */
-      scrollbar-width: none;        /* Firefox */
+      -ms-overflow-style:none;
+      scrollbar-width:none;
     }
     html.no-scrollbar::-webkit-scrollbar,
-    body.no-scrollbar::-webkit-scrollbar{
-      width:0; height:0;            /* Chrome/Edge/Safari */
-      background: transparent;
-    }
+    body.no-scrollbar::-webkit-scrollbar{ width:0; height:0; background:transparent; }
 
+    /* โครงหน้า */
     .page-container{
       display:flex;
-      align-items:flex-start;
       justify-content:center;
-      min-height:100vh;
       width:100%;
+      min-height:100vh;
       padding:2rem 1rem;
     }
+    .page-container.centered{ align-items:center; }     /* กลางจอ */
+    .page-container.top{ align-items:flex-start; }      /* ชิดบน */
 
-    /* ✅ กลับมาเป็นกรอบพื้นหลังสีขาวทึบแบบเดิม */
     .content-card{
       background:rgba(255,255,255,0.96);
       border-radius:20px;
@@ -79,21 +76,17 @@
       background:#fff;
       box-shadow:0 0 15px rgba(5,150,105,0.08);
     }
-    .dot{
-      width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem;
-    }
-    .field-row{
-      display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb;
-    }
-    .field-row:last-child{border-bottom:0}
-    .field-label{color:#4b5563;font-weight:600}
-    .field-value{color:#111827;font-weight:500}
-    .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem}
-    .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
+    .dot{ width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem; }
+    .field-row{ display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb; }
+    .field-row:last-child{ border-bottom:0 }
+    .field-label{ color:#4b5563;font-weight:600 }
+    .field-value{ color:#111827;font-weight:500 }
+    .pill{ display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem }
+    .pill .dot{ width:.5rem;height:.5rem;margin:0;background:#10b981 }
   </style>
 </head>
 <body>
-  <div class="page-container">
+  <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
       <!-- หน้า Home -->
       <div id="homeContent">
@@ -145,26 +138,31 @@
   </div>
 
   <script>
+    const container = document.getElementById('pageContainer');
+
     function startForm(){ togglePage(true); }
     function goBack(){ togglePage(false); }
 
     function togglePage(isVerify){
-      // สลับหน้า
-      document.getElementById('homeContent').classList.toggle('hidden',isVerify);
-      document.getElementById('verifyContent').classList.toggle('hidden',!isVerify);
+      const home = document.getElementById('homeContent');
+      const verify = document.getElementById('verifyContent');
+
+      home.classList.toggle('hidden',isVerify);
+      verify.classList.toggle('hidden',!isVerify);
 
       // รีเซ็ตฟอร์ม/ข้อความ
       document.getElementById('employeeId').value="";
       hideEmployeeInfo();
       const msg = document.getElementById('message');
-      msg.classList.add('hidden');
-      msg.textContent = "";
+      msg.classList.add('hidden'); msg.textContent = "";
 
-      // 🔒 ซ่อน/เปิด scrollbar ตามหน้า
+      // ⬇️ เข้าหน้า Verify: เริ่ม "ตรงกลาง" + ซ่อนรูปร่าง scrollbar
       if(isVerify){
+        setCentered();
         document.documentElement.classList.add('no-scrollbar');
         document.body.classList.add('no-scrollbar');
       }else{
+        container.classList.remove('top'); container.classList.add('centered');
         document.documentElement.classList.remove('no-scrollbar');
         document.body.classList.remove('no-scrollbar');
       }
@@ -172,14 +170,18 @@
       window.scrollTo({top:0,behavior:'instant'});
     }
 
+    // helper: จัดตำแหน่ง
+    function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
+    function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
+
     function autoVerifyEmployee(value){
       if(value.length >= 4){
         verifyEmployee(value);
       } else {
-        hideEmployeeInfo();
+        // กลับมา "ตรงกลาง" เมื่อยังไม่มี/ล้างรหัส
+        hideEmployeeInfo();           // ภายในจะเรียก setCentered()
         const msg = document.getElementById('message');
-        msg.classList.add('hidden');
-        msg.textContent = "";
+        msg.classList.add('hidden'); msg.textContent = "";
       }
     }
 
@@ -199,51 +201,41 @@
       if(!id){
         verifyBtn.textContent='ยืนยันตัวตน';
         verifyBtn.onclick=verifyEmployee;
+        setCentered();                // ยังไม่มีรหัส → ตรงกลาง
         return;
       }
 
       showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
-      hideEmployeeInfo();
+      hideEmployeeInfo(false);        // ซ่อนกรอบ แต่ยังไม่ reset ปุ่ม
 
       setTimeout(()=>{
         const emp=getEmployeeData(id);
         if(emp){
-          showEmployeeInfo(emp);
+          showEmployeeInfo(emp);      // ภายในจะ setTop() + scrollTo
           verifyBtn.textContent='ดำเนินการต่อ';
           verifyBtn.onclick=proceedToForm;
         }else{
           showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
           verifyBtn.textContent='ยืนยันตัวตน';
           verifyBtn.onclick=verifyEmployee;
+          setCentered();              // ไม่พบข้อมูล → อยู่กลางต่อ
         }
       },400);
     }
 
     function getEmployeeData(id){
       const data={
-        '1001':{
-          id:'1001',
-          name:'สมชาย ใจดี',
-          company:'BJC Big C Supercenter',
-          status:'Active',
-          formatName:'Mr. Somchai Jaidee',
-          divisionName:'IT Department',
-          costCenter:'CC-1010 - Information Technology'
-        },
-        '2002':{
-          id:'2002',
-          name:'ประยุทธ มั่นใจ',
-          company:'BJC Big C Supercenter',
-          status:'Active',
-          formatName:'Mr. Prayuth Manjai',
-          divisionName:'Operations Department',
-          costCenter:'CC-2022 - Operations'
-        }
+        '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department',costCenter:'CC-1010 - Information Technology'},
+        '2002':{id:'2002',name:'ประยุทธ มั่นใจ',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Prayuth Manjai',divisionName:'Operations Department',costCenter:'CC-2022 - Operations'}
       };
       return data[id]||null;
     }
 
     function showEmployeeInfo(emp){
+      // พบข้อมูล → ชิดบน + เลื่อนขึ้นบนสุด
+      setTop();
+      window.scrollTo({top:0,behavior:'smooth'});
+
       const div=document.getElementById('employeeInfo');
       const msgBox=document.getElementById('message');
       msgBox.className='alert-success p-4 mb-4 text-center text-base';
@@ -264,17 +256,16 @@
       div.classList.remove('hidden');
     }
 
-    function hideEmployeeInfo(){
+    // resetToCenter: true (default) = กลับไปอยู่กลางจอด้วย
+    function hideEmployeeInfo(resetToCenter = true){
       const div=document.getElementById('employeeInfo');
-      div.classList.add('hidden');
-      div.innerHTML='';
+      div.classList.add('hidden'); div.innerHTML='';
       const btn=document.getElementById('verifyBtn');
-      btn.textContent='ยืนยันตัวตน';
-      btn.onclick=verifyEmployee;
+      btn.textContent='ยืนยันตัวตน'; btn.onclick=verifyEmployee;
+      if(resetToCenter) setCentered();
     }
 
     function proceedToForm(){
-      // กลับมาเปิด scrollbar ได้ตามปกติเมื่อไปหน้าถัดไป (ถ้ามี)
       document.documentElement.classList.remove('no-scrollbar');
       document.body.classList.remove('no-scrollbar');
       alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
