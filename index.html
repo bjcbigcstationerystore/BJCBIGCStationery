@@ -13,36 +13,47 @@
       --emerald-600:#059669;
       --emerald-500:#10b981;
     }
-    /* ✅ เปิดเลื่อนทั้งหน้า */
+
+    /* พื้นหลังเดิม + เลื่อนทั้งหน้า */
     html,body{
       height:100%;
       margin:0;
       font-family:'Prompt',sans-serif;
       background-color:#064e3b;
-      overflow:auto; /* เดิม hidden */
+      overflow:auto;
+      scrollbar-gutter: stable both-edges;
     }
 
-    /* ✅ เปลี่ยนจาก fixed height เป็น min-height เพื่อให้หน้า “สูงเท่าที่ต้องการ” แล้วค่อยเลื่อนทั้งหน้า */
+    /* 🫧 ซ่อน scrollbar เมื่อมีคลาส .no-scrollbar (ยังเลื่อนได้ตามปกติ) */
+    html.no-scrollbar, body.no-scrollbar{
+      -ms-overflow-style: none;     /* IE/Edge legacy */
+      scrollbar-width: none;        /* Firefox */
+    }
+    html.no-scrollbar::-webkit-scrollbar,
+    body.no-scrollbar::-webkit-scrollbar{
+      width:0; height:0;            /* Chrome/Edge/Safari */
+      background: transparent;
+    }
+
     .page-container{
       display:flex;
-      align-items:flex-start;   /* เดิม center */
+      align-items:flex-start;
       justify-content:center;
-      min-height:100vh;         /* เดิม height:100vh */
+      min-height:100vh;
       width:100%;
-      padding:2rem 1rem;        /* เพิ่ม padding ด้านบนให้สวยเวลามีสกรอลล์ */
+      padding:2rem 1rem;
     }
 
+    /* ✅ กลับมาเป็นกรอบพื้นหลังสีขาวทึบแบบเดิม */
     .content-card{
       background:rgba(255,255,255,0.96);
       border-radius:20px;
       box-shadow:0 20px 40px rgba(0,0,0,0.15);
       width:100%;
       max-width:850px;
-      /* ❌ เอา max-height/overflow ภายในกรอบออก เพื่อไม่ให้สกรอลล์เฉพาะกรอบ */
-      /* max-height:90vh; */
-      /* overflow-y:auto; */
       backdrop-filter:blur(10px);
       padding:2.5rem;
+      color:#111827;
     }
 
     .btn-primary{
@@ -124,7 +135,7 @@
           <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
           <div id="employeeInfo" class="hidden mt-4"></div>
 
-          <!-- ✅ ปุ่มเดียว ใช้เป็น 'ยืนยันตัวตน' ก่อน และเปลี่ยนเป็น 'ดำเนินการต่อ' เมื่อพบข้อมูล -->
+          <!-- ปุ่มเดียว: เปลี่ยนข้อความเป็น "ดำเนินการต่อ" เมื่อพบข้อมูล -->
           <button id="verifyBtn" onclick="verifyEmployee()" class="btn-primary w-full text-white font-semibold py-3 mt-4 rounded-full text-lg shadow-lg">
             ยืนยันตัวตน
           </button>
@@ -138,14 +149,27 @@
     function goBack(){ togglePage(false); }
 
     function togglePage(isVerify){
+      // สลับหน้า
       document.getElementById('homeContent').classList.toggle('hidden',isVerify);
       document.getElementById('verifyContent').classList.toggle('hidden',!isVerify);
+
+      // รีเซ็ตฟอร์ม/ข้อความ
       document.getElementById('employeeId').value="";
       hideEmployeeInfo();
       const msg = document.getElementById('message');
       msg.classList.add('hidden');
       msg.textContent = "";
-      window.scrollTo({top:0,behavior:'instant'}); // ✅ เลื่อนขึ้นบนสุดทุกครั้ง
+
+      // 🔒 ซ่อน/เปิด scrollbar ตามหน้า
+      if(isVerify){
+        document.documentElement.classList.add('no-scrollbar');
+        document.body.classList.add('no-scrollbar');
+      }else{
+        document.documentElement.classList.remove('no-scrollbar');
+        document.body.classList.remove('no-scrollbar');
+      }
+
+      window.scrollTo({top:0,behavior:'instant'});
     }
 
     function autoVerifyEmployee(value){
@@ -185,7 +209,6 @@
         const emp=getEmployeeData(id);
         if(emp){
           showEmployeeInfo(emp);
-          // ✅ เปลี่ยนปุ่มเดียวด้านล่างให้เป็น "ดำเนินการต่อ"
           verifyBtn.textContent='ดำเนินการต่อ';
           verifyBtn.onclick=proceedToForm;
         }else{
@@ -227,7 +250,6 @@
       msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
       msgBox.classList.remove('hidden');
 
-      /* ❌ ไม่มีปุ่มภายในกรอบนี้อีกแล้ว เหลือแค่ปุ่มล่างปุ่มเดียว */
       div.innerHTML=`
       <div class="emp-frame p-6">
         <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
@@ -252,6 +274,9 @@
     }
 
     function proceedToForm(){
+      // กลับมาเปิด scrollbar ได้ตามปกติเมื่อไปหน้าถัดไป (ถ้ามี)
+      document.documentElement.classList.remove('no-scrollbar');
+      document.body.classList.remove('no-scrollbar');
       alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
     }
   </script>
