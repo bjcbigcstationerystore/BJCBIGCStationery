@@ -376,9 +376,10 @@
         }
       } finally {
         showCheckingModal(false);
-        btn.disabled = false;
-        btn.classList.remove('opacity-80', 'cursor-not-allowed');
-      }
+        const currentBtn = document.getElementById('verifyBtn');
+        currentBtn.disabled = false;
+        currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+}
     }
 
     /* ============ RENDER RESULT ============ */
@@ -418,20 +419,28 @@
     function setProceedButton(){
       const btn = document.getElementById('verifyBtn');
       stage = 'proceed';
+      
+      btn.disabled = false;
+      btn.classList.remove('opacity-80','cursor-not-allowed');
+      
       btn.textContent = 'ดำเนินการต่อ';
-      btn.replaceWith(btn.cloneNode(true)); // ลบ event ทั้งหมดแบบชัวร์
-      const newBtn = document.getElementById('verifyBtn');
-      newBtn.addEventListener('click', proceedToForm);
-    }
+      
+      btn.onclick = null;
+    btn.removeEventListener('click', verifyEmployee);
+    btn.addEventListener('click', proceedToForm);
+  }
 
     function resetVerifyButton(){
       const btn = document.getElementById('verifyBtn');
       stage = 'verify';
+      btn.disabled = false;
+      btn.classList.remove('opacity-80','cursor-not-allowed');
       btn.textContent = 'ยืนยันตัวตน';
-      btn.replaceWith(btn.cloneNode(true)); // ลบ event ทั้งหมดแบบชัวร์
-      const newBtn = document.getElementById('verifyBtn');
-      newBtn.addEventListener('click', verifyEmployee);
-    }
+      
+      btn.onclick = null;
+  btn.removeEventListener('click', proceedToForm);
+  btn.addEventListener('click', verifyEmployee);
+}
 
     /* ➡️ ไปหน้า “เบิกอุปกรณ์ (หมวดหมู่)” */
     function proceedToForm(){
