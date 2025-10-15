@@ -187,103 +187,150 @@
     // helper: จัดตำแหน่ง
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
+const toLatinDigits_ = s =>
+    String(s == null ? '' : s).replace(/[๐-๙]/g, d => '0123456789'['๐๑๒๓๔๕๖๗๘๙'.indexOf(d)]);
 
-    function autoVerifyEmployee(value){
-      if(value.length >= 4){
-        verifyEmployee(value);
-      } else {
-        // กลับมา "ตรงกลาง" เมื่อยังไม่มี/ล้างรหัส
-        hideEmployeeInfo();           // ภายในจะเรียก setCentered()
-        const msg = document.getElementById('message');
-        msg.classList.add('hidden'); msg.textContent = "";
-      }
-    }
+  const normKeepZeros = s => toLatinDigits_(s)
+    .normalize('NFKC')
+    .replace(/[\s\-–—_/\.]/g, '');      // ตัดช่องว่าง/ขีด/สแลช/จุด/ขีดล่าง
 
-    function verifyEmployee(idValue){
-      const id = idValue || document.getElementById('employeeId').value.trim();
-      const msgBox=document.getElementById('message');
-      const verifyBtn=document.getElementById('verifyBtn');
+  const normNoZeros = s => normKeepZeros(s).replace(/^0+/, '');  // ตัดศูนย์นำหน้า (ตัวเลือก)
 
-      const showMsg=(txt,type)=>{
-        msgBox.className='mt-4 p-4 rounded-lg text-center '+
-          (type==='error'?'bg-red-100 text-red-700 border border-red-200':
-           type==='success'?'alert-success':
-           type==='loading'?'bg-blue-100 text-blue-700 border border-blue-200':'');
-        msgBox.textContent=txt; msgBox.classList.remove('hidden');
-      };
+  // debounce กันเรียกถี่เกินไปขณะพิมพ์
+  function debounce(fn, wait=250){
+    let t; 
+    return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); };
+  }
 
-      if(!id){
-        verifyBtn.textContent='ยืนยันตัวตน';
-        verifyBtn.onclick=verifyEmployee;
-        setCentered();                // ยังไม่มีรหัส → ตรงกลาง
-        return;
-      }
+  /* =======================================
+     REPLACE: autoVerifyEmployee (นับทุกตัว)
+     ======================================= */
+  const autoVerifyEmployee = (()=>{
+    const run = debounce((value)=>{
+      // โหมด auto: ระหว่างพิมพ์ หากยังไม่เจอ ให้ขึ้น "กำลังตรวจสอบ..." (ไม่โชว์ error)
+      verifyEmployee(value, /*isAuto*/ true);
+    }, 220);
+    return (value)=> run(value);
+  })();
 
-      showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
-      hideEmployeeInfo(false);        // ซ่อนกรอบ แต่ยังไม่ reset ปุ่ม
+  /* ============================================================
+     REPLACE: verifyEmployee (รองรับ auto และศูนย์/ตัวคั่น/เลขไทย)
+     ============================================================ */
+  function verifyEmployee(idValue, isAuto=false){
+    const raw = idValue || document.getElementById('employeeId').value;
+    const msgBox=document.getElementById('message');
+    const verifyBtn=document.getElementById('verifyBtn');
 
-      setTimeout(()=>{
-        const emp=getEmployeeData(id);
-        if(emp){
-          showEmployeeInfo(emp);      // ภายในจะ setTop() + scrollTo
-          verifyBtn.textContent='ดำเนินการต่อ';
-          verifyBtn.onclick=proceedToForm;
-        }else{
-          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
-          verifyBtn.textContent='ยืนยันตัวตน';
-          verifyBtn.onclick=verifyEmployee;
-          setCentered();              // ไม่พบข้อมูล → อยู่กลางต่อ
-        }
-      },400);
-    }
-
-    function getEmployeeData(id){
-      const data={
-        '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department',costCenter:'CC-1010 - Information Technology'},
-        '2002':{id:'2002',name:'ประยุทธ มั่นใจ',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Prayuth Manjai',divisionName:'Operations Department',costCenter:'CC-2022 - Operations'}
-      };
-      return data[id]||null;
-    }
-
-    function showEmployeeInfo(emp){
-      // พบข้อมูล → ชิดบน + เลื่อนขึ้นบนสุด
-      setTop();
-      window.scrollTo({top:0,behavior:'smooth'});
-
-      const div=document.getElementById('employeeInfo');
-      const msgBox=document.getElementById('message');
-      msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
-      msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
+    const showMsg=(txt,type)=>{
+      msgBox.className='mt-4 p-4 rounded-lg text-center '+
+        (type==='error'  ? 'bg-red-100 text-red-700 border border-red-200' :
+         type==='success'? 'alert-success' :
+         /*loading*/       'bg-blue-100 text-blue-700 border border-blue-200');
+      msgBox.textContent=txt; 
       msgBox.classList.remove('hidden');
+    };
 
-      div.innerHTML=`
-      <div class="emp-frame p-6">
-        <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
-        <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
-        <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
-        <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
-        <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
-        <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
-        <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
-        <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
-      </div>`;
-      div.classList.remove('hidden');
+    const keep = normKeepZeros(raw);
+    const no0  = normNoZeros(raw);
+
+    // ถ้าช่องว่างจริง ๆ
+    if(!keep){
+      verifyBtn.textContent='ยืนยันตัวตน';
+      verifyBtn.onclick=()=>verifyEmployee();  // manual
+      setCentered();
+      msgBox.classList.add('hidden'); msgBox.textContent='';
+      hideEmployeeInfo(false);
+      return;
     }
 
-    // resetToCenter: true (default) = กลับไปอยู่กลางจอด้วย
-    function hideEmployeeInfo(resetToCenter = true){
-      const div=document.getElementById('employeeInfo');
-      div.classList.add('hidden'); div.innerHTML='';
-      const btn=document.getElementById('verifyBtn');
-      btn.textContent='ยืนยันตัวตน'; btn.onclick=verifyEmployee;
-      if(resetToCenter) setCentered();
-    }
+    // ระหว่างพิมพ์แสดง loading
+    showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
+    hideEmployeeInfo(false); // ซ่อนผลเดิม
 
-    function proceedToForm(){
-      document.documentElement.classList.remove('no-scrollbar');
-      document.body.classList.remove('no-scrollbar');
-      alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
+    // ค้นหาแบบยืดหยุ่น
+    const emp = getEmployeeData(keep, no0);
+    if(emp){
+      showEmployeeInfo(emp);      // จะ setTop() + scrollTo ด้านใน
+      verifyBtn.textContent='ดำเนินการต่อ';
+      verifyBtn.onclick=proceedToForm;
+    }else{
+      // โหมด auto (ขณะพิมพ์): ยังไม่เจอ → คงสถานะ loading ไว้
+      if(!isAuto){
+        // โหมดกดปุ่ม: แจ้งไม่พบ
+        showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+        setCentered();
+      }
+      verifyBtn.textContent='ยืนยันตัวตน';
+      verifyBtn.onclick=()=>verifyEmployee(); // manual
     }
+  }
+
+  /* =====================================================
+     REPLACE: getEmployeeData (ค้นหาแบบยืดหยุ่น/ศูนย์นำหน้า)
+     ===================================================== */
+  function getEmployeeData(keepInput, no0Input){
+    // demo dataset (ฝั่งจริงให้เรียก API แทน)
+    const data={
+      '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department',costCenter:'CC-1010 - Information Technology'},
+      '2002':{id:'2002',name:'ประยุทธ มั่นใจ',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Prayuth Manjai',divisionName:'Operations Department',costCenter:'CC-2022 - Operations'},
+      '0025':{id:'0025',name:'ตัวอย่าง ศูนย์นำหน้า',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Leading Zero',divisionName:'Finance',costCenter:'CC-0025 - Finance'} // ตัวอย่างรหัสมี 0 นำหน้า
+    };
+
+    // 1) ตรง key ก่อน (กรณีผู้ใช้กรอกครบและตรง)
+    if(data[keepInput]) return data[keepInput];
+
+    // 2) ไล่หาโดยเปรียบเทียบแบบ keep/no-zero ทั้งสองฝั่ง
+    const values = Object.values(data);
+    for(const emp of values){
+      const keepRow = normKeepZeros(emp.id);
+      const no0Row  = normNoZeros(emp.id);
+      if(keepRow === keepInput || no0Row === no0Input){
+        return emp;
+      }
+    }
+    return null;
+  }
+
+  /* =======================
+     ฟังก์ชันเดิม: ไม่ต้องแก้
+     ======================= */
+  function showEmployeeInfo(emp){
+    setTop();
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    const div=document.getElementById('employeeInfo');
+    const msgBox=document.getElementById('message');
+    msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
+    msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
+    msgBox.classList.remove('hidden');
+
+    div.innerHTML=`
+    <div class="emp-frame p-6">
+      <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
+      <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
+      <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
+      <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
+      <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
+      <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
+      <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
+      <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
+    </div>`;
+    div.classList.remove('hidden');
+  }
+
+  function hideEmployeeInfo(resetToCenter = true){
+    const div=document.getElementById('employeeInfo');
+    div.classList.add('hidden'); div.innerHTML='';
+    const btn=document.getElementById('verifyBtn');
+    btn.textContent='ยืนยันตัวตน'; btn.onclick=()=>verifyEmployee();
+    if(resetToCenter) setCentered();
+  }
+
+  function proceedToForm(){
+    document.documentElement.classList.remove('no-scrollbar');
+    document.body.classList.remove('no-scrollbar');
+    alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
+  }
   </script>
 </body>
 </html>
