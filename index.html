@@ -23,6 +23,7 @@
       scrollbar-gutter: stable both-edges;
     }
 
+    /* ซ่อนรูปร่างสกอร์ลเมื่ออยู่หน้า verify (ตัวเลือก) */
     html.no-scrollbar, body.no-scrollbar{
       -ms-overflow-style:none;
       scrollbar-width:none;
@@ -30,6 +31,10 @@
     html.no-scrollbar::-webkit-scrollbar,
     body.no-scrollbar::-webkit-scrollbar{ width:0; height:0; background:transparent; }
 
+    /* ล็อกสกอร์ลพื้นหลังตอนเปิดโมดัล */
+    body.modal-open{ overflow:hidden; }
+
+    /* โครงหน้า */
     .page-container{
       display:flex;
       justify-content:center;
@@ -109,7 +114,9 @@
             หลังจากที่ท่านกดส่งคำร้องขอเบิกอุปกรณ์สำนักงานแล้ว จะมีอีเมล์แจ้งรายละเอียดการเบิกเป็นแบบฟอร์มขออนุมัติ
           </p>
           <div class="flex justify-center text-emerald-700 border-t border-emerald-200 pt-4">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+            </svg>
             <span class="font-medium">สงสัยเพิ่มเติม โทร 02-1465959 #4384</span>
           </div>
         </div>
@@ -122,7 +129,9 @@
       <!-- หน้า Verify -->
       <div id="verifyContent" class="hidden text-left">
         <button onclick="goBack()" class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+          </svg>
           กลับ
         </button>
 
@@ -131,7 +140,7 @@
 
         <div class="max-w-xl mx-auto">
           <label class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
-          <!-- ไม่ตรวจระหว่างพิมพ์ -->
+          <!-- ไม่ตรวจระหว่างพิมพ์ ต้องกดยืนยันก่อน -->
           <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" 
                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"/>
 
@@ -146,9 +155,9 @@
     </div>
   </div>
 
-  <!-- ✅ Modal ป๊อปอัป: กำลังตรวจสอบ -->
-  <div id="checkingModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
-    <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
+  <!-- Modal: กำลังตรวจสอบ -->
+  <div id="checkingModal" class="hidden fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3 pointer-events-auto">
       <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -156,7 +165,6 @@
       <span class="text-gray-800 font-medium">กำลังตรวจสอบรหัสพนักงาน…</span>
     </div>
   </div>
-  <!-- /Modal -->
 
   <script>
     /* ============ CONFIG ============ */
@@ -227,12 +235,18 @@
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
     }
 
-    /* ✅ ฟังก์ชันแสดง/ซ่อนป๊อปอัป */
+    /* โมดัล แสดง/ซ่อน */
     function showCheckingModal(show=true){
       const m = document.getElementById('checkingModal');
       if(!m) return;
-      if(show) m.classList.remove('hidden');
-      else     m.classList.add('hidden');
+      if(show){
+        m.classList.remove('hidden');
+        void m.offsetHeight;               // บังคับวาดเฟรมนี้
+        document.body.classList.add('modal-open');
+      }else{
+        m.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+      }
     }
 
     async function verifyEmployee(){
@@ -253,13 +267,19 @@
         return;
       }
 
-      // ✅ แสดงป๊อปอัป + กันกดซ้ำชั่วคราว
+      // โชว์ป๊อปอัป + กันกดซ้ำ
       showCheckingModal(true);
       btn.disabled = true;
       btn.classList.add('opacity-80', 'cursor-not-allowed');
 
+      // ให้เบราว์เซอร์วาดโมดัลก่อนเริ่ม fetch
+      await new Promise(r => requestAnimationFrame(() => r()));
+      // ให้หมุนอย่างน้อย 500ms เพื่อให้ผู้ใช้เห็นชัด
+      const minSpin = new Promise(r => setTimeout(r, 500));
+
       try{
-        const emp = await getEmployeeData(rawInput);
+        const api = getEmployeeData(rawInput);
+        const [emp] = await Promise.all([api, minSpin]);
 
         if(emp){
           showEmployeeInfo(emp);
@@ -271,8 +291,11 @@
           btn.textContent='ยืนยันตัวตน';
           btn.onclick=verifyEmployee;
         }
+      } catch(err){
+        console.error('verifyEmployee error:', err);
+        showMsg('เกิดข้อผิดพลาดในการตรวจสอบ กรุณาลองอีกครั้ง','error');
+        setCentered();
       } finally {
-        // ✅ ปิดป๊อปอัป + เปิดปุ่มกลับ
         showCheckingModal(false);
         btn.disabled = false;
         btn.classList.remove('opacity-80', 'cursor-not-allowed');
