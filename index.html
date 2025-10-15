@@ -84,7 +84,7 @@
     .pill{ display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem }
     .pill .dot{ width:.5rem;height:.5rem;margin:0;background:#10b981 }
 
-    /* ✅ เพิ่มส่วนนี้: เมื่อกดโฟกัสที่ช่องรหัสพนักงาน → ขอบเขียวเข้ม + เงาเขียว */
+    /* เอฟเฟกต์ตอนโฟกัสช่องกรอกรหัส */
     #employeeId{
       transition: border-color .2s ease, box-shadow .2s ease;
     }
@@ -94,43 +94,11 @@
       box-shadow:0 0 0 3px rgba(16,185,129,0.25);          /* วงแหวน/เงาเขียวอ่อน */
       outline:none;
     }
-    #message{
-      margin-top: 0.8rem !important;  /* 1.5rem ≈ 24px ปรับได้ตามชอบ */
-    }
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
-async function getEmployeeData(rawId){
-    const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
-    const res = await fetch(url, { method:'GET', cache:'no-store' });
-    if(!res.ok) return null;
-    const data = await res.json().catch(()=>null);
-    if (data && data.success && data.data) return data.data;
-    return null;
-  }
-    async function getProducts(company='BJC'){
-    const url = `${API_BASE}?action=getProducts&company=${encodeURIComponent(company)}`;
-    const res = await fetch(url, { method:'GET', cache:'no-store' });
-    if(!res.ok) return { products:{} };
-    const data = await res.json().catch(()=>({ products:{} }));
-    return data.products || {};
-  }
-    async function submitForm(payload){
-    // payload = { employeeId, company, items, remarks, totalPrice }
-    const form = new URLSearchParams();
-    form.set('action', 'submitform');
-    form.set('employeeId', payload.employeeId || '');
-    form.set('company', payload.company || '');
-    form.set('items', JSON.stringify(payload.items || {}));
-    form.set('remarks', payload.remarks || '');
-    form.set('totalPrice', String(payload.totalPrice || ''));
 
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: form.toString()
-    });
-    if(!res.ok) return { success:false, error:'HTTP error' };
-    return await res.json().catch(()=>({ success:false, error:'Invalid JSON' }));
-  } 
+    /* เว้นระยะกล่องข้อความแจ้งเตือน */
+    #message{
+      margin-top: 0.8rem !important;
+    }
   </style>
 </head>
 <body>
@@ -186,8 +154,51 @@ async function getEmployeeData(rawId){
   </div>
 
   <script>
+    /* =================== CONFIG & API =================== */
     const container = document.getElementById('pageContainer');
 
+    // URL Apps Script (ต้องเป็น /exec จากการ Deploy)
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
+
+    // GET: Employee
+    async function getEmployeeData(rawId){
+      const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
+      const res = await fetch(url, { method:'GET', cache:'no-store' });
+      if(!res.ok) return null;
+      const data = await res.json().catch(()=>null);
+      if (data && data.success && data.data) return data.data; // {id,name,company,status,formatName,divisionName,costCenter}
+      return null;
+    }
+
+    // (ถ้าจะใช้) GET: Products
+    async function getProducts(company='BJC'){
+      const url = `${API_BASE}?action=getProducts&company=${encodeURIComponent(company)}`;
+      const res = await fetch(url, { method:'GET', cache:'no-store' });
+      if(!res.ok) return { products:{} };
+      const data = await res.json().catch(()=>({ products:{} }));
+      return data.products || {};
+    }
+
+    // (ถ้าจะใช้) POST: Submit form (form-encoded → simple request)
+    async function submitForm(payload){
+      const form = new URLSearchParams();
+      form.set('action', 'submitform');
+      form.set('employeeId', payload.employeeId || '');
+      form.set('company', payload.company || '');
+      form.set('items', JSON.stringify(payload.items || {}));
+      form.set('remarks', payload.remarks || '');
+      form.set('totalPrice', String(payload.totalPrice || ''));
+
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: form.toString()
+      });
+      if(!res.ok) return { success:false, error:'HTTP error' };
+      return await res.json().catch(()=>({ success:false, error:'Invalid JSON' }));
+    }
+
+    /* =================== LAYOUT HELPERS =================== */
     function startForm(){ togglePage(true); }
     function goBack(){ togglePage(false); }
 
@@ -204,7 +215,7 @@ async function getEmployeeData(rawId){
       const msg = document.getElementById('message');
       msg.classList.add('hidden'); msg.textContent = "";
 
-      // ⬇️ เข้าหน้า Verify: เริ่ม "ตรงกลาง" + ซ่อนรูปร่าง scrollbar
+      // เข้าหน้า Verify: เริ่ม "ตรงกลาง" + ซ่อนรูปร่าง scrollbar
       if(isVerify){
         setCentered();
         document.documentElement.classList.add('no-scrollbar');
@@ -218,153 +229,106 @@ async function getEmployeeData(rawId){
       window.scrollTo({top:0,behavior:'instant'});
     }
 
-    // helper: จัดตำแหน่ง
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
-const toLatinDigits_ = s =>
-    String(s == null ? '' : s).replace(/[๐-๙]/g, d => '0123456789'['๐๑๒๓๔๕๖๗๘๙'.indexOf(d)]);
 
-  const normKeepZeros = s => toLatinDigits_(s)
-    .normalize('NFKC')
-    .replace(/[\s\-–—_/\.]/g, '');      // ตัดช่องว่าง/ขีด/สแลช/จุด/ขีดล่าง
+    /* =================== INPUT NORMALIZE & DEBOUNCE =================== */
+    // แปลงเลขไทย → อารบิก และตัดตัวคั่น เพื่อความเนียนระหว่างพิมพ์ (ฝั่ง API ก็ normalize อยู่แล้ว)
+    const toLatinDigits_ = s =>
+      String(s == null ? '' : s).replace(/[๐-๙]/g, d => '0123456789'['๐๑๒๓๔๕๖๗๘๙'.indexOf(d)]);
+    const stripSeparators_ = s => toLatinDigits_(s).normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
 
-  const normNoZeros = s => normKeepZeros(s).replace(/^0+/, '');  // ตัดศูนย์นำหน้า (ตัวเลือก)
+    function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),wait); }; }
 
-  // debounce กันเรียกถี่เกินไปขณะพิมพ์
-  function debounce(fn, wait=250){
-    let t; 
-    return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); };
-  }
+    const autoVerifyEmployee = (()=>{
+      const run = debounce((value)=>{ verifyEmployee(value, /*isAuto*/ true); }, 220);
+      return (value)=> run(value);
+    })();
 
-  /* =======================================
-     REPLACE: autoVerifyEmployee (นับทุกตัว)
-     ======================================= */
-  const autoVerifyEmployee = (()=>{
-    const run = debounce((value)=>{
-      // โหมด auto: ระหว่างพิมพ์ หากยังไม่เจอ ให้ขึ้น "กำลังตรวจสอบ..." (ไม่โชว์ error)
-      verifyEmployee(value, /*isAuto*/ true);
-    }, 220);
-    return (value)=> run(value);
-  })();
+    /* =================== VERIFY (async เรียก API จริง) =================== */
+    async function verifyEmployee(idValue, isAuto=false){
+      const rawInput = idValue || document.getElementById('employeeId').value || '';
+      const cleaned  = stripSeparators_(rawInput);
 
-  /* ============================================================
-     REPLACE: verifyEmployee (รองรับ auto และศูนย์/ตัวคั่น/เลขไทย)
-     ============================================================ */
-  function verifyEmployee(idValue, isAuto=false){
-    const raw = idValue || document.getElementById('employeeId').value;
-    const msgBox=document.getElementById('message');
-    const verifyBtn=document.getElementById('verifyBtn');
+      const msgBox=document.getElementById('message');
+      const verifyBtn=document.getElementById('verifyBtn');
+      const showMsg=(txt,type)=>{
+        msgBox.className='mt-4 p-4 rounded-lg text-center '+
+          (type==='error'  ? 'bg-red-100 text-red-700 border border-red-200' :
+           type==='success'? 'alert-success' :
+                             'bg-blue-100 text-blue-700 border border-blue-200');
+        msgBox.textContent=txt; 
+        msgBox.classList.remove('hidden');
+      };
 
-    const showMsg=(txt,type)=>{
-      msgBox.className='mt-4 p-4 rounded-lg text-center '+
-        (type==='error'  ? 'bg-red-100 text-red-700 border border-red-200' :
-         type==='success'? 'alert-success' :
-         /*loading*/       'bg-blue-100 text-blue-700 border border-blue-200');
-      msgBox.textContent=txt; 
-      msgBox.classList.remove('hidden');
-    };
-
-    const keep = normKeepZeros(raw);
-    const no0  = normNoZeros(raw);
-
-    // ถ้าช่องว่างจริง ๆ
-    if(!keep){
-      verifyBtn.textContent='ยืนยันตัวตน';
-      verifyBtn.onclick=()=>verifyEmployee();  // manual
-      setCentered();
-      msgBox.classList.add('hidden'); msgBox.textContent='';
-      hideEmployeeInfo(false);
-      return;
-    }
-
-    // ระหว่างพิมพ์แสดง loading
-    showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
-    hideEmployeeInfo(false); // ซ่อนผลเดิม
-
-    // ค้นหาแบบยืดหยุ่น
-    const emp = getEmployeeData(keep, no0);
-    if(emp){
-      showEmployeeInfo(emp);      // จะ setTop() + scrollTo ด้านใน
-      verifyBtn.textContent='ดำเนินการต่อ';
-      verifyBtn.onclick=proceedToForm;
-    }else{
-      // โหมด auto (ขณะพิมพ์): ยังไม่เจอ → คงสถานะ loading ไว้
-      if(!isAuto){
-        // โหมดกดปุ่ม: แจ้งไม่พบ
-        showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+      if(!cleaned){
+        verifyBtn.textContent='ยืนยันตัวตน';
+        verifyBtn.onclick=()=>verifyEmployee();
         setCentered();
+        msgBox.classList.add('hidden'); msgBox.textContent='';
+        hideEmployeeInfo(false);
+        return;
       }
-      verifyBtn.textContent='ยืนยันตัวตน';
-      verifyBtn.onclick=()=>verifyEmployee(); // manual
-    }
-  }
 
-  /* =====================================================
-     REPLACE: getEmployeeData (ค้นหาแบบยืดหยุ่น/ศูนย์นำหน้า)
-     ===================================================== */
-  function getEmployeeData(keepInput, no0Input){
-    // demo dataset (ฝั่งจริงให้เรียก API แทน)
-    const data={
-      '1001':{id:'1001',name:'สมชาย ใจดี',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Somchai Jaidee',divisionName:'IT Department',costCenter:'CC-1010 - Information Technology'},
-      '2002':{id:'2002',name:'ประยุทธ มั่นใจ',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Prayuth Manjai',divisionName:'Operations Department',costCenter:'CC-2022 - Operations'},
-      '0025':{id:'0025',name:'ตัวอย่าง ศูนย์นำหน้า',company:'BJC Big C Supercenter',status:'Active',formatName:'Mr. Leading Zero',divisionName:'Finance',costCenter:'CC-0025 - Finance'} // ตัวอย่างรหัสมี 0 นำหน้า
-    };
+      // แสดงสถานะกำลังตรวจสอบ
+      showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
+      hideEmployeeInfo(false);
 
-    // 1) ตรง key ก่อน (กรณีผู้ใช้กรอกครบและตรง)
-    if(data[keepInput]) return data[keepInput];
+      // เรียก API จริง (ส่ง rawInput ไปได้เลย — ฝั่ง Apps Script normalize ให้แล้ว)
+      const emp = await getEmployeeData(rawInput);
 
-    // 2) ไล่หาโดยเปรียบเทียบแบบ keep/no-zero ทั้งสองฝั่ง
-    const values = Object.values(data);
-    for(const emp of values){
-      const keepRow = normKeepZeros(emp.id);
-      const no0Row  = normNoZeros(emp.id);
-      if(keepRow === keepInput || no0Row === no0Input){
-        return emp;
+      if(emp){
+        showEmployeeInfo(emp);
+        verifyBtn.textContent='ดำเนินการต่อ';
+        verifyBtn.onclick=proceedToForm;
+      }else{
+        if(!isAuto){
+          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+          setCentered();
+        } // โหมด auto: ค้างที่ "กำลังตรวจสอบ..." จนกว่าจะเจอ/กดปุ่ม
+        verifyBtn.textContent='ยืนยันตัวตน';
+        verifyBtn.onclick=()=>verifyEmployee();
       }
     }
-    return null;
-  }
 
-  /* =======================
-     ฟังก์ชันเดิม: ไม่ต้องแก้
-     ======================= */
-  function showEmployeeInfo(emp){
-    setTop();
-    window.scrollTo({top:0,behavior:'smooth'});
+    /* =================== RENDER =================== */
+    function showEmployeeInfo(emp){
+      setTop();
+      window.scrollTo({top:0,behavior:'smooth'});
 
-    const div=document.getElementById('employeeInfo');
-    const msgBox=document.getElementById('message');
-    msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
-    msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
-    msgBox.classList.remove('hidden');
+      const div=document.getElementById('employeeInfo');
+      const msgBox=document.getElementById('message');
+      msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
+      msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
+      msgBox.classList.remove('hidden');
 
-    div.innerHTML=`
-    <div class="emp-frame p-6">
-      <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
-      <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
-      <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
-      <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
-      <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
-      <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
-      <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
-      <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
-    </div>`;
-    div.classList.remove('hidden');
-  }
+      div.innerHTML=`
+      <div class="emp-frame p-6">
+        <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
+        <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
+        <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
+        <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
+        <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
+        <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
+        <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
+        <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
+      </div>`;
+      div.classList.remove('hidden');
+    }
 
-  function hideEmployeeInfo(resetToCenter = true){
-    const div=document.getElementById('employeeInfo');
-    div.classList.add('hidden'); div.innerHTML='';
-    const btn=document.getElementById('verifyBtn');
-    btn.textContent='ยืนยันตัวตน'; btn.onclick=()=>verifyEmployee();
-    if(resetToCenter) setCentered();
-  }
+    function hideEmployeeInfo(resetToCenter = true){
+      const div=document.getElementById('employeeInfo');
+      div.classList.add('hidden'); div.innerHTML='';
+      const btn=document.getElementById('verifyBtn');
+      btn.textContent='ยืนยันตัวตน'; btn.onclick=()=>verifyEmployee();
+      if(resetToCenter) setCentered();
+    }
 
-  function proceedToForm(){
-    document.documentElement.classList.remove('no-scrollbar');
-    document.body.classList.remove('no-scrollbar');
-    alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
-  }
+    function proceedToForm(){
+      document.documentElement.classList.remove('no-scrollbar');
+      document.body.classList.remove('no-scrollbar');
+      alert("กำลังไปยังฟอร์มการเบิกอุปกรณ์...");
+    }
   </script>
 </body>
 </html>
