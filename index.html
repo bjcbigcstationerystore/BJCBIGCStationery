@@ -97,6 +97,40 @@
     #message{
       margin-top: 0.8rem !important;  /* 1.5rem ≈ 24px ปรับได้ตามชอบ */
     }
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
+async function getEmployeeData(rawId){
+    const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
+    const res = await fetch(url, { method:'GET', cache:'no-store' });
+    if(!res.ok) return null;
+    const data = await res.json().catch(()=>null);
+    if (data && data.success && data.data) return data.data;
+    return null;
+  }
+    async function getProducts(company='BJC'){
+    const url = `${API_BASE}?action=getProducts&company=${encodeURIComponent(company)}`;
+    const res = await fetch(url, { method:'GET', cache:'no-store' });
+    if(!res.ok) return { products:{} };
+    const data = await res.json().catch(()=>({ products:{} }));
+    return data.products || {};
+  }
+    async function submitForm(payload){
+    // payload = { employeeId, company, items, remarks, totalPrice }
+    const form = new URLSearchParams();
+    form.set('action', 'submitform');
+    form.set('employeeId', payload.employeeId || '');
+    form.set('company', payload.company || '');
+    form.set('items', JSON.stringify(payload.items || {}));
+    form.set('remarks', payload.remarks || '');
+    form.set('totalPrice', String(payload.totalPrice || ''));
+
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: form.toString()
+    });
+    if(!res.ok) return { success:false, error:'HTTP error' };
+    return await res.json().catch(()=>({ success:false, error:'Invalid JSON' }));
+  } 
   </style>
 </head>
 <body>
