@@ -83,6 +83,20 @@
     .field-value{ color:#111827;font-weight:500 }
     .pill{ display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem }
     .pill .dot{ width:.5rem;height:.5rem;margin:0;background:#10b981 }
+
+    /* ✅ เพิ่มส่วนนี้: เมื่อกดโฟกัสที่ช่องรหัสพนักงาน → ขอบเขียวเข้ม + เงาเขียว */
+    #employeeId{
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    #employeeId:focus{
+      border-width: 2px;  
+      border-color: #059669!important;                     /* เขียวเข้ม */
+      box-shadow:0 0 0 3px rgba(16,185,129,0.25);          /* วงแหวน/เงาเขียวอ่อน */
+      outline:none;
+    }
+    #message{
+      margin-top: 0.8rem !important;  /* 1.5rem ≈ 24px ปรับได้ตามชอบ */
+    }
   </style>
 </head>
 <body>
@@ -238,7 +252,7 @@
 
       const div=document.getElementById('employeeInfo');
       const msgBox=document.getElementById('message');
-      msgBox.className='alert-success p-4 mb-4 text-center text-base';
+      msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
       msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
       msgBox.classList.remove('hidden');
 
