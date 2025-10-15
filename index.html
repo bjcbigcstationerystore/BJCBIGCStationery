@@ -13,21 +13,23 @@
       --emerald-600:#059669;
       --emerald-500:#10b981;
     }
+    /* ✅ เปิดเลื่อนทั้งหน้า */
     html,body{
       height:100%;
       margin:0;
       font-family:'Prompt',sans-serif;
       background-color:#064e3b;
-      overflow:hidden;
+      overflow:auto; /* เดิม hidden */
     }
 
+    /* ✅ เปลี่ยนจาก fixed height เป็น min-height เพื่อให้หน้า “สูงเท่าที่ต้องการ” แล้วค่อยเลื่อนทั้งหน้า */
     .page-container{
       display:flex;
-      align-items:center;
+      align-items:flex-start;   /* เดิม center */
       justify-content:center;
-      height:100vh;
+      min-height:100vh;         /* เดิม height:100vh */
       width:100%;
-      padding:1rem;
+      padding:2rem 1rem;        /* เพิ่ม padding ด้านบนให้สวยเวลามีสกรอลล์ */
     }
 
     .content-card{
@@ -36,8 +38,9 @@
       box-shadow:0 20px 40px rgba(0,0,0,0.15);
       width:100%;
       max-width:850px;
-      max-height:90vh;
-      overflow-y:auto;
+      /* ❌ เอา max-height/overflow ภายในกรอบออก เพื่อไม่ให้สกรอลล์เฉพาะกรอบ */
+      /* max-height:90vh; */
+      /* overflow-y:auto; */
       backdrop-filter:blur(10px);
       padding:2.5rem;
     }
@@ -121,6 +124,7 @@
           <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
           <div id="employeeInfo" class="hidden mt-4"></div>
 
+          <!-- ✅ ปุ่มเดียว ใช้เป็น 'ยืนยันตัวตน' ก่อน และเปลี่ยนเป็น 'ดำเนินการต่อ' เมื่อพบข้อมูล -->
           <button id="verifyBtn" onclick="verifyEmployee()" class="btn-primary w-full text-white font-semibold py-3 mt-4 rounded-full text-lg shadow-lg">
             ยืนยันตัวตน
           </button>
@@ -138,7 +142,10 @@
       document.getElementById('verifyContent').classList.toggle('hidden',!isVerify);
       document.getElementById('employeeId').value="";
       hideEmployeeInfo();
-      document.getElementById('message').classList.add('hidden');
+      const msg = document.getElementById('message');
+      msg.classList.add('hidden');
+      msg.textContent = "";
+      window.scrollTo({top:0,behavior:'instant'}); // ✅ เลื่อนขึ้นบนสุดทุกครั้ง
     }
 
     function autoVerifyEmployee(value){
@@ -146,13 +153,17 @@
         verifyEmployee(value);
       } else {
         hideEmployeeInfo();
-        document.getElementById('message').classList.add('hidden');
+        const msg = document.getElementById('message');
+        msg.classList.add('hidden');
+        msg.textContent = "";
       }
     }
 
     function verifyEmployee(idValue){
       const id = idValue || document.getElementById('employeeId').value.trim();
       const msgBox=document.getElementById('message');
+      const verifyBtn=document.getElementById('verifyBtn');
+
       const showMsg=(txt,type)=>{
         msgBox.className='mt-4 p-4 rounded-lg text-center '+
           (type==='error'?'bg-red-100 text-red-700 border border-red-200':
@@ -160,13 +171,28 @@
            type==='loading'?'bg-blue-100 text-blue-700 border border-blue-200':'');
         msgBox.textContent=txt; msgBox.classList.remove('hidden');
       };
-      if(!id){return;}
+
+      if(!id){
+        verifyBtn.textContent='ยืนยันตัวตน';
+        verifyBtn.onclick=verifyEmployee;
+        return;
+      }
+
       showMsg('กำลังตรวจสอบรหัสพนักงาน...','loading');
       hideEmployeeInfo();
+
       setTimeout(()=>{
         const emp=getEmployeeData(id);
-        if(emp){ showEmployeeInfo(emp); } 
-        else { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error'); hideEmployeeInfo(); }
+        if(emp){
+          showEmployeeInfo(emp);
+          // ✅ เปลี่ยนปุ่มเดียวด้านล่างให้เป็น "ดำเนินการต่อ"
+          verifyBtn.textContent='ดำเนินการต่อ';
+          verifyBtn.onclick=proceedToForm;
+        }else{
+          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+          verifyBtn.textContent='ยืนยันตัวตน';
+          verifyBtn.onclick=verifyEmployee;
+        }
       },400);
     }
 
@@ -201,6 +227,7 @@
       msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
       msgBox.classList.remove('hidden');
 
+      /* ❌ ไม่มีปุ่มภายในกรอบนี้อีกแล้ว เหลือแค่ปุ่มล่างปุ่มเดียว */
       div.innerHTML=`
       <div class="emp-frame p-6">
         <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
@@ -211,16 +238,17 @@
         <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
         <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
         <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
-      </div>
-      <button class="btn-primary w-full text-white font-semibold py-3 mt-5 rounded-full text-lg shadow-lg" onclick="proceedToForm()">ดำเนินการต่อ</button>`;
+      </div>`;
       div.classList.remove('hidden');
-
-      const btn=document.getElementById('verifyBtn');btn.textContent='ดำเนินการต่อ';btn.onclick=proceedToForm;
     }
 
     function hideEmployeeInfo(){
-      const div=document.getElementById('employeeInfo');div.classList.add('hidden');div.innerHTML='';
-      const btn=document.getElementById('verifyBtn');btn.textContent='ยืนยันตัวตน';btn.onclick=verifyEmployee;
+      const div=document.getElementById('employeeInfo');
+      div.classList.add('hidden');
+      div.innerHTML='';
+      const btn=document.getElementById('verifyBtn');
+      btn.textContent='ยืนยันตัวตน';
+      btn.onclick=verifyEmployee;
     }
 
     function proceedToForm(){
