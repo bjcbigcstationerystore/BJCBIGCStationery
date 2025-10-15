@@ -131,14 +131,13 @@
 
         <div class="max-w-xl mx-auto">
           <label class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
-          <!-- ❌ ไม่มี oninput: ไม่ตรวจระหว่างพิมพ์ -->
+          <!-- ไม่ตรวจระหว่างพิมพ์ -->
           <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" 
                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"/>
 
           <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
           <div id="employeeInfo" class="hidden mt-4"></div>
 
-          <!-- ✅ ต้องกดปุ่มยืนยันก่อนเสมอถึงจะตรวจและแสดงข้อมูล -->
           <button id="verifyBtn" class="btn-primary w-full text-white font-semibold py-3 mt-4 rounded-full text-lg shadow-lg">
             ยืนยันตัวตน
           </button>
@@ -146,6 +145,18 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Modal ป๊อปอัป: กำลังตรวจสอบ -->
+  <div id="checkingModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
+      <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <span class="text-gray-800 font-medium">กำลังตรวจสอบรหัสพนักงาน…</span>
+    </div>
+  </div>
+  <!-- /Modal -->
 
   <script>
     /* ============ CONFIG ============ */
@@ -194,7 +205,7 @@
       window.scrollTo({top:0,behavior:'instant'});
     }
 
-    /* ============ VERIFY: เฉพาะตอน "กดปุ่ม/กด Enter" เท่านั้น ============ */
+    /* ============ VERIFY (ปุ่ม/Enter เท่านั้น) ============ */
     document.getElementById('employeeId').addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){
         e.preventDefault();
@@ -213,16 +224,24 @@
     }
 
     function stripForSearch(s){
-      // ตัดช่องว่าง/ขีด/สแลช/จุด/ขีดล่าง (เพื่อความเรียบร้อยก่อนส่งหา)
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
+    }
+
+    /* ✅ ฟังก์ชันแสดง/ซ่อนป๊อปอัป */
+    function showCheckingModal(show=true){
+      const m = document.getElementById('checkingModal');
+      if(!m) return;
+      if(show) m.classList.remove('hidden');
+      else     m.classList.add('hidden');
     }
 
     async function verifyEmployee(){
       const inputEl = document.getElementById('employeeId');
       const rawInput = inputEl.value || '';
       const cleaned  = stripForSearch(rawInput);
+      const btn = document.getElementById('verifyBtn');
 
-      // ซ่อนข้อความ/ผลลัพธ์เก่าไว้ก่อน (ไม่มี loading)
+      // ซ่อนข้อความ/ผลลัพธ์เก่า
       const msgBox=document.getElementById('message');
       msgBox.classList.add('hidden');
       msgBox.textContent='';
@@ -234,20 +253,29 @@
         return;
       }
 
-      // ✅ ไม่มีการโชว์ "กำลังตรวจสอบ..." อีกแล้ว
-      const emp = await getEmployeeData(rawInput);
+      // ✅ แสดงป๊อปอัป + กันกดซ้ำชั่วคราว
+      showCheckingModal(true);
+      btn.disabled = true;
+      btn.classList.add('opacity-80', 'cursor-not-allowed');
 
-      if(emp){
-        showEmployeeInfo(emp);
-        const verifyBtn=document.getElementById('verifyBtn');
-        verifyBtn.textContent='ดำเนินการต่อ';
-        verifyBtn.onclick=proceedToForm;
-      }else{
-        showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
-        setCentered();
-        const verifyBtn=document.getElementById('verifyBtn');
-        verifyBtn.textContent='ยืนยันตัวตน';
-        verifyBtn.onclick=verifyEmployee;
+      try{
+        const emp = await getEmployeeData(rawInput);
+
+        if(emp){
+          showEmployeeInfo(emp);
+          btn.textContent='ดำเนินการต่อ';
+          btn.onclick=proceedToForm;
+        }else{
+          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+          setCentered();
+          btn.textContent='ยืนยันตัวตน';
+          btn.onclick=verifyEmployee;
+        }
+      } finally {
+        // ✅ ปิดป๊อปอัป + เปิดปุ่มกลับ
+        showCheckingModal(false);
+        btn.disabled = false;
+        btn.classList.remove('opacity-80', 'cursor-not-allowed');
       }
     }
 
