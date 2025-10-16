@@ -23,7 +23,7 @@
       scrollbar-gutter: stable both-edges;
     }
 
-    /* ซ่อน scrollbar (เฉพาะรูปร่าง) เมื่ออยู่หน้า verify */
+    /* ซ่อน scrollbar */
     html.no-scrollbar, body.no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
     html.no-scrollbar::-webkit-scrollbar,
     body.no-scrollbar::-webkit-scrollbar{ width:0; height:0; background:transparent; }
@@ -40,18 +40,31 @@
     .page-container.top{ align-items:flex-start; }
 
     .content-card{
-      position: relative;
-      background:rgba(255,255,255,0.96);
-      border-radius:20px;
-      box-shadow:0 20px 40px rgba(0,0,0,0.15);
-      width:100%;
-      max-width:980px;
-      backdrop-filter:blur(10px);
-      padding:2.5rem;
-      color:#111827;
+  position: relative;
+  background:rgba(255,255,255,0.96);
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.15);
+  width:100%;
+  max-width:900px;                 /* 🔧 ลดความกว้างเดิมจาก 980 → 900 */
+  backdrop-filter:blur(10px);
+  padding:2.5rem 2.5rem 2.5rem 2.5rem;
+  color:#111827;
+}
+
+/* ✅ เฉพาะหน้า category เว้นพื้นที่ด้านขวาเพิ่มอีก */
+body.category .content-card{
+  padding-right:7.5rem;           /* 🔧 เพิ่มระยะห่างจากโลโก้ */
+}
+
+    /* โหมด category: เว้นพื้นที่ให้โลโก้มุมขวาบน + ลดความกว้างภายใน */
+    body.category .content-card{ padding-right:6.5rem; }
+    .category-inner{ max-width:860px; margin:0 auto; }
+    @media (max-width:1024px){
+      body.category .content-card{ padding-right:2.5rem; }
+      .category-inner{ max-width:100%; }
     }
 
-    /* โลโก้มุมขวาบน: ซ่อนเป็นค่าเริ่มต้น, โชว์เมื่อ body.not-home */
+    /* โลโก้มุมขวาบน: ซ่อนเป็นค่าเริ่มต้น, โชว์เมื่อไม่อยู่หน้า Home */
     .corner-logo{ display:none; }
     body.not-home .corner-logo{ display:block; }
 
@@ -96,28 +109,44 @@
 
     #message{ margin-top: .8rem !important; }
 
-    /* การ์ดหมวดหมู่ */
+    /* การ์ดหมวดหมู่ — เวอร์ชันใหม่ให้ hover ขึ้นกรอบและแถบซ้ายสีเขียว */
     .cat-card{
+      position:relative;
       border:1px solid #e5e7eb;
       border-radius:16px;
       background:#ffffff;
-      padding:1.1rem 1rem;
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+      padding:1.1rem 1rem 1.1rem 1.25rem;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease, outline .15s ease;
+      outline:0 solid transparent;
     }
-    .cat-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 20px rgba(0,0,0,.06);
-      border-color:#bbf7d0;
-      background:#f8fffb;
-    }
-    .cat-title{ color:#0f172a;font-weight:700 }
-    .cat-sub{ color:#6b7280;font-size:.9rem }
+    .cat-card{
+  position:relative;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#ffffff;
+  padding:1.1rem 1rem 1.1rem 1.25rem;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+  outline:0;
+}
+
+/* ❌ เอาแถบด้านซ้ายออก */
+.cat-card::before{ content:none; }
+    /* ✅ hover: พื้นหลังเขียวอ่อน, กรอบเขียวอ่อนนิดๆ */
+.cat-card:hover{
+  transform:translateY(-2px);
+  background:#ecfdf5;               /* เขียวอ่อน */
+  border-color:#bbf7d0;             /* เส้นขอบเขียวอ่อน */
+  box-shadow:0 10px 20px rgba(0,0,0,.06);
+}
+
+.cat-title{ color:#0f172a; font-weight:700; }
+.cat-sub{ color:#6b7280; font-size:.9rem; }
   </style>
 </head>
 <body>
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
-      <!-- ✅ โลโก้มุมขวาบน: โชว์ทุกหน้า ยกเว้นหน้าแรก -->
+      <!-- ✅ โลโก้มุมขวาบน -->
       <img
         src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
         class="corner-logo absolute top-4 right-4 w-28 h-auto"
@@ -175,25 +204,27 @@
 
       <!-- หน้าเบิกอุปกรณ์: หมวดหมู่ -->
       <div id="categoryContent" class="hidden text-left">
-        <!-- ส่วนหัว -->
-        <div class="bg-emerald-900/5 border border-emerald-100 rounded-xl p-6 mb-6 text-center">
-          <div class="mx-auto w-16 h-16 rounded-2xl bg-emerald-900/20 flex items-center justify-center mb-3">
-            <svg class="w-8 h-8 text-emerald-800" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 6a1 1 0 011-1h3l1-2h8l1 2h3a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm2 2v10h14V8H5z"/>
-            </svg>
+        <div class="category-inner">
+          <!-- ส่วนหัว -->
+          <div class="bg-emerald-900/5 border border-emerald-100 rounded-xl p-6 mb-6 text-center">
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-emerald-900/20 flex items-center justify-center mb-3">
+              <svg class="w-8 h-8 text-emerald-800" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 6a1 1 0 011-1h3l1-2h8l1 2h3a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm2 2v10h14V8H5z"/>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold text-emerald-900">หมวดหมู่อุปกรณ์</h2>
+            <p class="text-gray-600">คลิกเพื่อเลือกหมวดหมู่ที่ต้องการเบิก</p>
           </div>
-          <h2 class="text-2xl font-extrabold text-emerald-900">หมวดหมู่อุปกรณ์</h2>
-          <p class="text-gray-600">คลิกเพื่อเลือกหมวดหมู่ที่ต้องการเบิก</p>
-        </div>
 
-        <!-- กริดการ์ดหมวด -->
-        <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          <!-- กริดการ์ดหมวด -->
+          <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-        <!-- ปุ่มไปหน้าหลัก (ล่างขวา) -->
-        <div class="mt-6 flex justify-end">
-          <button onclick="showPage('home')" class="px-5 py-2 rounded-full border border-emerald-200 text-emerald-800 bg-white hover:bg-emerald-50">
-            ← หน้าหลัก
-          </button>
+          <!-- ปุ่มไปหน้าหลัก (ล่างขวา) -->
+          <div class="mt-6 flex justify-end">
+            <button onclick="showPage('home')" class="px-5 py-2 rounded-full border border-emerald-200 text-emerald-800 bg-white hover:bg-emerald-50">
+              ← หน้าหลัก
+            </button>
+          </div>
         </div>
       </div>
       <!-- /หน้าเบิกอุปกรณ์ -->
@@ -210,7 +241,6 @@
       <span class="text-gray-800 font-medium">กำลังตรวจสอบรหัสพนักงาน…</span>
     </div>
   </div>
-  <!-- /Modal -->
 
   <script>
     /* ============ CONFIG ============ */
@@ -218,7 +248,6 @@
     const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
 
     /* ============ STATE ============ */
-    // กันเหตุปุ่มเรียก verify ซ้ำตอนเป็นโหมด "ดำเนินการต่อ"
     let stage = 'verify'; // 'verify' | 'proceed'
 
     /* ============ หมวดหมู่ตัวอย่าง ============ */
@@ -247,11 +276,9 @@
     }
 
     function openCategory(name){
-      // TODO: เชื่อมไปหน้า "รายการสินค้าในหมวด"
       alert('เลือกหมวด: ' + name);
     }
 
-    /* ============ API ============ */
     async function getEmployeeData(rawId){
       const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
       const res = await fetch(url, { method:'GET', cache:'no-store' });
@@ -276,24 +303,27 @@
 
       if(which==='home'){
         home.classList.remove('hidden');
-        document.body.classList.remove('not-home');
+        document.body.classList.remove('not-home','category');
+        document.documentElement.classList.remove('no-scrollbar');
+        document.body.classList.remove('no-scrollbar');
         setCentered();
         stage = 'verify';
         resetVerifyButton();
       }else if(which==='verify'){
         verify.classList.remove('hidden');
         document.body.classList.add('not-home');
+        document.body.classList.remove('category');
         setCentered();
         document.documentElement.classList.add('no-scrollbar');
-        document.body.classList.add('no-scrollbar');
+        document.body.classList.add('no-scrollbar');     // ✅ ซ่อนสกอลล์
         stage = 'verify';
         resetVerifyButton();
       }else if(which==='category'){
         cate.classList.remove('hidden');
-        document.body.classList.add('not-home');
+        document.body.classList.add('not-home','category');
         setTop();
-        document.documentElement.classList.remove('no-scrollbar');
-        document.body.classList.remove('no-scrollbar');
+        document.documentElement.classList.add('no-scrollbar');  // ✅ ซ่อนสกอลล์เหมือนหน้า verify
+        document.body.classList.add('no-scrollbar');             // ✅ ซ่อนสกอลล์
       }
 
       window.scrollTo({top:0,behavior:'instant'});
@@ -307,7 +337,6 @@
       const empInput = document.getElementById('employeeId');
       const btn = document.getElementById('verifyBtn');
 
-      // Enter ใช้เฉพาะตอน stage = verify
       empInput.addEventListener('keydown', (e)=>{
         if(e.key === 'Enter' && stage === 'verify'){
           e.preventDefault();
@@ -315,7 +344,6 @@
         }
       });
 
-      // เริ่มต้นผูกกับ verify
       btn.addEventListener('click', verifyEmployee);
 
       renderCategories();
@@ -334,7 +362,6 @@
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
     }
 
-    /* ป๊อปอัป: เปิด/ปิด */
     function showCheckingModal(show=true){
       const m = document.getElementById('checkingModal');
       if(!m) return;
@@ -368,7 +395,7 @@
 
         if(emp){
           showEmployeeInfo(emp);
-          setProceedButton(); // ⬅️ เปลี่ยนปุ่มเป็นโหมด "ดำเนินการต่อ"
+          setProceedButton();
         }else{
           showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
           setCentered();
@@ -379,10 +406,9 @@
         const currentBtn = document.getElementById('verifyBtn');
         currentBtn.disabled = false;
         currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-}
+      }
     }
 
-    /* ============ RENDER RESULT ============ */
     function showEmployeeInfo(emp){
       setTop();
       window.scrollTo({top:0,behavior:'smooth'});
@@ -411,24 +437,19 @@
       const div=document.getElementById('employeeInfo');
       div.classList.add('hidden'); 
       div.innerHTML='';
-
       if(resetToCenter) setCentered();
     }
 
-    /* ===== ปุ่มโหมดต่าง ๆ ===== */
     function setProceedButton(){
       const btn = document.getElementById('verifyBtn');
       stage = 'proceed';
-      
       btn.disabled = false;
       btn.classList.remove('opacity-80','cursor-not-allowed');
-      
       btn.textContent = 'ดำเนินการต่อ';
-      
       btn.onclick = null;
-    btn.removeEventListener('click', verifyEmployee);
-    btn.addEventListener('click', proceedToForm);
-  }
+      btn.removeEventListener('click', verifyEmployee);
+      btn.addEventListener('click', proceedToForm);
+    }
 
     function resetVerifyButton(){
       const btn = document.getElementById('verifyBtn');
@@ -436,17 +457,14 @@
       btn.disabled = false;
       btn.classList.remove('opacity-80','cursor-not-allowed');
       btn.textContent = 'ยืนยันตัวตน';
-      
       btn.onclick = null;
-  btn.removeEventListener('click', proceedToForm);
-  btn.addEventListener('click', verifyEmployee);
-}
+      btn.removeEventListener('click', proceedToForm);
+      btn.addEventListener('click', verifyEmployee);
+    }
 
     /* ➡️ ไปหน้า “เบิกอุปกรณ์ (หมวดหมู่)” */
     function proceedToForm(){
-      document.documentElement.classList.remove('no-scrollbar');
-      document.body.classList.remove('no-scrollbar');
-      showPage('category');  // ✅ ไปหน้าหมวดหมู่จริง ๆ
+      showPage('category');
     }
   </script>
 </body>
