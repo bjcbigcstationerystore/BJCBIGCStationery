@@ -84,8 +84,8 @@ body.products .prod-card:hover{
     
 /* รูปใหญ่ขึ้น */
 .prod-img{
-  width:160px;height:160px;object-fit:contain;
-  margin:0 auto 12px;border-radius:12px;background:#f8fafc
+  width:112px;height:112px;object-fit:contain;
+  margin:0 auto 10px;border-radius:12px;background:#f8fafc
 }
 
     /* Modal */
@@ -93,12 +93,93 @@ body.products .prod-card:hover{
     .modal{background:#fff;border-radius:18px;max-width:520px;width:92%;padding:22px 22px 20px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
     .qty-btn{width:38px;height:38px;border-radius:9999px;border:1px solid #e5e7eb;background:#fff;font-weight:800}
     .price-green{color:#059669;font-weight:800}
+    
+    /* ===== Cart floating button + badge ===== */
+.cart-btn{
+  position:absolute; top:72px; right:18px;
+  width:56px; height:56px; border-radius:16px;
+  background:linear-gradient(180deg,#0f5b46,#0e4f3e);
+  box-shadow:0 12px 28px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+  display:none; align-items:center; justify-content:center; cursor:pointer;
+  z-index: 50;  /* ⬅️ กันถูก hero/panel ทับ */
+}
+
+.cart-btn.show{ display:flex; }  /* จะโชว์ต่อเมื่อมีคลาส .show เท่านั้น */
+
+.cart-btn svg{ width:28px; height:28px; color:#ecfdf5; }
+
+.cart-badge{
+  position:absolute; top:-6px; right:-6px;
+  min-width:22px; height:22px; padding:0 6px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#ff4da0,#ff7a59);
+  color:#fff; font-weight:800; font-size:.8rem; border-radius:9999px;
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+
+/* ===== Cart Drawer (หน้าสรุป) ===== */
+.cart-mask{ position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.45); display:none; }
+.cart-mask.show{ display:block; }
+
+.cart-panel{
+  position:fixed; right:0; top:0; bottom:0; width:360px; max-width:90%;
+  display:flex; flex-direction:column; background:#f1f8f4; box-shadow:-16px 0 48px rgba(0,0,0,.25);
+}
+
+.cart-header{
+  padding:18px; background:linear-gradient(180deg,#1e6a57,#155844);
+  color:#ecfdf5; position:relative;
+}
+.cart-header .icon{
+  width:60px; height:60px; border-radius:18px;
+  background:linear-gradient(180deg,#0f5b46,#0e4f3e);
+  display:flex; align-items:center; justify-content:center;
+  position:absolute; right:18px; top:18px;
+}
+.cart-header .icon svg{ width:30px; height:30px; color:#ecfdf5; }
+.cart-header .icon .cart-badge{ top:-6px; right:-6px; }
+
+.cart-body{ padding:14px; overflow:auto; gap:12px; display:flex; flex-direction:column; }
+.cart-item{
+  background:#fff; border:1px solid #e6f1eb; border-radius:14px; padding:12px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 8px 18px rgba(0,0,0,.05);
+}
+.cart-item .info{ display:flex; flex-direction:column; }
+.cart-item .name{ font-weight:800; color:#0f172a; }
+.cart-item .meta{ font-weight:700; color:#059669; font-size:.95rem; }
+.cart-item .remove{
+  background:#ffd1d8; color:#b91c1c; font-weight:800;
+  border:none; border-radius:9999px; padding:.35rem .75rem;
+}
+
+.cart-footer{
+  margin-top:auto; background:#e7f4ee; padding:14px; border-top:1px solid #cfe9de;
+}
+.cart-total{ display:flex; align-items:center; justify-content:space-between; font-weight:800; }
+.cart-actions{ display:flex; gap:10px; margin-top:10px; }
+.cart-btn-secondary{
+  flex:1; background:#374151; color:#fff; border-radius:12px; padding:12px 14px; font-weight:800;
+}
+.cart-btn-primary{
+  flex:1; background:#065f46; color:#fff; border-radius:12px; padding:12px 14px; font-weight:800;
+}
+    
   </style>
 </head>
 <body>
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
       <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="corner-logo absolute top-4 right-4 w-28 h-auto" alt="Logo" />
+      
+      <!-- Cart Floating Button -->
+<button id="cartFab" class="cart-btn" onclick="openCart()">
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2zm7 0a1 1 0 110-2 1 1 0 010 2z"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span id="cartBadge" class="cart-badge" style="display:none">0</span>
+</button>
 
       <!-- ============ Home ============ -->
       <div id="homeContent">
@@ -236,7 +317,7 @@ body.products .prod-card:hover{
       <div class="text-center text-gray-700 mb-2">กรุณาระบุจำนวน</div>
       <div class="flex items-center justify-center gap-3 mb-4">
         <button class="qty-btn" onclick="chgQty(-1)">−</button>
-        <input id="mQty" type="number" min="1" step="1" inputmode="numeric" pattern="\d*"
+        <input id="mQty" type="number" min="0" step="1" inputmode="numeric" pattern="\d*"
        value="1" class="w-20 text-center border border-gray-300 rounded-lg py-2" />
         <button class="qty-btn" onclick="chgQty(1)">+</button>
       </div>
@@ -265,6 +346,85 @@ body.products .prod-card:hover{
     let PRODUCTS = [];
     let selectedCategory = '';
     let modalItem = { name:'', price:0, detail:'', image:'' };
+    
+    /* ===== CART STATE ===== */
+let CART = []; // [{ key, name, price, qty }]
+
+function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
+function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
+function findItemKey(p){ return (p.name || '').trim().toLowerCase(); }
+
+function addToCart(p, qty){
+  const key = findItemKey(p);
+  const q = Math.max(0, Number(qty)||0);
+  if(q===0) return;
+  const i = CART.findIndex(it => it.key===key);
+  if(i>-1){ CART[i].qty += q; }
+  else { CART.push({ key, name:p.name||'-', price:Number(p.price)||0, qty:q }); }
+  updateCartUI();
+}
+function removeFromCart(key){
+  CART = CART.filter(it => it.key!==key);
+  updateCartUI();
+}
+
+function updateCartUI(){
+  const n = cartCount();
+  const badge = document.getElementById('cartBadge');
+  const badgeHdr = document.getElementById('cartBadgeHdr');
+  const sumEl = document.getElementById('cartSum');
+  const fab = document.getElementById('cartFab');
+const isAllowedPage =
+  document.body.classList.contains('category') ||
+  document.body.classList.contains('products');
+
+if (fab) {
+  fab.classList.toggle('show', n > 0 && isAllowedPage);
+}
+
+  if(badge){ badge.style.display = n>0 ? 'flex' : 'none'; badge.textContent = n; }
+  if(badgeHdr){ badgeHdr.textContent = n; }
+  if(sumEl){ sumEl.textContent = baht(cartSum()); }
+
+  renderCartItems();
+}
+
+function renderCartItems(){
+  const wrap = document.getElementById('cartItems');
+  if(!wrap) return;
+  if(CART.length===0){
+    wrap.innerHTML = `<div class="text-center text-gray-500 py-10">ยังไม่มีรายการ</div>`;
+    return;
+  }
+  wrap.innerHTML = CART.map(it=>{
+    const line = baht((Number(it.price)||0) * (Number(it.qty)||0));
+    const unit = baht(Number(it.price)||0);
+    return `
+      <div class="cart-item">
+        <div class="info">
+          <div class="name">${it.name}</div>
+          <div class="meta">${unit} × ${it.qty}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-weight:900;color:#10b981;">${line}</div>
+          <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openCart(){
+  document.getElementById('cartMask')?.classList.add('show');
+  renderCartItems();
+}
+function closeCart(){
+  document.getElementById('cartMask')?.classList.remove('show');
+}
+function proceedCart(){
+  // TODO: ทำขั้นตอนถัดไป เช่น ส่งคำขอ/ไปหน้าอนุมัติ
+  alert('ดำเนินการต่อ (ตัวอย่าง)');
+}
 
     /* ============ Utilities ============ */
     const baht = n => '฿' + (Number(n||0)).toLocaleString('th-TH');
@@ -315,6 +475,7 @@ body.products .prod-card:hover{
       currentCompany = normalizeCompanyName(company);
       CATEGORIES = await getCategories(currentCompany, 50);
       renderCategories();
+      updateCartUI(); 
     }
 
     /* ====== Products ====== */
@@ -413,11 +574,11 @@ updateTotal();
   updateTotal();
 }
     function confirmAdd(){
-      // TODO: ใส่ลงตะกร้าจริง ๆ ถ้าต้องการ
-      closeItemModal();
-      // แจ้งเบา ๆ
-      alert(`เพิ่ม "${modalItem.name}" x ${mQty.value} — รวม ${mTotal.textContent}`);
-    }
+  const qty = normalizeQty(mQty.value);
+  if(qty <= 0){ closeItemModal(); return; }
+  addToCart(modalItem, qty);   // ✅ เพิ่มเข้าตะกร้า
+  closeItemModal();
+}
 
     /* ====== Employee ====== */
     async function getEmployeeData(rawId){
@@ -466,9 +627,10 @@ updateTotal();
         document.body.classList.add('not-home','products');
         setTop();
       }
+     
       window.scrollTo({top:0,behavior:'instant'});
+      updateCartUI();
     }
-
     function startForm(){ showPage('verify'); }
 
     /* รีเซ็ต verify */
@@ -615,5 +777,34 @@ updateTotal();
   else    { m.classList.add('hidden'); m.classList.remove('flex'); }
 }
   </script>
+   <!-- Cart Drawer -->
+<div id="cartMask" class="cart-mask" onclick="closeCart(event)">
+  <div id="cartPanel" class="cart-panel" onclick="event.stopPropagation();">
+    <div class="cart-header">
+      <div style="font-size:1.3rem;font-weight:900;">ตะกร้าสินค้า</div>
+      <div style="opacity:.85;">รายการที่เลือก</div>
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="cartBadgeHdr" class="cart-badge">0</span>
+      </div>
+    </div>
+
+    <div id="cartItems" class="cart-body"></div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>รวมทั้งหมด:</span>
+        <span id="cartSum" style="color:#10b981;">฿0</span>
+      </div>
+      <div class="cart-actions">
+        <button class="cart-btn-secondary" onclick="closeCart()">← หน้าหลัก</button>
+        <button class="cart-btn-primary" onclick="proceedCart()">ดำเนินการ</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
