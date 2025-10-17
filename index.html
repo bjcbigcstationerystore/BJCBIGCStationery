@@ -61,8 +61,26 @@
     .panel{ background:#fff; border-radius:0 0 20px 20px; box-shadow:0 15px 35px rgba(0,0,0,.18); overflow:hidden; margin:0; position:relative; }
     .panel-head{ background:linear-gradient(180deg,#f0fdf4,#ecfdf5); border-bottom:1px solid #d9f3e5; padding:22px 28px; }
     .panel-body{ padding:24px 24px 80px; }
-    .back-btn{ position:absolute; bottom:18px; right:28px; background:transparent; border:none; color:var(--emerald-700); font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:color .2s ease, transform .2s ease; }
-    .back-btn:hover{ color:var(--emerald-800); transform:translateX(-2px); }
+    .back-btn{
+  position:absolute;
+  bottom:18px;
+  right:28px;
+  background:transparent;
+  border:none;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  color:var(--emerald-600);
+  font-weight:500;
+  transition:color .2s ease, transform .2s ease;
+}
+.back-btn:hover{
+  color:var(--emerald-700);
+  transform:translateX(-2px);
+}
     .cat-item{ background:#fff; border:1px solid #e5e7eb; border-left-width:4px; border-left-color:#e5e7eb; border-radius:16px; padding:22px; transition:all .2s ease; text-align:left; cursor:pointer; }
     .cat-item:hover,.cat-item:focus{ background:#f0fdf4; border-left-color:var(--emerald-700); box-shadow:0 10px 22px rgba(0,0,0,.06); transform:translateY(-1px); }
     .cat-title{font-weight:700;color:#111827;margin-bottom:.25rem}
@@ -138,11 +156,13 @@
 
               <!-- ปุ่มกลับ (ไปหน้า verify + set ปุ่มเป็น "ดำเนินการต่อ") -->
               <button class="back-btn" onclick="backToVerifyProceed()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                กลับ
-              </button>
+  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd"
+          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+          clip-rule="evenodd"/>
+  </svg>
+  กลับ
+</button>
             </div>
           </div>
         </div>
