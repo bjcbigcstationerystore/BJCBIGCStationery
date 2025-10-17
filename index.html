@@ -152,7 +152,7 @@
   </div>
 
   <!-- Modal Loading -->
-  <div id="checkingModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+  <div id="checkingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
     <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
       <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -310,12 +310,17 @@
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
     }
 
-    function showCheckingModal(show=true){
-      const m = document.getElementById('checkingModal');
-      if(!m) return;
-      if(show) m.classList.remove('hidden');
-      else     m.classList.add('hidden');
-    }
+    function showCheckingModal(show = true) {
+  const m = document.getElementById('checkingModal');
+  if (!m) return;
+  if (show) {
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  } else {
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+}
 
     async function verifyEmployee(){
       const inputEl = document.getElementById('employeeId');
