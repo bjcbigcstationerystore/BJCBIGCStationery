@@ -8,92 +8,79 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
-      --emerald-900:#064e3b;
-      --emerald-800:#065f46;
-      --emerald-700:#047857;
-      --emerald-600:#059669;
-      --emerald-500:#10b981;
-      --logo-h: 32px; /* ความสูงโลโก้ทุกหน้า */
+      --emerald-900:#064e3b; --emerald-800:#065f46; --emerald-700:#047857;
+      --emerald-600:#059669; --emerald-500:#10b981; --logo-h:32px;
     }
-    html,body{ height:100%; margin:0; font-family:'Prompt',sans-serif; background-color:#064e3b; overflow:auto; scrollbar-gutter: stable both-edges; color:#0f172a; }
-    html.no-scrollbar, body.no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
-    html.no-scrollbar::-webkit-scrollbar, body.no-scrollbar::-webkit-scrollbar{ width:0; height:0; background:transparent; }
-    .page-container{ display:flex; justify-content:center; width:100%; min-height:100vh; padding:2rem 1rem; }
-    .page-container.centered{ align-items:center; }
-    .page-container.top{ align-items:flex-start; }
-    .content-card{ position: relative; background:rgba(255,255,255,0.96); border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.15); width:100%; max-width:900px; backdrop-filter:blur(10px); padding:2.5rem; color:#111827; }
-    body.category .content-card{ padding:0 !important; background:transparent !important; box-shadow:none !important; max-width:900px; }
-    .category-inner{ max-width:900px; margin:0 auto; }
-    @media (max-width:1024px){ .category-inner{ max-width:100%; } }
-    .corner-logo{ display:none; }
-    body.not-home .corner-logo{ display:block; }
-    .corner-logo{ height: var(--logo-h) !important; width:auto !important; }
-    .logo-box img{ height: var(--logo-h); width:auto; display:block; }
-    .btn-primary{ background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600)); transition:all .25s ease; }
-    .btn-primary:hover{ background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700)); transform:translateY(-2px); box-shadow:0 10px 25px rgba(16,185,129,.3); }
-    .alert-success{ background:#ecfdf5; border:1px solid #bbf7d0; color:#065f46; border-radius:12px; }
-    .emp-frame{ border:2px solid #059669; border-radius:16px; background:#fff; box-shadow:0 0 15px rgba(5,150,105,0.08); }
-    .dot{ width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem; }
-    .field-row{ display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb; }
-    .field-row:last-child{ border-bottom:0 }
-    .field-label{ color:#4b5563;font-weight:600 }
-    .field-value{ color:#111827;font-weight:500 }
-    .pill{ display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem }
-    .pill .dot{ width:.5rem;height:.5rem;margin:0;background:#10b981 }
-    #employeeId{ transition: border-color .2s ease, box-shadow .2s ease; }
-    #employeeId:focus{ border-width:2px; border-color:#059669!important; box-shadow:0 0 0 3px rgba(16,185,129,0.25); outline:none; }
-    #message{ margin-top:.8rem !important; }
+    html,body{height:100%;margin:0;font-family:'Prompt',sans-serif;background:#064e3b;color:#0f172a}
+    .page-container{display:flex;justify-content:center;width:100%;min-height:100vh;padding:2rem 1rem}
+    .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
+    .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
+    body.category .content-card, body.products .content-card{padding:0!important;background:transparent!important;box-shadow:none!important;max-width:900px}
+    .category-inner,.products-inner{max-width:900px;margin:0 auto}
+    @media (max-width:1024px){ .category-inner,.products-inner{max-width:100%} }
 
-    /* ========= หมวดอุปกรณ์ ========= */
-    .green-shell{ position:relative; border-radius:20px; padding:0; background:
+    .corner-logo{display:none} body.not-home .corner-logo{display:block}
+    .corner-logo{height:var(--logo-h)!important;width:auto!important}
+    .logo-box img{height:var(--logo-h);width:auto;display:block}
+
+    .btn-primary{background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));transition:.25s}
+    .btn-primary:hover{background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700));transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
+    .alert-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;border-radius:12px}
+
+    .emp-frame{border:2px solid #059669;border-radius:16px;background:#fff;box-shadow:0 0 15px rgba(5,150,105,.08)}
+    .dot{width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem}
+    .field-row{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb}.field-row:last-child{border-bottom:0}
+    .field-label{color:#4b5563;font-weight:600}.field-value{color:#111827;font-weight:500}
+    .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem}
+    .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
+
+    /* hero panel reused */
+    .green-shell{position:relative;border-radius:20px;padding:0;background:
       linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)),
-      linear-gradient(180deg, #1b4e41 0%, #1c5b4a 40%, #165846 100%); border:none; box-shadow:none; overflow:hidden; }
-    .hero{ position:relative; border-radius:0; margin:0; padding:22px 24px 24px; text-align:center; color:#ecfdf5; background:
+      linear-gradient(180deg,#1b4e41 0%,#1c5b4a 40%,#165846 100%);overflow:hidden}
+    .hero{position:relative;margin:0;padding:22px 24px 24px;text-align:center;color:#ecfdf5;background:
       linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-      linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%); box-shadow:none; border:none; }
-    .hero-title{font-size:2rem;font-weight:800;letter-spacing:.2px;margin:0}
+      linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%)}
+    .hero-title{font-size:2rem;font-weight:800;margin:0}
     .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
     .hero-dots{display:flex;gap:.65rem;justify-content:center;align-items:center;margin:.5rem 0 .85rem}
-    .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}
-    .hero-dots .dim{opacity:.35}
+    .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}.hero-dots .dim{opacity:.35}
     .hero-desc{font-weight:800;color:#f2fff7}
-    .logo-box{ position:absolute; top:14px; right:18px; background:#fff; border-radius:12px; padding:6px 10px; box-shadow:0 3px 8px rgba(0,0,0,.2); display:flex; align-items:center; gap:4px; }
-    .panel{ background:#fff; border-radius:0 0 20px 20px; box-shadow:0 15px 35px rgba(0,0,0,.18); overflow:hidden; margin:0; position:relative; }
-    .panel-head{ background:linear-gradient(180deg,#f0fdf4,#ecfdf5); border-bottom:1px solid #d9f3e5; padding:22px 28px; }
-    .panel-body{ padding:24px 24px 80px; }
+    .logo-box{position:absolute;top:14px;right:18px;background:#fff;border-radius:12px;padding:6px 10px;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px}
+    .panel{background:#fff;border-radius:0 0 20px 20px;box-shadow:0 15px 35px rgba(0,0,0,.18);overflow:hidden;margin:0;position:relative}
+    .panel-head{background:linear-gradient(180deg,#f0fdf4,#ecfdf5);border-bottom:1px solid #d9f3e5;padding:22px 28px}
+    .panel-body{padding:24px 24px 100px}
+
+    /* ปุ่มกลับ (แบบเดียวกับหน้ายืนยันตัวตน/หมวด) */
     .back-btn{
-  position:absolute;
-  bottom:18px;
-  right:28px;
-  background:transparent;
-  border:none;
-  cursor:pointer;
+      position:absolute;bottom:18px;right:28px;background:#fff;border:1px solid #e5e7eb;
+      border-radius:9999px;padding:.6rem 1rem;display:flex;align-items:center;gap:6px;
+      color:var(--emerald-700);font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.08);
+      transition:transform .15s, box-shadow .15s;
+    }
+    .back-btn:hover{transform:translateX(-2px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
 
-  display:flex;
-  align-items:center;
-  gap:6px;
+    /* การ์ดหมวด/สินค้า */
+    .cat-item,.prod-card{
+      background:#fff;border:1px solid #e5e7eb;border-left-width:4px;border-left-color:#e5e7eb;border-radius:16px;
+      padding:22px;transition:all .2s;text-align:center;cursor:pointer
+    }
+    .cat-item:hover,.cat-item:focus,.prod-card:hover{background:#f0fdf4;border-left-color:var(--emerald-700);box-shadow:0 10px 22px rgba(0,0,0,.06);transform:translateY(-1px)}
+    .prod-img{width:72px;height:72px;object-fit:contain;margin:0 auto 10px;border-radius:12px;background:#f8fafc}
 
-  color:var(--emerald-600);
-  font-weight:500;
-  transition:color .2s ease, transform .2s ease;
-}
-.back-btn:hover{
-  color:var(--emerald-700);
-  transform:translateX(-2px);
-}
-    .cat-item{ background:#fff; border:1px solid #e5e7eb; border-left-width:4px; border-left-color:#e5e7eb; border-radius:16px; padding:22px; transition:all .2s ease; text-align:left; cursor:pointer; }
-    .cat-item:hover,.cat-item:focus{ background:#f0fdf4; border-left-color:var(--emerald-700); box-shadow:0 10px 22px rgba(0,0,0,.06); transform:translateY(-1px); }
-    .cat-title{font-weight:700;color:#111827;margin-bottom:.25rem}
-    .cat-sub{color:#6b7280;font-size:.92rem}
+    /* Modal */
+    .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9999}
+    .modal{background:#fff;border-radius:18px;max-width:520px;width:92%;padding:22px 22px 20px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
+    .qty-btn{width:38px;height:38px;border-radius:9999px;border:1px solid #e5e7eb;background:#fff;font-weight:800}
+    .price-green{color:#059669;font-weight:800}
   </style>
 </head>
 <body>
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
-      <!-- โลโก้มุมขวาบน (ทุกหน้ายกเว้น Home เดิม) -->
       <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="corner-logo absolute top-4 right-4 w-28 h-auto" alt="Logo" />
 
-      <!-- หน้า Home -->
+      <!-- ============ Home ============ -->
       <div id="homeContent">
         <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="mx-auto w-64 mb-8" alt="Logo"/>
         <h1 class="text-3xl font-bold text-gray-800 mb-2">BJC Big C Stationery Store</h1>
@@ -110,7 +97,7 @@
         <button onclick="startForm()" class="btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg shadow-lg">เริ่มต้นการเบิกอุปกรณ์</button>
       </div>
 
-      <!-- หน้า Verify -->
+      <!-- ============ Verify ============ -->
       <div id="verifyContent" class="hidden text-left">
         <button onclick="goBack()" class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium mb-6">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
@@ -122,16 +109,14 @@
 
         <div class="max-w-xl mx-auto">
           <label class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
-          <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-center text-lg"/>
-
+          <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg"/>
           <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
           <div id="employeeInfo" class="hidden mt-4"></div>
-
           <button id="verifyBtn" class="btn-primary w-full text-white font-semibold py-3 mt-4 rounded-full text-lg shadow-lg">ยืนยันตัวตน</button>
         </div>
       </div>
 
-      <!-- หน้าเบิกอุปกรณ์: หมวดหมู่ -->
+      <!-- ============ Categories ============ -->
       <div id="categoryContent" class="hidden text-left">
         <div class="green-shell">
           <div class="category-inner">
@@ -153,25 +138,50 @@
               <div class="panel-body">
                 <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
               </div>
-
-              <!-- ปุ่มกลับ (ไปหน้า verify + set ปุ่มเป็น "ดำเนินการต่อ") -->
               <button class="back-btn" onclick="backToVerifyProceed()">
-  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-    <path fill-rule="evenodd"
-          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-          clip-rule="evenodd"/>
-  </svg>
-  กลับ
-</button>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+                กลับ
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <!-- /หน้าเบิกอุปกรณ์ -->
+
+      <!-- ============ Products (ใหม่) ============ -->
+      <div id="productsContent" class="hidden text-left">
+        <div class="green-shell">
+          <div class="products-inner">
+            <div class="hero">
+              <div class="logo-box">
+                <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
+              </div>
+              <h1 class="hero-title" id="prodHeroTitle">รายการสินค้า</h1>
+              <div class="hero-sub">STATIONERY&nbsp;STORE</div>
+              <div class="hero-dots"><span></span><span class="dim"></span><span class="dim"></span></div>
+              <p class="hero-desc" id="prodHeroDesc">คลิกเพื่อดูรายละเอียดและเลือกจำนวน</p>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900" id="prodTitle">รายการสินค้า</h3>
+                <p class="text-gray-600 mt-1">คลิกเพื่อดูรายละเอียดและเลือกจำนวน</p>
+              </div>
+              <div class="panel-body">
+                <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+              </div>
+              <button class="back-btn" onclick="backToCategories()">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+                กลับ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Modal Loading -->
+  <!-- Loading Modal -->
   <div id="checkingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
     <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
       <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -182,28 +192,64 @@
     </div>
   </div>
 
+  <!-- Product Detail Modal -->
+  <div id="itemModal" class="modal-mask">
+    <div class="modal">
+      <div class="flex justify-center mb-3">
+        <img id="mImg" class="w-16 h-16 object-contain" src="" alt=""/>
+      </div>
+      <h3 id="mName" class="text-2xl font-extrabold text-center text-gray-900"></h3>
+      <p id="mDetail" class="text-center text-gray-600 mt-1"></p>
+      <div class="text-center text-emerald-600 text-2xl font-extrabold my-3" id="mPrice"></div>
+
+      <div class="text-center text-gray-700 mb-2">กรุณาระบุจำนวน</div>
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <button class="qty-btn" onclick="chgQty(-1)">−</button>
+        <input id="mQty" value="1" class="w-16 text-center border border-gray-300 rounded-lg py-2" />
+        <button class="qty-btn" onclick="chgQty(1)">+</button>
+      </div>
+
+      <div class="text-center mb-5">
+        <span class="font-semibold">Price:</span>
+        <span class="price-green" id="mTotal">฿0</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button class="py-3 rounded-xl bg-gray-600 text-white font-bold" onclick="closeItemModal()">ยกเลิก</button>
+        <button class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onclick="confirmAdd()">เพิ่มลงตะกร้า</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ============ CONFIG ============ */
     const container = document.getElementById('pageContainer');
-    const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
+    const API_BASE  = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
 
     /* ============ STATE ============ */
-    let stage = 'verify';                 // 'verify' | 'proceed'
-    let currentCompany = null;            // 'BJC' | 'Big C'
-    let CATEGORIES = [];                  // โหลดจาก backend
+    let stage = 'verify';
+    let currentCompany = null; // 'BJC' | 'Big C'
+    let CATEGORIES = [];
+    let PRODUCTS = [];
+    let selectedCategory = '';
+    let modalItem = { name:'', price:0, detail:'', image:'' };
 
-    /* ============ Categories (fetch) ============ */
+    /* ============ Utilities ============ */
+    const baht = n => '฿' + (Number(n||0)).toLocaleString('th-TH');
+
+    function normalizeCompanyName(s=''){
+      const t = String(s).toLowerCase();
+      if (t.includes('big c') || t.includes('bigc')) return 'Big C';
+      return 'BJC';
+    }
+
+    /* ====== Categories ====== */
     async function getCategories(company, limit = 50){
-      const params = new URLSearchParams({
-        action: 'getCategories',
-        company: company || 'BJC',
-        limit: Math.min(Math.max(parseInt(limit)||50, 1), 50)
-      });
+      const params = new URLSearchParams({ action:'getCategories', company: company||'BJC', limit: Math.min(Math.max(parseInt(limit)||50, 1), 50) });
       const res = await fetch(`${API_BASE}?${params.toString()}`, { method:'GET', cache:'no-store' });
       if(!res.ok) return [];
       const data = await res.json().catch(()=>null);
-      if(data && data.success && Array.isArray(data.data)) return data.data;
-      return [];
+      return (data && data.success && Array.isArray(data.data)) ? data.data : [];
     }
 
     function renderCategories(){
@@ -217,20 +263,15 @@
 
       grid.innerHTML = CATEGORIES.map(c => `
         <button class="cat-item" onclick="openCategory('${(c.title||'').replace(/'/g, "\\'")}')">
-          <div class="cat-title">${c.title}</div>
-          <div class="cat-sub">${(c.count ?? 0)} รายการ</div>
+          <div class="font-bold text-lg text-gray-900">${c.title}</div>
+          <div class="text-emerald-700 font-extrabold mt-1">${c.count ?? 0} รายการ</div>
         </button>
       `).join('');
     }
 
     function openCategory(name){
-      alert('เลือกหมวด: ' + name);
-    }
-
-    function normalizeCompanyName(s=''){
-      const t = String(s).toLowerCase();
-      if (t.includes('big c') || t.includes('bigc')) return 'Big C';
-      return 'BJC';
+      selectedCategory = name;
+      goProductsPage();
     }
 
     async function preloadCategoriesFor(company){
@@ -239,7 +280,86 @@
       renderCategories();
     }
 
-    /* ============ Employee ============ */
+    /* ====== Products ====== */
+    async function getItems(company, category, limit=100){
+      const params = new URLSearchParams({ action:'getItems', company, category, limit });
+      const res = await fetch(`${API_BASE}?${params.toString()}`, { method:'GET', cache:'no-store' });
+      if(!res.ok) return [];
+      const data = await res.json().catch(()=>null);
+      return (data && data.success && Array.isArray(data.items)) ? data.items : [];
+    }
+
+    async function goProductsPage(){
+      // โหลดสินค้า
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">กำลังโหลดข้อมูลสินค้า…</div>`;
+
+      PRODUCTS = await getItems(currentCompany || 'BJC', selectedCategory, 200);
+
+      document.getElementById('prodTitle').textContent    = `รายการสินค้า — ${selectedCategory}`;
+      document.getElementById('prodHeroTitle').textContent = selectedCategory;
+      document.getElementById('prodHeroDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+
+      renderProducts();
+      showPage('products');
+    }
+
+    function renderProducts(){
+      const grid = document.getElementById('productGrid');
+      if(!grid) return;
+
+      if(!PRODUCTS || PRODUCTS.length === 0){
+        grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">ไม่พบรายการในหมวดนี้</div>`;
+        return;
+      }
+
+      grid.innerHTML = PRODUCTS.map((p,idx) => `
+        <button class="prod-card" onclick="openItem(${idx})">
+          <img class="prod-img" src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/72?text=%20'" alt="">
+          <div class="font-extrabold text-gray-900">${p.name || '-'}</div>
+          <div class="text-emerald-600 font-extrabold mt-1">${baht(p.price)}</div>
+        </button>
+      `).join('');
+    }
+
+    function backToCategories(){ showPage('category'); }
+
+    /* ====== Modal ====== */
+    const modalEl = document.getElementById('itemModal');
+    const mImg = document.getElementById('mImg');
+    const mName = document.getElementById('mName');
+    const mDetail = document.getElementById('mDetail');
+    const mPrice = document.getElementById('mPrice');
+    const mQty = document.getElementById('mQty');
+    const mTotal = document.getElementById('mTotal');
+
+    function openItem(idx){
+      const p = PRODUCTS[idx];
+      if(!p) return;
+      modalItem = {...p};
+      mImg.src = p.image || '';
+      mName.textContent = p.name || '';
+      mDetail.textContent = p.detail || '';
+      mPrice.textContent = baht(p.price);
+      mQty.value = 1;
+      mTotal.textContent = baht(p.price);
+      modalEl.style.display = 'flex';
+    }
+    function closeItemModal(){ modalEl.style.display = 'none'; }
+    function chgQty(d){
+      let q = parseInt(mQty.value || '1', 10) || 1;
+      q = Math.max(1, q + d);
+      mQty.value = q;
+      mTotal.textContent = baht(q * (modalItem.price || 0));
+    }
+    function confirmAdd(){
+      // TODO: ใส่ลงตะกร้าจริง ๆ ถ้าต้องการ
+      closeItemModal();
+      // แจ้งเบา ๆ
+      alert(`เพิ่ม "${modalItem.name}" x ${mQty.value} — รวม ${mTotal.textContent}`);
+    }
+
+    /* ====== Employee ====== */
     async function getEmployeeData(rawId){
       const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
       const res = await fetch(url, { method:'GET', cache:'no-store' });
@@ -249,7 +369,7 @@
       return null;
     }
 
-    /* ============ Layout helpers ============ */
+    /* ====== Layout helpers ====== */
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
 
@@ -257,89 +377,67 @@
       const home = document.getElementById('homeContent');
       const verify = document.getElementById('verifyContent');
       const cate = document.getElementById('categoryContent');
+      const prod = document.getElementById('productsContent');
 
-      home.classList.add('hidden');
-      verify.classList.add('hidden');
-      cate.classList.add('hidden');
+      home.classList.add('hidden'); verify.classList.add('hidden'); cate.classList.add('hidden'); prod.classList.add('hidden');
+      document.body.classList.remove('category','products');
 
       if(which==='home'){
         home.classList.remove('hidden');
-        document.body.classList.remove('not-home','category');
-        document.documentElement.classList.remove('no-scrollbar');
-        document.body.classList.remove('no-scrollbar');
+        document.body.classList.remove('not-home');
         setCentered();
         stage = 'verify';
         resetVerifyButton();
       }else if(which==='verify'){
         verify.classList.remove('hidden');
         document.body.classList.add('not-home');
-        document.body.classList.remove('category');
         setCentered();
-        document.documentElement.classList.add('no-scrollbar');
-        document.body.classList.add('no-scrollbar');
         stage = 'verify';
         resetVerifyButton();
       }else if(which==='category'){
         cate.classList.remove('hidden');
         document.body.classList.add('not-home','category');
         setTop();
-        document.documentElement.classList.add('no-scrollbar');
-        document.body.classList.add('no-scrollbar');
-
         if(!CATEGORIES || CATEGORIES.length === 0){
           preloadCategoriesFor(currentCompany || 'BJC');
-        } else {
-          renderCategories();
-        }
+        } else { renderCategories(); }
+      }else if(which==='products'){
+        prod.classList.remove('hidden');
+        document.body.classList.add('not-home','products');
+        setTop();
       }
-
       window.scrollTo({top:0,behavior:'instant'});
     }
 
     function startForm(){ showPage('verify'); }
 
-    /* ✅ รีเซ็ตฟอร์มยืนยัน + เคลียร์สถานะที่จำไว้ */
+    /* รีเซ็ต verify */
     function resetVerifyForm(){
       const empInput = document.getElementById('employeeId');
       const msgBox = document.getElementById('message');
       const infoBox = document.getElementById('employeeInfo');
       empInput.value = '';
-      msgBox.className = 'hidden';
-      msgBox.textContent = '';
-      infoBox.classList.add('hidden');
-      infoBox.innerHTML = '';
+      msgBox.className = 'hidden'; msgBox.textContent = '';
+      infoBox.classList.add('hidden'); infoBox.innerHTML = '';
       stage = 'verify';
       resetVerifyButton();
-      // ล้าง company และหมวด เพื่อไม่ให้จำค้าง
-      currentCompany = null;
-      CATEGORIES = [];
-      const grid = document.getElementById('categoryGrid');
-      if (grid) grid.innerHTML = '';
-      // ปิด popup เผื่อเปิดค้าง
+      currentCompany = null; CATEGORIES = []; PRODUCTS = []; selectedCategory = '';
+      const cg = document.getElementById('categoryGrid'); if (cg) cg.innerHTML = '';
+      const pg = document.getElementById('productGrid'); if (pg) pg.innerHTML = '';
       showCheckingModal(false);
     }
 
-    /* ปุ่มกลับจากหน้า Verify -> กลับหน้า Home และรีเซ็ตให้ต้องกรอกใหม่เสมอ */
-    function goBack(){
-      resetVerifyForm();
-      showPage('home');
-    }
+    function goBack(){ resetVerifyForm(); showPage('home'); }
 
-    /* ============ Verify flow ============ */
     document.addEventListener('DOMContentLoaded', ()=>{
       const empInput = document.getElementById('employeeId');
       const btn = document.getElementById('verifyBtn');
 
       empInput.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' && stage === 'verify'){
-          e.preventDefault();
-          verifyEmployee();
-        }
+        if(e.key === 'Enter' && stage === 'verify'){ e.preventDefault(); verifyEmployee(); }
       });
-
       btn.addEventListener('click', verifyEmployee);
 
-      // เตรียมข้อความในกริด
       renderCategories();
     });
 
@@ -352,24 +450,15 @@
       msgBox.classList.remove('hidden');
     }
 
-    function stripForSearch(s){
-      return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
-    }
+    function stripForSearch(s){ return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g,''); }
 
-    /* ✅ ปรับให้แน่ใจว่า modal ถูกซ่อน/โชว์จริง (hidden ↔ flex) */
     function showCheckingModal(show=true){
       const m = document.getElementById('checkingModal');
       if(!m) return;
-      if(show){
-        m.classList.remove('hidden');
-        m.classList.add('flex');
-      }else{
-        m.classList.add('hidden');
-        m.classList.remove('flex');
-      }
+      if(show){ m.classList.remove('hidden'); m.classList.add('flex'); }
+      else    { m.classList.add('hidden'); m.classList.remove('flex'); }
     }
 
-    /* ✅ ปรับ logic ให้ปิด popup ทันทีเมื่อโชว์ข้อมูลพนักงาน, preload categories แบบไม่ await */
     async function verifyEmployee(){
       const inputEl = document.getElementById('employeeId');
       const rawInput = inputEl.value || '';
@@ -377,51 +466,39 @@
       const btn = document.getElementById('verifyBtn');
 
       const msgBox=document.getElementById('message');
-      msgBox.classList.add('hidden');
-      msgBox.textContent='';
+      msgBox.classList.add('hidden'); msgBox.textContent='';
       hideEmployeeInfo(false);
 
       if(!cleaned){
-        showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
-        setCentered();
-        return;
+        showMsg('กรุณากรอกรหัสพนักงานก่อน','error'); setCentered(); return;
       }
 
       showCheckingModal(true);
-      btn.disabled = true;
-      btn.classList.add('opacity-80', 'cursor-not-allowed');
+      btn.disabled = true; btn.classList.add('opacity-80','cursor-not-allowed');
 
       try{
         const emp = await getEmployeeData(rawInput);
 
         if(emp){
           showEmployeeInfo(emp);
-          // 🔻 ปิด popup ทันที ไม่รอโหลดหมวด
-          showCheckingModal(false);
+          showCheckingModal(false);      // ปิด popup ทันที
           setProceedButton();
-          // โหลดหมวดแบบไม่รอ
-          preloadCategoriesFor(emp.company).catch(err => console.error('preloadCategoriesFor:', err));
+          preloadCategoriesFor(emp.company).catch(console.error); // โหลดหมวดแบบไม่รอ
         }else{
           showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
-          setCentered();
-          resetVerifyButton();
-          showCheckingModal(false);
+          setCentered(); resetVerifyButton(); showCheckingModal(false);
         }
-      } catch (e) {
-        console.error(e);
-        showMsg('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ','error');
-        showCheckingModal(false);
-      } finally {
+      }catch(e){
+        console.error(e); showMsg('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ','error'); showCheckingModal(false);
+      }finally{
         const currentBtn = document.getElementById('verifyBtn');
         currentBtn.disabled = false;
-        currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+        currentBtn.classList.remove('opacity-80','cursor-not-allowed');
       }
     }
 
     function showEmployeeInfo(emp){
-      setTop();
-      window.scrollTo({top:0,behavior:'smooth'});
-
+      setTop(); window.scrollTo({top:0,behavior:'smooth'});
       const div=document.getElementById('employeeInfo');
       const msgBox=document.getElementById('message');
       msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
@@ -444,8 +521,7 @@
 
     function hideEmployeeInfo(resetToCenter = true){
       const div=document.getElementById('employeeInfo');
-      div.classList.add('hidden'); 
-      div.innerHTML='';
+      div.classList.add('hidden'); div.innerHTML='';
       if(resetToCenter) setCentered();
     }
 
@@ -457,15 +533,10 @@
       btn.textContent = 'ดำเนินการต่อ';
       btn.onclick = null;
       btn.removeEventListener('click', verifyEmployee);
-      btn.addEventListener('click', proceedToForm);
+      btn.addEventListener('click', ()=>showPage('category'));
     }
 
-    function backToVerifyProceed(){
-      showPage('verify');
-      setProceedButton();
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-
+    function backToVerifyProceed(){ showPage('verify'); setProceedButton(); window.scrollTo({ top: 0, behavior: 'instant' }); }
     function resetVerifyButton(){
       const btn = document.getElementById('verifyBtn');
       stage = 'verify';
@@ -473,13 +544,8 @@
       btn.classList.remove('opacity-80','cursor-not-allowed');
       btn.textContent = 'ยืนยันตัวตน';
       btn.onclick = null;
-      btn.removeEventListener('click', proceedToForm);
+      btn.removeEventListener('click', ()=>showPage('category'));
       btn.addEventListener('click', verifyEmployee);
-    }
-
-    /* ➡️ ไปหน้า “เบิกอุปกรณ์ (หมวดหมู่)” */
-    function proceedToForm(){
-      showPage('category');
     }
   </script>
 </body>
