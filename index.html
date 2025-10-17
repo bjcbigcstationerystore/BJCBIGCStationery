@@ -330,46 +330,61 @@
     }
 
     async function verifyEmployee(){
-      const inputEl = document.getElementById('employeeId');
-      const rawInput = inputEl.value || '';
-      const cleaned  = stripForSearch(rawInput);
-      const btn = document.getElementById('verifyBtn');
+  const inputEl = document.getElementById('employeeId');
+  const rawInput = inputEl.value || '';
+  const cleaned  = stripForSearch(rawInput);
+  const btn = document.getElementById('verifyBtn');
 
-      const msgBox=document.getElementById('message');
-      msgBox.classList.add('hidden');
-      msgBox.textContent='';
-      hideEmployeeInfo(false);
+  const msgBox=document.getElementById('message');
+  msgBox.classList.add('hidden');
+  msgBox.textContent='';
+  hideEmployeeInfo(false);
 
-      if(!cleaned){
-        showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
-        setCentered();
-        return;
-      }
+  if(!cleaned){
+    showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
+    setCentered();
+    return;
+  }
 
-      showCheckingModal(true);
-      btn.disabled = true;
-      btn.classList.add('opacity-80', 'cursor-not-allowed');
+  showCheckingModal(true);
+  btn.disabled = true;
+  btn.classList.add('opacity-80', 'cursor-not-allowed');
 
-      try{
-        const emp = await getEmployeeData(rawInput);
+  try{
+    const emp = await getEmployeeData(rawInput);
 
-        if(emp){
-          showEmployeeInfo(emp);
-          // โหลดหมวดหมู่ไว้ล่วงหน้าตามบริษัท
-          await preloadCategoriesFor(emp.company);
-          setProceedButton();
-        }else{
-          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
-          setCentered();
-          resetVerifyButton();
-        }
-      } finally {
-        showCheckingModal(false);
-        const currentBtn = document.getElementById('verifyBtn');
-        currentBtn.disabled = false;
-        currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-      }
+    if(emp){
+      // 1) โชว์ข้อมูลพนักงานก่อน
+      showEmployeeInfo(emp);
+
+      // 2) ซ่อน modal ทันที ไม่ต้องรอโหลดหมวดหมู่
+      showCheckingModal(false);
+
+      // 3) เปลี่ยนปุ่มเป็น "ดำเนินการต่อ" ได้เลย
+      setProceedButton();
+
+      // 4) โหลดหมวดหมู่แบบไม่รอ (fire-and-forget)
+      //    เพื่อไม่ให้ UI ค้าง — ถ้าอยาก log error ก็ใส่ .catch ได้
+      preloadCategoriesFor(emp.company).catch(err => console.error('preloadCategoriesFor:', err));
+
+    }else{
+      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+      setCentered();
+      resetVerifyButton();
+
+      // เผื่อกรณี error ให้ปิด modal ด้วย
+      showCheckingModal(false);
     }
+  } catch (e) {
+    console.error(e);
+    showMsg('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ','error');
+    showCheckingModal(false);
+  } finally {
+    const currentBtn = document.getElementById('verifyBtn');
+    currentBtn.disabled = false;
+    currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+  }
+}
 
     function showEmployeeInfo(emp){
       setTop();
