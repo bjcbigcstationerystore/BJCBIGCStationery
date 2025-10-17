@@ -9,9 +9,12 @@
   <style>
     :root{
       --emerald-900:#064e3b;
+      --emerald-800:#065f46;
       --emerald-700:#047857;
       --emerald-600:#059669;
       --emerald-500:#10b981;
+      /* ✅ ความสูงโลโก้ให้เท่ากันทุกหน้า */
+      --logo-h: 32px;
     }
 
     html,body{
@@ -21,6 +24,7 @@
       background-color:#064e3b;
       overflow:auto;
       scrollbar-gutter: stable both-edges;
+      color:#0f172a;
     }
 
     /* ซ่อน scrollbar */
@@ -40,33 +44,44 @@
     .page-container.top{ align-items:flex-start; }
 
     .content-card{
-  position: relative;
-  background:rgba(255,255,255,0.96);
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.15);
-  width:100%;
-  max-width:900px;                 /* 🔧 ลดความกว้างเดิมจาก 980 → 900 */
-  backdrop-filter:blur(10px);
-  padding:2.5rem 2.5rem 2.5rem 2.5rem;
-  color:#111827;
-}
+      position: relative;
+      background:rgba(255,255,255,0.96);
+      border-radius:20px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.15);
+      width:100%;
+      max-width:900px;
+      backdrop-filter:blur(10px);
+      padding:2.5rem;
+      color:#111827;
+    }
 
-/* ✅ เฉพาะหน้า category เว้นพื้นที่ด้านขวาเพิ่มอีก */
-body.category .content-card{
-  padding-right:7.5rem;           /* 🔧 เพิ่มระยะห่างจากโลโก้ */
-}
+    /* (ยังคงไว้ได้ ไม่กระทบ) เฉพาะหน้า category เดิม */
+    body.category .content-card{
+      padding:0 !important;      /* ชิดขอบ */
+      background:transparent !important;
+      box-shadow:none !important;
+      max-width:900px;
+    }
 
-    /* โหมด category: เว้นพื้นที่ให้โลโก้มุมขวาบน + ลดความกว้างภายใน */
-    body.category .content-card{ padding-right:6.5rem; }
-    .category-inner{ max-width:860px; margin:0 auto; }
+    .category-inner{ max-width:900px; margin:0 auto; }
     @media (max-width:1024px){
-      body.category .content-card{ padding-right:2.5rem; }
       .category-inner{ max-width:100%; }
     }
 
-    /* โลโก้มุมขวาบน: ซ่อนเป็นค่าเริ่มต้น, โชว์เมื่อไม่อยู่หน้า Home */
+    /* โลโก้มุมขวาบนของการ์ดหลัก: ซ่อนเมื่อไม่อยู่หน้า Home */
     .corner-logo{ display:none; }
     body.not-home .corner-logo{ display:block; }
+
+    /* ✅ ทำให้โลโก้ทุกจุดสูงเท่ากัน */
+    .corner-logo{
+      height: var(--logo-h) !important;
+      width: auto !important;
+    }
+    .logo-box img{
+      height: var(--logo-h);
+      width: auto;
+      display: block;
+    }
 
     .btn-primary{
       background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));
@@ -109,44 +124,111 @@ body.category .content-card{
 
     #message{ margin-top: .8rem !important; }
 
-    /* การ์ดหมวดหมู่ — เวอร์ชันใหม่ให้ hover ขึ้นกรอบและแถบซ้ายสีเขียว */
-    .cat-card{
-      position:relative;
-      border:1px solid #e5e7eb;
-      border-radius:16px;
-      background:#ffffff;
-      padding:1.1rem 1rem 1.1rem 1.25rem;
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease, outline .15s ease;
-      outline:0 solid transparent;
+    /* ========= หมวดอุปกรณ์ ========= */
+
+    /* เปลือกสีเขียวครอบทั้งบล็อก — ไม่มีขอบ/เงานอกสุด */
+    .green-shell{
+      position: relative;
+      border-radius:20px;
+      padding:0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)),
+        linear-gradient(180deg, #1b4e41 0%, #1c5b4a 40%, #165846 100%);
+      border:none;
+      box-shadow:none;
+      overflow:hidden;
     }
-    .cat-card{
-  position:relative;
-  border:1px solid #e5e7eb;
-  border-radius:16px;
-  background:#ffffff;
-  padding:1.1rem 1rem 1.1rem 1.25rem;
-  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
-  outline:0;
-}
 
-/* ❌ เอาแถบด้านซ้ายออก */
-.cat-card::before{ content:none; }
-    /* ✅ hover: พื้นหลังเขียวอ่อน, กรอบเขียวอ่อนนิดๆ */
-.cat-card:hover{
-  transform:translateY(-2px);
-  background:#ecfdf5;               /* เขียวอ่อน */
-  border-color:#bbf7d0;             /* เส้นขอบเขียวอ่อน */
-  box-shadow:0 10px 20px rgba(0,0,0,.06);
-}
+    /* แบนเนอร์หัว */
+    .hero{
+      position:relative;
+      border-radius:0;
+      margin:0;
+      padding:22px 24px 24px;
+      text-align:center;
+      color:#ecfdf5;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+        linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%);
+      box-shadow:none;
+      border:none;
+    }
+    .hero-title{font-size:2rem;font-weight:800;letter-spacing:.2px;margin:0}
+    .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
+    .hero-dots{display:flex;gap:.65rem;justify-content:center;align-items:center;margin:.5rem 0 .85rem}
+    .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}
+    .hero-dots .dim{opacity:.35}
+    .hero-desc{font-weight:800;color:#f2fff7}
 
-.cat-title{ color:#0f172a; font-weight:700; }
-.cat-sub{ color:#6b7280; font-size:.9rem; }
+    /* โลโก้มุมขวาบนในกรอบหัว */
+    .logo-box{
+      position:absolute;
+      top:14px; right:18px;
+      background:#fff;
+      border-radius:12px;
+      padding:6px 10px;
+      box-shadow:0 3px 8px rgba(0,0,0,.2);
+      display:flex; align-items:center; gap:4px;
+    }
+
+    /* กล่องรายการ */
+    .panel{
+      background:#fff;
+      border-radius:0 0 20px 20px;
+      box-shadow:0 15px 35px rgba(0,0,0,.18);
+      overflow:hidden;
+      margin:0;
+      position:relative;
+    }
+    .panel-head{ background:linear-gradient(180deg,#f0fdf4,#ecfdf5); border-bottom:1px solid #d9f3e5; padding:22px 28px; }
+    .panel-body{ padding:24px 24px 80px; }
+
+    /* ปุ่ม "กลับ" */
+    .back-btn{
+      position:absolute;
+      bottom:18px;
+      right:28px;
+      background:transparent;
+      border:none;
+      color:var(--emerald-700);
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      transition:color .2s ease, transform .2s ease;
+    }
+    .back-btn:hover{
+      color:var(--emerald-800);
+      transform:translateX(-2px);
+    }
+
+    /* การ์ดหมวดหมู่ */
+    .cat-item{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-left-width:4px;
+      border-left-color:#e5e7eb;
+      border-radius:16px;
+      padding:22px;
+      transition:all .2s ease;
+      text-align:left;
+      cursor:pointer;
+    }
+    .cat-item:hover, .cat-item:focus{
+      background:#f0fdf4;
+      border-left-color:var(--emerald-700);
+      box-shadow:0 10px 22px rgba(0,0,0,.06);
+      transform:translateY(-1px);
+    }
+    .cat-title{font-weight:700;color:#111827;margin-bottom:.25rem}
+    .cat-sub{color:#6b7280;font-size:.92rem}
   </style>
 </head>
 <body>
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
-      <!-- ✅ โลโก้มุมขวาบน -->
+      <!-- โลโก้มุมขวาบน (ทุกหน้ายกเว้น Home เดิม) -->
       <img
         src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
         class="corner-logo absolute top-4 right-4 w-28 h-auto"
@@ -204,26 +286,41 @@ body.category .content-card{
 
       <!-- หน้าเบิกอุปกรณ์: หมวดหมู่ -->
       <div id="categoryContent" class="hidden text-left">
-        <div class="category-inner">
-          <!-- ส่วนหัว -->
-          <div class="bg-emerald-900/5 border border-emerald-100 rounded-xl p-6 mb-6 text-center">
-            <div class="mx-auto w-16 h-16 rounded-2xl bg-emerald-900/20 flex items-center justify-center mb-3">
-              <svg class="w-8 h-8 text-emerald-800" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 6a1 1 0 011-1h3l1-2h8l1 2h3a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm2 2v10h14V8H5z"/>
-              </svg>
+        <div class="green-shell">
+          <div class="category-inner">
+            <!-- แบนเนอร์หัว -->
+            <div class="hero">
+              <div class="logo-box">
+                <img
+                  src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
+                  alt="BJC Big C"
+                  onerror="this.style.display='none'"
+                />
+              </div>
+              <h1 class="hero-title">BJC Big C</h1>
+              <div class="hero-sub">STATIONERY&nbsp;STORE</div>
+              <div class="hero-dots"><span></span><span class="dim"></span><span class="dim"></span></div>
+              <p class="hero-desc">กรุณาเลือกประเภทสิ่งของที่ท่านต้องการเบิก</p>
             </div>
-            <h2 class="text-2xl font-extrabold text-emerald-900">หมวดหมู่อุปกรณ์</h2>
-            <p class="text-gray-600">คลิกเพื่อเลือกหมวดหมู่ที่ต้องการเบิก</p>
-          </div>
 
-          <!-- กริดการ์ดหมวด -->
-          <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <!-- กล่องสีขาวใหญ่ + รายการหมวด -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900">หมวดหมู่อุปกรณ์</h3>
+                <p class="text-gray-600 mt-1">คลิกเพื่อเลือกหมวดหมู่ที่ต้องการเบิก</p>
+              </div>
+              <div class="panel-body">
+                <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+              </div>
 
-          <!-- ปุ่มไปหน้าหลัก (ล่างขวา) -->
-          <div class="mt-6 flex justify-end">
-            <button onclick="showPage('home')" class="px-5 py-2 rounded-full border border-emerald-200 text-emerald-800 bg-white hover:bg-emerald-50">
-              ← หน้าหลัก
-            </button>
+              <!-- ปุ่มกลับ (ไปหน้า verify) -->
+              <button class="back-btn" onclick="showPage('verify')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                กลับ
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -250,7 +347,7 @@ body.category .content-card{
     /* ============ STATE ============ */
     let stage = 'verify'; // 'verify' | 'proceed'
 
-    /* ============ หมวดหมู่ตัวอย่าง ============ */
+    /* ============ หมวดหมู่ ============ */
     const CATEGORIES = [
       { title:'แฟ้มและอุปกรณ์ประกอบ', count:5 },
       { title:'อุปกรณ์ตัด', count:5 },
@@ -268,8 +365,8 @@ body.category .content-card{
     function renderCategories(){
       const grid = document.getElementById('categoryGrid');
       grid.innerHTML = CATEGORIES.map(c => `
-        <button class="cat-card text-left w-full" onclick="openCategory('${c.title}')">
-          <div class="cat-title mb-1">${c.title}</div>
+        <button class="cat-item" onclick="openCategory('${c.title}')">
+          <div class="cat-title">${c.title}</div>
           <div class="cat-sub">${c.count} รายการ</div>
         </button>
       `).join('');
@@ -315,15 +412,15 @@ body.category .content-card{
         document.body.classList.remove('category');
         setCentered();
         document.documentElement.classList.add('no-scrollbar');
-        document.body.classList.add('no-scrollbar');     // ✅ ซ่อนสกอลล์
+        document.body.classList.add('no-scrollbar');
         stage = 'verify';
         resetVerifyButton();
       }else if(which==='category'){
         cate.classList.remove('hidden');
         document.body.classList.add('not-home','category');
         setTop();
-        document.documentElement.classList.add('no-scrollbar');  // ✅ ซ่อนสกอลล์เหมือนหน้า verify
-        document.body.classList.add('no-scrollbar');             // ✅ ซ่อนสกอลล์
+        document.documentElement.classList.add('no-scrollbar');
+        document.body.classList.add('no-scrollbar');
       }
 
       window.scrollTo({top:0,behavior:'instant'});
