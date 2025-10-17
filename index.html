@@ -71,6 +71,17 @@
   background:#f0fdf4;border-left-color:var(--emerald-700);
   box-shadow:0 10px 22px rgba(0,0,0,.06);transform:translateY(-1px)
 }
+body.products .prod-card{
+  border-left-width: 1px !important;          /* ยกเลิกขอบหนาด้านซ้าย */
+  border-left-color: #e5e7eb !important;      /* ให้ซ้ายกลับมาเป็นเทาเหมือนด้านอื่น */
+}
+
+body.products .prod-card:hover{
+  border-color: var(--emerald-700) !important; /* เวลา hover ให้ขอบทั้งใบเป็นเขียวเข้ม */
+  /* ซ้ำให้แน่ใจว่าด้านซ้ายเขียวด้วย (กันเคส rule เก่ามา override) */
+  border-left-color: var(--emerald-700) !important;
+}    
+    
 /* รูปใหญ่ขึ้น */
 .prod-img{
   width:112px;height:112px;object-fit:contain;
@@ -200,21 +211,33 @@
       <span class="text-gray-800 font-medium">กำลังตรวจสอบรหัสพนักงาน…</span>
     </div>
   </div>
+  
+  <!-- Loading Products Modal -->
+<div id="loadingProductsModal" class="hidden fixed inset-0 z-[9998] items-center justify-center bg-black/40">
+  <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
+    <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    <span class="text-gray-800 font-medium">กำลังโหลดรายการสินค้า…</span>
+  </div>
+</div>
 
   <!-- Product Detail Modal -->
   <div id="itemModal" class="modal-mask">
     <div class="modal">
       <div class="flex justify-center mb-3">
-        <img id="mImg" class="w-16 h-16 object-contain" src="" alt=""/>
-      </div>
-      <h3 id="mName" class="text-2xl font-extrabold text-center text-gray-900"></h3>
-      <p id="mDetail" class="text-center text-gray-600 mt-1"></p>
-      <div class="text-center text-emerald-600 text-2xl font-extrabold my-3" id="mPrice"></div>
+  <img id="mImg" class="w-36 h-36 object-contain" src="" alt=""/>
+</div>
+<h3 id="mName" class="text-xl font-extrabold text-center text-gray-900"></h3>
+<p id="mDetail" class="text-sm text-center text-gray-600 mt-1"></p>
+<div class="text-center text-emerald-600 text-2xl font-extrabold my-3" id="mPrice"></div>
 
       <div class="text-center text-gray-700 mb-2">กรุณาระบุจำนวน</div>
       <div class="flex items-center justify-center gap-3 mb-4">
         <button class="qty-btn" onclick="chgQty(-1)">−</button>
-        <input id="mQty" value="1" class="w-16 text-center border border-gray-300 rounded-lg py-2" />
+        <input id="mQty" type="number" min="1" step="1" inputmode="numeric" pattern="\d*"
+       value="1" class="w-20 text-center border border-gray-300 rounded-lg py-2" />
         <button class="qty-btn" onclick="chgQty(1)">+</button>
       </div>
 
@@ -278,10 +301,15 @@
       `).join('');
     }
 
-    function openCategory(name){
-      selectedCategory = name;
-      goProductsPage();
-    }
+    async function openCategory(name){
+  selectedCategory = name;
+  showLoadingProductsModal(true);
+  try{
+    await goProductsPage();   // โหลดสินค้า +เปลี่ยนหน้า
+  }finally{
+    showLoadingProductsModal(false);  // ปิด popup ไม่ว่าผลจะสำเร็จหรือ error
+  }
+}
 
     async function preloadCategoriesFor(company){
       currentCompany = normalizeCompanyName(company);
@@ -341,7 +369,21 @@ document.getElementById('prodHeroDesc').textContent  = 'คลิกเพื่
     const mPrice = document.getElementById('mPrice');
     const mQty = document.getElementById('mQty');
     const mTotal = document.getElementById('mTotal');
+    
+    function normalizeQty(val){
+  const n = parseInt(String(val).replace(/[^\d]/g,''), 10);
+  return isNaN(n) ? 0 : Math.max(0, n);
+}
 
+function updateTotal(){
+  const q = normalizeQty(mQty.value);
+  mQty.value = q;
+  mTotal.textContent = baht(q * (modalItem.price || 0));
+}
+
+// คิดราคาเมื่อ "พิมพ์" จำนวน
+mQty.addEventListener('input', updateTotal);
+    
     function openItem(idx){
       const p = PRODUCTS[idx];
       if(!p) return;
@@ -351,16 +393,25 @@ document.getElementById('prodHeroDesc').textContent  = 'คลิกเพื่
       mDetail.textContent = p.detail || '';
       mPrice.textContent = baht(p.price);
       mQty.value = 1;
-      mTotal.textContent = baht(p.price);
+updateTotal();
       modalEl.style.display = 'flex';
     }
     function closeItemModal(){ modalEl.style.display = 'none'; }
     function chgQty(d){
-      let q = parseInt(mQty.value || '1', 10) || 1;
-      q = Math.max(1, q + d);
-      mQty.value = q;
-      mTotal.textContent = baht(q * (modalItem.price || 0));
-    }
+  let q = normalizeQty(mQty.value);
+
+  // ถ้ากด + ให้บวกตามปกติ
+  if (d > 0) {
+    q = q + d;
+  } 
+  // ถ้ากด − ให้ลด แต่ไม่ให้ต่ำกว่า 0
+  else {
+    q = Math.max(0, q + d);
+  }
+
+  mQty.value = q;
+  updateTotal();
+}
     function confirmAdd(){
       // TODO: ใส่ลงตะกร้าจริง ๆ ถ้าต้องการ
       closeItemModal();
@@ -556,6 +607,13 @@ document.getElementById('prodHeroDesc').textContent  = 'คลิกเพื่
       btn.removeEventListener('click', ()=>showPage('category'));
       btn.addEventListener('click', verifyEmployee);
     }
+    
+    function showLoadingProductsModal(show = true){
+  const m = document.getElementById('loadingProductsModal');
+  if(!m) return;
+  if(show){ m.classList.remove('hidden'); m.classList.add('flex'); }
+  else    { m.classList.add('hidden'); m.classList.remove('flex'); }
+}
   </script>
 </body>
 </html>
