@@ -139,48 +139,149 @@ body.products .prod-card:hover{
 .cart-header .icon svg{ width:30px; height:30px; color:#ecfdf5; }
 .cart-header .icon .cart-badge{ top:-6px; right:-6px; }
 
-.cart-body{ padding:14px; overflow:auto; gap:12px; display:flex; flex-direction:column; }
-.cart-item{
-  background:#fff; border:1px solid #e6f1eb; border-radius:14px; padding:12px;
-  display:flex; align-items:center; justify-content:space-between;
-  box-shadow:0 8px 18px rgba(0,0,0,.05);
-}
-.cart-item .info{ display:flex; flex-direction:column; }
-.cart-item .name{ font-weight:800; color:#0f172a; }
-.cart-item .meta{ font-weight:700; color:#059669; font-size:.95rem; }
-.cart-item .remove{
-  background:#ffd1d8; color:#b91c1c; font-weight:800;
-  border:none; border-radius:9999px; padding:.35rem .75rem;
+.cart-body{
+  flex:1 1 auto;
+  padding:14px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
-.cart-footer{
-  margin-top:auto; background:#e7f4ee; padding:14px; border-top:1px solid #cfe9de;
+    .cart-footer{
+  position:sticky;           /* ให้ค้างที่ก้นขณะเลื่อน */
+  bottom:0;
+  flex:0 0 auto;
+  background:#e7f4ee;
+  padding:14px;
+  border-top:1px solid #cfe9de;
+  box-shadow:0 -6px 12px rgba(0,0,0,.05);
+  z-index:1;
 }
-.cart-total{ display:flex; align-items:center; justify-content:space-between; font-weight:800; }
-.cart-actions{ display:flex; gap:10px; margin-top:10px; }
-.cart-btn-secondary{
-  flex:1; background:#374151; color:#fff; border-radius:12px; padding:12px 14px; font-weight:800;
+
+/* แถบ "รวมทั้งหมด" จัดสองฝั่งพอดี */
+.cart-total{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  font-weight:700;
+  font-size:.95rem;
 }
-.cart-btn-primary{
-  flex:1; background:#065f46; color:#fff; border-radius:12px; padding:12px 14px; font-weight:800;
+.cart-total span:last-child{
+  font-weight:800;
+  font-size:1.05rem;
+  color:#10b981; /* สีเขียวของยอดรวม */
 }
-    /* === Cart item: thumbnail + smaller text === */
-.cart-item .thumb{
-  width:40px; height:40px; border-radius:10px;
-  background:#f8fafc; object-fit:contain; flex:0 0 40px;
-  box-shadow: inset 0 0 0 1px #eef2f7;
+
+/* ปุ่มคู่: กว้างเท่ากัน ไม่บิดเบี้ยว */
+.cart-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
 }
-.cart-item .name{ font-weight:700; font-size:.95rem; line-height:1.1; }
-.cart-item .meta{ font-weight:600; font-size:.85rem; color:#059669; }
-.cart-item .line{ font-weight:800; font-size:.95rem; color:#10b981; }
+.cart-actions .cart-btn-secondary,
+.cart-actions .cart-btn-primary{
+  flex:1 1 0;                          /* กว้างเท่า ๆ กัน */
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;                      /* ความสูงคงที่ */
+  padding:12px 14px;
+  border:none;
+  border-radius:12px;
+  font-weight:800;
+  font-size:.95rem;
+  line-height:1;
+  text-decoration:none;
+}
+.cart-actions .cart-btn-secondary{ background:#374151; color:#fff; }
+.cart-actions .cart-btn-primary{   background:#065f46; color:#fff; }
+
+/* จอเล็กมาก: เรียงแนวตั้งอัตโนมัติ */
+@media (max-width:380px){
+  .cart-actions{ flex-direction:column; gap:8px; }
+  .cart-actions .cart-btn-secondary,
+  .cart-actions .cart-btn-primary{ width:100%; }
+}  
     
-    /* บรรทัดรายละเอียดใต้ชื่อสินค้าในตะกร้า */
-.cart-item .desc{
-  font-size:.82rem;
-  color:#6b7280;        /* text-gray-500 */
+/* การ์ดรายการในตะกร้า */
+.cart-item{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:10px;
+  background:#f9fefb;
+  border:1px solid #e6f5ea;
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:0 6px 14px rgba(0,0,0,.04);
+}
+
+/* ฝั่งซ้าย: รูป + ข้อมูล */
+.cart-item .left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.cart-item .thumb{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:8px;
+  background:#f8fafc;
+  object-fit:contain;
+  box-shadow:inset 0 0 0 1px #eef2f7;
+}
+.cart-item .info{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.cart-item .name{
+  font-weight:600;               /* เดิม 700 → ลดลง */
+  font-size:.9rem;               /* เดิม .95rem → เล็กลง */
   line-height:1.2;
+  color:#0f172a;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cart-item .desc{
+  font-size:.78rem;              /* เล็กลงเล็กน้อย */
+  color:#6b7280;
+  line-height:1.15;
   margin-top:2px;
   display:block;
+}
+.cart-item .meta{
+  font-weight:600;               /* เดิม 700 → ลดลง */
+  font-size:.85rem;
+  color:#059669;
+  margin-top:1px;
+}
+
+/* ฝั่งขวา: ราคาสุทธิด้านบน + ปุ่มลบด้านล่าง */
+.cart-item .right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:space-between;
+}
+.cart-item .line{
+  font-weight:700;               /* เดิม 800 → ลดลง */
+  font-size:.95rem;              /* เดิม 1rem → เล็กลง */
+  color:#10b981;
+}
+.cart-item .remove{
+  margin-top:8px;
+  background:#ffe6e9;
+  color:#b91c1c;
+  font-weight:600;               /* เดิม 800 → ลดลง */
+  border:none;
+  border-radius:9999px;
+  padding:.25rem .7rem;
+  font-size:.8rem;               /* เดิม .85rem → เล็กลง */
 }
   </style>
 </head>
@@ -420,35 +521,40 @@ if (fab) {
 function renderCartItems(){
   const wrap = document.getElementById('cartItems');
   if(!wrap) return;
+
   if(CART.length===0){
     wrap.innerHTML = `<div class="text-center text-gray-500 py-10">ยังไม่มีรายการ</div>`;
     return;
   }
-  wrap.innerHTML = CART.map(it=>{
-  const line = baht((Number(it.price)||0) * (Number(it.qty)||0));
-  const unit = baht(Number(it.price)||0);
-  const img = (it.image || '').replace(/"/g,'&quot;');
-  const name = (it.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const desc = (it.detail || '').replace(/</g,'&lt;').replace(/>/g,'&gt;'); // ✅ รายละเอียดคอลัมน์ I
 
-  return `
-    <div class="cart-item">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <img src="${img}" class="thumb"
-             onerror="this.src='https://via.placeholder.com/40?text=%20'" alt="">
-        <div class="info">
-          <div class="name">${name}</div>
-          <span class="desc">${desc}</span>   <!-- ✅ แสดงรายละเอียด -->
-          <div class="meta">${unit} × ${it.qty}</div>
+  wrap.innerHTML = CART.map(it=>{
+    const line = baht((Number(it.price)||0) * (Number(it.qty)||0));  // รวม
+    const unit = baht(Number(it.price)||0);                          // ราคาต่อหน่วย
+    const img  = (it.image || '').replace(/"/g,'&quot;');
+    const name = (it.name  || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const desc = (it.detail|| '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    return `
+      <div class="cart-item">
+        <!-- ซ้าย: ภาพ + ข้อมูล -->
+        <div class="left">
+          <img src="${img}" class="thumb"
+               onerror="this.src='https://via.placeholder.com/40?text=%20'" alt="">
+          <div class="info">
+            <div class="name">${name}</div>
+            ${desc ? `<span class="desc">${desc}</span>` : ``}
+            <div class="meta">${unit} × ${it.qty}</div>
+          </div>
+        </div>
+
+        <!-- ขวา: ราคา(รวม) บน + ปุ่มลบ ล่าง -->
+        <div class="right">
+          <div class="line">${line}</div>
+          <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="line">${line}</div>
-        <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
-      </div>
-    </div>
-  `;
-}).join('');
+    `;
+  }).join('');
 }
 
 function openCart(){
