@@ -164,7 +164,24 @@ body.products .prod-card:hover{
 .cart-btn-primary{
   flex:1; background:#065f46; color:#fff; border-radius:12px; padding:12px 14px; font-weight:800;
 }
+    /* === Cart item: thumbnail + smaller text === */
+.cart-item .thumb{
+  width:40px; height:40px; border-radius:10px;
+  background:#f8fafc; object-fit:contain; flex:0 0 40px;
+  box-shadow: inset 0 0 0 1px #eef2f7;
+}
+.cart-item .name{ font-weight:700; font-size:.95rem; line-height:1.1; }
+.cart-item .meta{ font-weight:600; font-size:.85rem; color:#059669; }
+.cart-item .line{ font-weight:800; font-size:.95rem; color:#10b981; }
     
+    /* บรรทัดรายละเอียดใต้ชื่อสินค้าในตะกร้า */
+.cart-item .desc{
+  font-size:.82rem;
+  color:#6b7280;        /* text-gray-500 */
+  line-height:1.2;
+  margin-top:2px;
+  display:block;
+}
   </style>
 </head>
 <body>
@@ -358,9 +375,20 @@ function addToCart(p, qty){
   const key = findItemKey(p);
   const q = Math.max(0, Number(qty)||0);
   if(q===0) return;
+
   const i = CART.findIndex(it => it.key===key);
-  if(i>-1){ CART[i].qty += q; }
-  else { CART.push({ key, name:p.name||'-', price:Number(p.price)||0, qty:q }); }
+  if(i>-1){
+    CART[i].qty += q;
+  }else{
+    CART.push({
+      key,
+      name:  p.name  || '-',
+      price: Number(p.price) || 0,
+      qty:   q,
+      image: p.image || '',
+      detail: p.detail || ''   // ✅ เก็บรายละเอียด (คอลัมน์ I)
+    });
+  }
   updateCartUI();
 }
 function removeFromCart(key){
@@ -397,21 +425,30 @@ function renderCartItems(){
     return;
   }
   wrap.innerHTML = CART.map(it=>{
-    const line = baht((Number(it.price)||0) * (Number(it.qty)||0));
-    const unit = baht(Number(it.price)||0);
-    return `
-      <div class="cart-item">
+  const line = baht((Number(it.price)||0) * (Number(it.qty)||0));
+  const unit = baht(Number(it.price)||0);
+  const img = (it.image || '').replace(/"/g,'&quot;');
+  const name = (it.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const desc = (it.detail || '').replace(/</g,'&lt;').replace(/>/g,'&gt;'); // ✅ รายละเอียดคอลัมน์ I
+
+  return `
+    <div class="cart-item">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="${img}" class="thumb"
+             onerror="this.src='https://via.placeholder.com/40?text=%20'" alt="">
         <div class="info">
-          <div class="name">${it.name}</div>
+          <div class="name">${name}</div>
+          <span class="desc">${desc}</span>   <!-- ✅ แสดงรายละเอียด -->
           <div class="meta">${unit} × ${it.qty}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="font-weight:900;color:#10b981;">${line}</div>
-          <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
-        </div>
       </div>
-    `;
-  }).join('');
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="line">${line}</div>
+        <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
+      </div>
+    </div>
+  `;
+}).join('');
 }
 
 function openCart(){
@@ -661,6 +698,7 @@ updateTotal();
       btn.addEventListener('click', verifyEmployee);
 
       renderCategories();
+      updateCartUI(); 
     });
 
     function showMsg(text, type){
