@@ -84,7 +84,7 @@
         <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-6 mb-8 text-left">
           <p class="text-gray-700 leading-relaxed mb-4">หลังจากที่ท่านกดส่งคำร้องขอเบิกอุปกรณ์สำนักงานแล้ว จะมีอีเมล์แจ้งรายละเอียดการเบิกเป็นแบบฟอร์มขออนุมัติ</p>
           <div class="flex justify-center text-emerald-700 border-t border-emerald-200 pt-4">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836ล.74 4.435a1 1 0 01-.54 1.06ล-1.548.773a11.037 11.037 0 006.105 6.105ล.774-1.548a1 1 0 011.059-.54ล4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
             <span class="font-medium">สงสัยเพิ่มเติม โทร 02-1465959 #4384</span>
           </div>
         </div>
@@ -95,7 +95,7 @@
       <!-- หน้า Verify -->
       <div id="verifyContent" class="hidden text-left">
         <button onclick="goBack()" class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0ล-6-6a1 1 0 010-1.414ล6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414ล4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
           กลับ
         </button>
 
@@ -151,7 +151,7 @@
     </div>
   </div>
 
-  <!-- Modal Loading (เอา flex ออกตอนเริ่มต้น) -->
+  <!-- Modal Loading (ไม่ใส่ flex ตอนเริ่ม เพื่อให้สลับได้ถูกต้อง) -->
   <div id="checkingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
     <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
       <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -178,20 +178,13 @@
       const params = new URLSearchParams({
         action: 'getCategories',
         company: company || 'BJC',
-        limit: Math.min(Math.max(parseInt(limit)||50, 1), 50),
-        debug: '1' // ข้าม cache ช่วงทดสอบ
+        limit: Math.min(Math.max(parseInt(limit)||50, 1), 50)
       });
       const res = await fetch(`${API_BASE}?${params.toString()}`, { method:'GET', cache:'no-store' });
-      if(!res.ok){
-        console.error('getCategories HTTP error', res.status);
-        return { ok:false, data:[], error:`HTTP ${res.status}` };
-      }
-      const payload = await res.json().catch(()=>({}));
-      if (payload && payload.success && Array.isArray(payload.data)) {
-        return { ok:true, data:payload.data, error:null, dbg:payload.debug };
-      }
-      console.error('getCategories payload', payload);
-      return { ok:false, data:[], error:(payload && payload.error) || 'unknown' };
+      if(!res.ok) return [];
+      const data = await res.json().catch(()=>null);
+      if(data && data.success && Array.isArray(data.data)) return data.data;
+      return [];
     }
 
     function renderCategories(){
@@ -227,14 +220,8 @@
 
     async function preloadCategoriesFor(company){
       currentCompany = normalizeCompanyName(company);
-      const resp = await getCategories(currentCompany, 50);
       categoriesLoadedOnce = true;
-      if (resp.ok) {
-        CATEGORIES = resp.data;
-      } else {
-        CATEGORIES = [];
-        console.warn('preloadCategoriesFor error:', resp.error);
-      }
+      CATEGORIES = await getCategories(currentCompany, 50);
       renderCategories();
     }
 
@@ -329,14 +316,14 @@
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g, '');
     }
 
-    /* ✅ อัปเดตให้สลับ hidden/flex */
-    function showCheckingModal(show = true) {
+    // ✅ toggle modal hidden/flex
+    function showCheckingModal(show=true){
       const m = document.getElementById('checkingModal');
-      if (!m) return;
-      if (show) {
+      if(!m) return;
+      if(show){
         m.classList.remove('hidden');
         m.classList.add('flex');
-      } else {
+      }else{
         m.classList.add('hidden');
         m.classList.remove('flex');
       }
@@ -377,7 +364,7 @@
           resetVerifyButton();
         }
       } finally {
-        showCheckingModal(false); // ✅ ปิดโมดัลตรงนี้
+        showCheckingModal(false);
         const currentBtn = document.getElementById('verifyBtn');
         currentBtn.disabled = false;
         currentBtn.classList.remove('opacity-80', 'cursor-not-allowed');
