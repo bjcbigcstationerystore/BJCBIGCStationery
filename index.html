@@ -314,7 +314,7 @@
               </div>
 
               <!-- ปุ่มกลับ (ไปหน้า verify) -->
-              <button class="back-btn" onclick="showPage('verify')">
+              <button class="back-btn" onclick="backToVerifyProceed()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -547,7 +547,14 @@
       btn.removeEventListener('click', verifyEmployee);
       btn.addEventListener('click', proceedToForm);
     }
-
+    function backToVerifyProceed(){
+  // กลับไปหน้าข้อมูล
+  showPage('verify');
+  // ตั้งปุ่มเป็น "ดำเนินการต่อ" ทันที (stage = 'proceed')
+  setProceedButton();
+  // เลื่อนขึ้นบนสุด (ตามใจชอบ)
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
     function resetVerifyButton(){
       const btn = document.getElementById('verifyBtn');
       stage = 'verify';
