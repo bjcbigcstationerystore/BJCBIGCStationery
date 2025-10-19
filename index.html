@@ -341,19 +341,53 @@ body.summary .content-card{
   background:#fff !important;
   border:1px solid #e5e7eb !important;
   border-radius:12px !important;
-  padding:16px 18px !important;   /* ระยะห่างด้านใน */
+  padding:10px 16px !important;
   display:block !important;
   box-sizing:border-box !important;
-  line-height:1.5 !important;
+  line-height:1.4 !important; 
   color:#0f172a !important;
-  font-weight:800 !important;
+  font-weight:700 !important; 
 }
+    #summaryContent .form-label{ font-size:.9rem !important; font-weight:600 !important; }
+#summaryContent .dot + h4{ font-size:1.2rem !important; line-height:1.25 !important; }
 
 /* กันเคสโดนตั้ง display:flex มา */
 #summaryContent .form-value *{
   line-height:inherit !important;
 }
-   
+  /* ===== Summary: tighten text inside employee/BU blocks only ===== */
+#summaryContent .panel-body .dot + h4{
+  font-size: 1.25rem !important;      /* หัวข้อ "ข้อมูลผู้เบิก" ให้เล็กลง */
+  line-height: 1.25 !important;
+}
+
+#summaryContent .form-label{
+  font-size: .95rem !important;       /* ป้ายกำกับ (Company, Cost Center, ...) ให้เล็กลง */
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+/* กล่องค่าข้อมูล (Company/Employee ID/Full Name/BU Admin...) */
+#summaryContent .form-value{
+  font-size: 1rem !important;         /* ลดขนาดตัวอักษรด้านในกล่อง */
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+
+  /* เว้นขอบด้านในให้มากขึ้นโดยไม่ขยายกล่อง */
+  padding: 20px 30px !important;      /* ขยับข้อความเข้าด้านใน */
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb !important;
+  background: #fff !important;
+  box-shadow: inset 0 0 0 1px #eef2f7 !important;
+}
+
+/* ระยะห่างระหว่างช่องในกริด */
+#summaryContent .form-grid{ gap: 14px !important; }
+#summaryContent .form-field{ gap: 6px !important; }
+
+/* จุดเขียวหน้าหัวข้อให้เล็กลงนิดนึง */
+#summaryContent .dot{ width: .55rem !important; height: .55rem !important; }
+    
   </style>
 </head>
 
