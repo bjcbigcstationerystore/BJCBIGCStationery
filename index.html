@@ -1384,11 +1384,11 @@ async function submitRequest(){
       }
     };
 
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+   const res = await fetch(API_BASE, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+  body: JSON.stringify(payload)
+});
 
     const json = await res.json().catch(()=>null);
     if (!res.ok || !json || !json.success){
