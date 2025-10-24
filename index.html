@@ -388,55 +388,33 @@ body.summary .content-card{
 /* จุดเขียวหน้าหัวข้อให้เล็กลงนิดนึง */
 #summaryContent .dot{ width: .55rem !important; height: .55rem !important; }
     
-    /* ===== Thank You styles (แบบภาพตัวอย่าง) ===== */
-.ty-wrap{
-  max-width: 720px; margin: 0 auto; padding: 28px 18px 34px;
-}
-.ty-check{
-  width: 84px; height: 84px; border-radius: 9999px;
-  display:flex; align-items:center; justify-content:center;
-  margin: 0 auto 14px;
-  background: #22c55e; color:#fff; box-shadow: 0 12px 28px rgba(34,197,94,.35);
-}
-.ty-title{
-  font-weight: 900; font-size: 1.9rem; text-align:center; color:#0f172a;
-}
-.ty-sub{
-  margin-top: 6px; text-align:center; color:#6b7280; font-weight: 600;
-}
-.ty-card{
-  margin-top: 18px; background:#eef2ff; border:1px solid #e5e7eb; border-radius:16px;
-  padding: 18px; box-shadow: 0 10px 22px rgba(0,0,0,.06);
-}
-.ty-card h4{
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  font-weight:900; color:#1f2937; margin-bottom:10px;
-}
-.ty-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-.ty-row{ display:flex; justify-content:space-between; gap:12px; padding:10px 12px; background:#fff; border-radius:12px; }
-.ty-label{ color:#6b7280; font-weight:700; }
-.ty-value{ color:#0f172a; font-weight:800; }
-.ty-ref{ color:#3b82f6; font-weight:900; }
-.ty-total{ color:#10b981; font-weight:900; }
 
-.ty-next{
-  margin-top:16px; background:#fff7ed; border:1px solid #fde68a; color:#92400e;
-  padding:16px; border-radius:16px; font-weight:700;
-  display:flex; align-items:flex-start; gap:10px;
-}
-.ty-btn{
-  margin-top:18px;
-  width:100%; min-height:48px; border-radius:12px; font-weight:900; color:#fff;
-  background: linear-gradient(135deg,#6366f1,#8b5cf6);
-  display:inline-flex; align-items:center; justify-content:center;
-}
-.ty-btn:hover{ filter:brightness(1.05); }
-.ty-footer{
-  margin-top:18px; text-align:center; color:#6b7280; font-weight:600; font-size:.9rem;
-}
-.ty-footer .row{ display:flex; gap:18px; justify-content:center; margin-top:6px; color:#334155; font-weight:800; }
-@media (max-width:640px){ .ty-grid{ grid-template-columns: 1fr; } }
+    /* ===== THANK YOU (แบบรูปแรก) ===== */
+.thx-wrap{max-width:420px;margin:0 auto;padding:24px 16px 34px;}
+.thx-card{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.12);padding:24px 18px;position:relative;}
+.thx-logo{position:absolute;top:14px;right:14px;height:32px;width:auto;background:#fff;border-radius:10px;padding:4px 6px;box-shadow:0 3px 8px rgba(0,0,0,.12);}
+.thx-check{width:72px;height:72px;border-radius:9999px;display:flex;align-items:center;justify-content:center;margin:6px auto 14px;background:#22c55e;color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.35);}
+.thx-title{text-align:center;font-weight:900;font-size:1.55rem;color:#0f172a;}
+.thx-sub{text-align:center;margin-top:6px;color:#6b7280;font-weight:600;font-size:.95rem;}
+.thx-detail{margin-top:16px;background:#eef2ff;border:1px solid #e5e7eb;border-radius:16px;padding:16px 14px;box-shadow:0 8px 18px rgba(0,0,0,.06);}
+.thx-detail h4{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-weight:900;color:#1f2937;}
+.thx-grid{display:grid;gap:10px;}
+.thx-row{display:flex;justify-content:space-between;background:#fff;border-radius:12px;padding:10px 12px;}
+.thx-label{color:#6b7280;font-weight:700;}
+.thx-value{color:#111827;font-weight:800;}
+.thx-ref{color:#2563eb;font-weight:900;}
+.thx-total{color:#10b981;font-weight:900;}
+.thx-next{margin-top:16px;background:#fff7ed;border:1px solid #fde68a;color:#92400e;padding:14px;border-radius:16px;font-weight:700;display:flex;gap:10px;}
+.thx-btn{margin-top:18px;width:100%;min-height:48px;border-radius:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 18px rgba(99,102,241,.25);}
+.thx-footer{margin-top:16px;text-align:center;color:#6b7280;font-weight:600;font-size:.9rem;}
+.thx-footer .row{display:flex;gap:16px;justify-content:center;margin-top:6px;color:#334155;font-weight:800;}
+body.thankyou .content-card{background:transparent;box-shadow:none;padding:0;}
+body.thankyou .page-container{align-items:flex-start;padding-top:32px;}
 
+    /* ซ่อนโลโก้มุมขวาบนตัว global เฉพาะหน้าขอบคุณ */
+body.thankyou .corner-logo{ 
+  display: none !important; 
+}
     
   </style>
 </head>
@@ -662,74 +640,73 @@ body.summary .content-card{
     </div>
   </div>
 
- <!-- ============ Thank You (ตามภาพ) ============ -->
-<div id="thankyouContent" class="hidden text-left">
-  <div class="green-shell">
-    <div class="products-inner">
-      <div class="hero">
-        <div class="logo-box">
-          <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
-        </div>
-        <div class="ty-check">
-          <!-- ไอคอนติ๊กถูก -->
-          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
-            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </div>
-        <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
-        <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
-        <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
+ <!-- ============ Thank You (แบบรูปแรก) ============ -->
+<div id="thankyouContent" class="hidden">
+  <div class="thx-wrap">
+    <div class="thx-card">
+      
+      <!-- โลโก้มุมขวาบน -->
+      <img
+        src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
+        class="thx-logo"
+        alt="BJC Big C"
+        onerror="this.style.display='none'"/>
+
+      <!-- ไอคอนติ๊ก -->
+      <div class="thx-check" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none">
+          <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+          <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
       </div>
 
-      <div class="panel">
-        <div class="panel-body">
-          <div class="ty-wrap">
-            <!-- การ์ดสรุปรายการ -->
-            <div class="ty-card">
-              <h4>
-                <span>📋</span>
-                <span>รายละเอียดการเบิก</span>
-              </h4>
+      <!-- ข้อความหัว -->
+      <h1 class="thx-title">🎉 ขอบคุณครับ!</h1>
+      <div class="thx-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
 
-              <div class="ty-grid">
-                <div class="ty-row">
-                  <div class="ty-label">หมายเลขคำขอ:</div>
-                  <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">วันที่เบิก:</div>
-                  <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">จำนวนรายการ:</div>
-                  <div id="tyQty" class="ty-value">5 รายการ</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">ราคาทั้งหมด:</div>
-                  <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
-                </div>
-              </div>
-            </div>
+      <!-- การ์ดรายละเอียด -->
+      <div class="thx-detail">
+        <h4>📋 <span>รายละเอียดการเบิก</span></h4>
 
-            <!-- ขั้นตอนถัดไป -->
-            <div class="ty-next">
-              <span>⏰</span>
-              <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
-            </div>
+        <div class="thx-grid">
+          <div class="thx-row">
+            <div class="thx-label">หมายเลขคำขอ:</div>
+            <div id="tyRef" class="thx-value thx-ref">#REQ-2024-001234</div>
+          </div>
+          <div class="thx-row">
+            <div class="thx-label">วันที่เบิก:</div>
+            <div id="tyDate" class="thx-value">15 มกราคม 2567</div>
+          </div>
+          <div class="thx-row">
+            <div class="thx-label">จำนวนรายการ:</div>
+            <div id="tyQty" class="thx-value">5 รายการ</div>
+          </div>
+          <div class="thx-row">
+            <div class="thx-label">ราคาทั้งหมด:</div>
+            <div id="tyTotal" class="thx-value thx-total">฿2,450.00</div>
+          </div>
+        </div>
+      </div>
 
-            <!-- ปุ่มกลับหน้าหลัก -->
-            <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
+      <!-- ขั้นตอนถัดไป -->
+      <div class="thx-next">
+        <span>⏰</span>
+        <div>
+          ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์
+        </div>
+      </div>
 
-            <!-- footer ติดต่อ -->
-            <div class="ty-footer">
-              หากมีคำถามเพิ่มเติม ติดต่อ
-              <div class="row">
-                <span>📞 02-123-4567</span>
-                <span>✉️ supply@company.com</span>
-              </div>
-            </div>
-          </div> <!-- /ty-wrap -->
+      <!-- ปุ่ม -->
+      <button class="thx-btn" onclick="goHomeFromThanks()">
+        🏠 <span>กลับสู่หน้าหลัก</span>
+      </button>
+
+      <!-- footer -->
+      <div class="thx-footer">
+        หากมีคำถามเพิ่มเติม ติดต่อ
+        <div class="row">
+          <span>📞 02-123-4567</span>
+          <span>✉️ supply@company.com</span>
         </div>
       </div>
 
