@@ -438,6 +438,13 @@ body.summary .content-card{
 .ty-footer .row{ display:flex; gap:18px; justify-content:center; margin-top:6px; color:#334155; font-weight:800; }
 @media (max-width:640px){ .ty-grid{ grid-template-columns: 1fr; } }
 
+  /* ซ่อนโลโก้มุมขวาบนเมื่ออยู่หน้าที่มีโลโก้ใน hero อยู่แล้ว */
+body.category .corner-logo,
+body.products .corner-logo,
+body.summary .corner-logo,
+body.thankyou .corner-logo {
+  display: none !important;
+}  
     
   </style>
 </head>
