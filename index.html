@@ -416,6 +416,64 @@ body.thankyou .corner-logo{
   display: none !important; 
 }
     body.thankyou .corner-logo{ display:none !important; }
+
+/* ===== Thank You: แบบรูปที่ 2 (ไม่มีพื้นหลังเขียว) ===== */
+body.thankyou {
+  background: #f8fafc;                    /* พื้นหลังอ่อน */
+}
+body.thankyou .page-container {
+  padding: 24px 12px;                      /* เว้นขอบบนล่างนิดหน่อย */
+  align-items: flex-start;
+}
+body.thankyou .content-card{
+  background: transparent;                 /* โปร่งใส */
+  box-shadow: none;
+  padding: 0;
+  max-width: 480px;                        /* กรอบแคบลง */
+}
+
+/* ซ่อนโลโก้มุมขวาบนเฉพาะหน้านี้ */
+body.thankyou .corner-logo{ display:none !important; }
+
+/* กลุ่มสไตล์ของหน้าขอบคุณ (รูปที่ 2) */
+.ty-wrap{ max-width:440px; margin:0 auto; }
+.ty-check{
+  width:88px; height:88px; border-radius:9999px; margin:8px auto 16px;
+  display:flex; align-items:center; justify-content:center;
+  background:#22c55e; color:#fff; box-shadow:0 10px 24px rgba(34,197,94,.35);
+}
+.ty-title{ text-align:center; font-weight:900; font-size:1.625rem; color:#0f172a; }
+.ty-sub{ text-align:center; margin-top:8px; color:#6b7280; font-weight:600; }
+
+.ty-card{
+  margin-top:16px; background:#eaf1ff; border:1px solid #e5e7eb;
+  border-radius:16px; padding:18px 16px; box-shadow:0 8px 18px rgba(0,0,0,.06);
+}
+.ty-card h4{ display:flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:900; color:#1f2937; margin-bottom:10px; }
+
+.ty-grid{ display:grid; gap:10px; }
+.ty-row{ display:flex; justify-content:space-between; align-items:center;
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
+.ty-label{ color:#6b7280; font-weight:700; }
+.ty-val{ color:#0f172a; font-weight:800; }
+.ty-ref{ color:#2563eb; font-weight:900; }
+.ty-total{ color:#10b981; font-weight:900; }
+
+.ty-next{
+  margin-top:16px; border:1px solid #fde68a; background:#fff7ed; color:#92400e;
+  border-radius:16px; padding:14px; font-weight:700; display:flex; gap:10px;
+}
+
+.ty-btn{
+  width:100%; min-height:48px; margin-top:18px; border-radius:12px;
+  font-weight:900; color:#fff; box-shadow:0 8px 18px rgba(99,102,241,.25);
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+}
+
+.ty-footer{ margin-top:16px; text-align:center; color:#6b7280; font-weight:600; font-size:.9rem; }
+.ty-footer .row{ margin-top:6px; display:flex; justify-content:center; gap:16px; color:#334155; font-weight:800; }
+
     
   </style>
 </head>
@@ -643,91 +701,60 @@ body.thankyou .corner-logo{
 
  <!-- ============ Thank You (Template เดียวกับหน้าอื่น) ============ -->
 <div id="thankyouContent" class="hidden text-left">
-  <div class="green-shell">
-    <div class="products-inner">
-      <!-- HERO -->
-      <div class="hero">
-        <div class="logo-box">
-          <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
-        </div>
+  <div class="ty-wrap">
+    <!-- ไอคอนติ๊ก -->
+    <div class="ty-check">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none">
+        <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+        <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
 
-        <!-- ไอคอนติ๊ก -->
-        <div class="mx-auto mb-3 w-20 h-20 rounded-full flex items-center justify-center bg-green-500 shadow-xl">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none">
-            <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
-            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </div>
+    <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
+    <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
 
-        <h1 class="hero-title">🎉 ขอบคุณครับ!</h1>
-        <div class="hero-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
-        <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
+    <!-- การ์ดรายละเอียด -->
+    <div class="ty-card">
+      <h4>📋 รายละเอียดการเบิก</h4>
+      <div class="ty-grid">
+        <div class="ty-row">
+          <div class="ty-label">หมายเลขคำขอ:</div>
+          <div id="tyRef" class="ty-ref">#REQ-2024-001234</div>
+        </div>
+        <div class="ty-row">
+          <div class="ty-label">วันที่เบิก:</div>
+          <div id="tyDate" class="ty-val">15 มกราคม 2567</div>
+        </div>
+        <div class="ty-row">
+          <div class="ty-label">จำนวนรายการ:</div>
+          <div id="tyQty" class="ty-val">5 รายการ</div>
+        </div>
+        <div class="ty-row">
+          <div class="ty-label">ราคาทั้งหมด:</div>
+          <div id="tyTotal" class="ty-total">฿2,450.00</div>
+        </div>
       </div>
+    </div>
 
-      <!-- PANEL -->
-      <div class="panel">
-        <div class="panel-body pt-8">
-          <!-- การ์ดรายละเอียด -->
-          <div class="rounded-2xl border border-slate-200 bg-indigo-50/90 p-5 shadow">
-            <div class="flex items-center justify-center gap-2 font-extrabold text-slate-800 mb-3">
-              <span>📋</span><span>รายละเอียดการเบิก</span>
-            </div>
+    <!-- ขั้นตอนถัดไป -->
+    <div class="ty-next">
+      <span>⏰</span>
+      <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
+    </div>
 
-            <!-- กล่องแถว -->
-            <div class="grid md:grid-cols-2 gap-3">
-              <!-- หมายเลขคำขอ -->
-              <div class="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border border-slate-200">
-                <div class="text-slate-500 font-semibold">หมายเลขคำขอ:</div>
-                <div id="tyRef" class="font-extrabold text-blue-600">#REQ-2024-001234</div>
-              </div>
-              <!-- วันที่เบิก -->
-              <div class="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border border-slate-200">
-                <div class="text-slate-500 font-semibold">วันที่เบิก:</div>
-                <div id="tyDate" class="font-extrabold text-slate-900">15 มกราคม 2567</div>
-              </div>
-              <!-- จำนวนรายการ -->
-              <div class="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border border-slate-200">
-                <div class="text-slate-500 font-semibold">จำนวนรายการ:</div>
-                <div id="tyQty" class="font-extrabold text-slate-900">5 รายการ</div>
-              </div>
-              <!-- ราคารวม -->
-              <div class="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border border-slate-200">
-                <div class="text-slate-500 font-semibold">ราคาทั้งหมด:</div>
-                <div id="tyTotal" class="font-extrabold text-emerald-600">฿2,450.00</div>
-              </div>
-            </div>
-          </div>
+    <!-- ปุ่มกลับ -->
+    <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
 
-          <!-- ขั้นตอนถัดไป -->
-          <div class="mt-4 rounded-2xl border border-amber-200 bg-orange-50 text-amber-900 p-4 font-semibold">
-            <div class="flex items-start gap-2">
-              <span>⏰</span>
-              <div>
-                ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป
-                เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์
-              </div>
-            </div>
-          </div>
-
-          <!-- ปุ่มกลับ -->
-          <div class="mt-6">
-            <button class="w-full min-h-[48px] rounded-xl font-extrabold text-white shadow-lg
-                           bg-gradient-to-tr from-indigo-500 to-violet-500 hover:brightness-105"
-                    onclick="goHomeFromThanks()">
-              🏠 กลับสู่หน้าหลัก
-            </button>
-          </div>
-
-          <!-- Footer ติดต่อ -->
-          <div class="mt-5 text-center text-slate-500 font-semibold">
-            หากมีคำถามเพิ่มเติม ติดต่อ
-            <div class="mt-2 flex items-center justify-center gap-5 text-slate-700 font-extrabold">
-              <span>📞 02-123-4567</span>
-              <span>✉️ supply@company.com</span>
-            </div>
-          </div>
-        </div> <!-- /panel-body -->
-      </div> <!-- /panel -->
+    <!-- Footer ติดต่อ -->
+    <div class="ty-footer">
+      หากมีคำถามเพิ่มเติม ติดต่อ
+      <div class="row">
+        <span>📞 02-123-4567</span>
+        <span>✉️ supply@company.com</span>
+      </div>
+    </div>
+  </div>
+</div>
 
     </div> <!-- /products-inner -->
   </div> <!-- /green-shell -->
