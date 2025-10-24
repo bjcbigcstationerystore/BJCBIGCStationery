@@ -662,16 +662,13 @@ body.summary .content-card{
     </div>
   </div>
 
- <!-- ============ Thank You (ตามภาพ) ============ -->
+<!-- ============ Thank You (ตามรูปที่ 2) ============ -->
 <div id="thankyouContent" class="hidden text-left">
-  <div class="green-shell">
-    <div class="products-inner">
-      <div class="hero">
-        <div class="logo-box">
-          <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
-        </div>
+  <div class="panel">
+    <div class="panel-body">
+      <div class="ty-wrap">
+        <!-- หัวข้อ -->
         <div class="ty-check">
-          <!-- ไอคอนติ๊กถูก -->
           <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
             <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -679,59 +676,56 @@ body.summary .content-card{
         </div>
         <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
         <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
-        <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
-      </div>
+        <!-- ไม่มี hero-dots และไม่มีโลโก้มุม -->
 
-      <div class="panel">
-        <div class="panel-body">
-          <div class="ty-wrap">
-            <!-- การ์ดสรุปรายการ -->
-            <div class="ty-card">
-              <h4>
-                <span>📋</span>
-                <span>รายละเอียดการเบิก</span>
-              </h4>
+        <!-- การ์ดสรุปรายละเอียด -->
+        <div class="ty-card">
+          <h4>
+            <span>📋</span>
+            <span>รายละเอียดการเบิก</span>
+          </h4>
 
-              <div class="ty-grid">
-                <div class="ty-row">
-                  <div class="ty-label">หมายเลขคำขอ:</div>
-                  <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">วันที่เบิก:</div>
-                  <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">จำนวนรายการ:</div>
-                  <div id="tyQty" class="ty-value">5 รายการ</div>
-                </div>
-                <div class="ty-row">
-                  <div class="ty-label">ราคาทั้งหมด:</div>
-                  <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
-                </div>
-              </div>
+          <div class="ty-grid">
+            <div class="ty-row">
+              <div class="ty-label">หมายเลขคำขอ:</div>
+              <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
             </div>
-
-            <!-- ขั้นตอนถัดไป -->
-            <div class="ty-next">
-              <span>⏰</span>
-              <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
+            <div class="ty-row">
+              <div class="ty-label">วันที่เบิก:</div>
+              <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
             </div>
-
-            <!-- ปุ่มกลับหน้าหลัก -->
-            <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
-
-            <!-- footer ติดต่อ -->
-            <div class="ty-footer">
-              หากมีคำถามเพิ่มเติม ติดต่อ
-              <div class="row">
-                <span>📞 02-123-4567</span>
-                <span>✉️ supply@company.com</span>
-              </div>
+            <div class="ty-row">
+              <div class="ty-label">จำนวนรายการ:</div>
+              <div id="tyQty" class="ty-value">5 รายการ</div>
             </div>
-          </div> <!-- /ty-wrap -->
+            <div class="ty-row">
+              <div class="ty-label">ราคาทั้งหมด:</div>
+              <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- ขั้นตอนถัดไป -->
+        <div class="ty-next">
+          <span>⏰</span>
+          <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
+        </div>
+
+        <!-- ปุ่มกลับหน้าหลัก -->
+        <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
+
+        <!-- footer ติดต่อ -->
+        <div class="ty-footer">
+          หากมีคำถามเพิ่มเติม ติดต่อ
+          <div class="row">
+            <span>📞 02-123-4567</span>
+            <span>✉️ supply@company.com</span>
+          </div>
+        </div>
+      </div> <!-- /ty-wrap -->
+    </div>
+  </div>
+</div>
 
     </div>
   </div>
