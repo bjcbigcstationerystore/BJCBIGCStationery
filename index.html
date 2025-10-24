@@ -416,9 +416,10 @@ body.thankyou .corner-logo{
 }
     body.thankyou .corner-logo{ display:none !important; }
 
-/* ===== Thank You: แบบรูปที่ 2 (ไม่มีพื้นหลังเขียว) ===== */
+/* ให้หน้า Thank You เปลี่ยนพื้นหลังทั้ง html และ body */
+html.thankyou,
 body.thankyou {
-  background: #f8fafc;                    /* พื้นหลังอ่อน */
+  background:#f8fafc !important;
 }
 body.thankyou .page-container {
   padding: 24px 12px;                      /* เว้นขอบบนล่างนิดหน่อย */
@@ -1181,6 +1182,7 @@ body.thankyou .content-card{
 
   // ล้างคลาส state บน body
   document.body.classList.remove('category','products','summary','not-home','thankyou'); 
+     document.documentElement.classList.remove('thankyou'); 
 
   if (which === 'home'){
     home.classList.remove('hidden');
@@ -1213,6 +1215,7 @@ body.thankyou .content-card{
   } else if (which === 'thankyou'){         // ✅ อยู่ในกลุ่มเงื่อนไขเดียวกัน
     if (thx){ thx.classList.remove('hidden'); }
     document.body.classList.add('not-home','thankyou');
+    document.documentElement.classList.add('thankyou'); 
     setTop();
   }
 
