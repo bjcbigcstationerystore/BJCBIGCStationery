@@ -531,7 +531,7 @@ body.summary .content-card{
           </div>
 
           <div class="panel-body">
-            
+
            <!-- ผู้เบิก -->
 <div class="mb-6">
   <div class="flex items-center mb-4">
@@ -611,6 +611,38 @@ body.summary .content-card{
       </div>
     </div>
   </div>
+
+      <!-- ============ Thank You ============ -->
+<div id="thankyouContent" class="hidden text-left">
+  <div class="green-shell">
+    <div class="products-inner">
+      <div class="hero">
+        <div class="logo-box">
+          <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
+        </div>
+        <h1 class="hero-title">ขอบคุณสำหรับการใช้ระบบเบิกอุปกรณ์</h1>
+        <div class="hero-sub">YOUR REQUEST HAS BEEN SUBMITTED</div>
+        <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
+        <p class="hero-desc">ระบบได้บันทึกรายการของคุณเรียบร้อยแล้ว</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900">ขอบคุณค่ะ/ครับ</h3>
+          <p class="text-gray-600 mt-1">ท่านสามารถกลับไปหน้าหลักเพื่อทำรายการใหม่ได้</p>
+        </div>
+        <div class="panel-body">
+          <div class="flex justify-center">
+            <button class="py-3 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold"
+                    onclick="goHomeFromThanks()">หน้าหลัก</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
  </div> <!-- /content-card -->
   </div> <!-- /page-container -->
 
@@ -635,6 +667,17 @@ body.summary .content-card{
       <span class="text-gray-800 font-medium">กำลังโหลดรายการสินค้า…</span>
     </div>
   </div>
+
+  <!-- Submitting Modal -->
+<div id="submittingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
+  <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
+    <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    <span class="text-gray-800 font-medium">กำลังส่งคำขอเบิก…</span>
+  </div>
+</div>
 
   <!-- Product Detail Modal -->
   <div id="itemModal" class="modal-mask">
@@ -681,6 +724,7 @@ body.summary .content-card{
     /* ===== CART STATE ===== */
     let CART = []; // [{ key, name, price, qty }]
     let CURRENT_EMP = null;
+    let CURRENT_BU_ADMIN = { name: '—', email: '—' }; // ✅ เก็บ BU Admin ไว้ครั้งเดียว
 
     function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
     function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
@@ -825,6 +869,13 @@ body.summary .content-card{
       }
     }
 
+    function showSubmittingModal(show=true){
+  const m = document.getElementById('submittingModal');
+  if(!m) return;
+  if(show){ m.classList.remove('hidden'); m.classList.add('flex'); }
+  else { m.classList.add('hidden'); m.classList.remove('flex'); }
+}
+
     async function preloadCategoriesFor(company){
       currentCompany = normalizeCompanyName(company);
       CATEGORIES = await getCategories(currentCompany, 50);
@@ -946,6 +997,7 @@ body.summary .content-card{
   const cate = document.getElementById('categoryContent');
   const prod = document.getElementById('productsContent');
   const sum  = document.getElementById('summaryContent');
+  const thx  = document.getElementById('thankyouContent');
 
   // ซ่อนทุกหน้า
   home.classList.add('hidden');
@@ -953,16 +1005,16 @@ body.summary .content-card{
   cate.classList.add('hidden');
   prod.classList.add('hidden');
   if (sum) sum.classList.add('hidden');
+  if (thx) thx.classList.add('hidden');
 
   // ล้างคลาส state บน body
-  document.body.classList.remove('category','products','summary','not-home');
+  document.body.classList.remove('category','products','summary','not-home','thankyou'); 
 
   if (which === 'home'){
     home.classList.remove('hidden');
     setCentered();
     stage = 'verify';
     resetVerifyButton();
-    // ไม่ใส่ not-home
   } else if (which === 'verify'){
     verify.classList.remove('hidden');
     document.body.classList.add('not-home');
@@ -983,10 +1035,12 @@ body.summary .content-card{
     document.body.classList.add('not-home','products');
     setTop();
   } else if (which === 'summary'){
-    if (sum){
-      sum.classList.remove('hidden');
-    }
+    if (sum){ sum.classList.remove('hidden'); }
     document.body.classList.add('not-home','summary');
+    setTop();
+  } else if (which === 'thankyou'){         // ✅ อยู่ในกลุ่มเงื่อนไขเดียวกัน
+    if (thx){ thx.classList.remove('hidden'); }
+    document.body.classList.add('not-home','thankyou');
     setTop();
   }
 
@@ -1028,6 +1082,11 @@ body.summary .content-card{
       resetVerifyForm();
       showPage('home');
     }
+
+    function goHomeFromThanks(){
+  resetVerifyForm();    // ล้างสถานะเก่า
+  showPage('home');     // กลับหน้าหลัก
+}
 
     document.addEventListener('DOMContentLoaded', ()=>{
       const empInput = document.getElementById('employeeId');
@@ -1222,10 +1281,11 @@ body.summary .content-card{
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
   document.getElementById('s_fullname').textContent = emp.name || '-';
 
-      // BU Admin
+  // BU Admin (ดึงครั้งเดียวแล้ว cache)
   const bu = await getBUAdmin(emp.id || '');
-  document.getElementById('s_bu_name').textContent  = bu.name || '—';
-  document.getElementById('s_bu_email').textContent = bu.email || '—';
+  CURRENT_BU_ADMIN = { name: bu.name || '—', email: bu.email || '—' };
+  document.getElementById('s_bu_name').textContent  = CURRENT_BU_ADMIN.name;
+  document.getElementById('s_bu_email').textContent = CURRENT_BU_ADMIN.email;
 
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
@@ -1297,7 +1357,7 @@ async function submitRequest(){
     if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
     if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
 
-    const bu = await getBUAdmin(CURRENT_EMP.id || '');
+    showSubmittingModal(true);   // ✅ โชว์ modal “กำลังส่ง…”
 
     const items = CART.map(it => ({
       name: it.name,
@@ -1316,8 +1376,8 @@ async function submitRequest(){
         costCenter: CURRENT_EMP.costCenter || '',
         employeeId: CURRENT_EMP.id || '',
         fullName: CURRENT_EMP.name || '',
-        buAdminName: bu.name || '',
-        buAdminEmail: bu.email || '',
+        buAdminName: CURRENT_BU_ADMIN.name || '',     // ✅ ใช้ค่าที่ cache ไว้
+        buAdminEmail: CURRENT_BU_ADMIN.email || '',   // ✅ ใช้ค่าที่ cache ไว้
         totalQty: items.reduce((s, x) => s + x.qty, 0),
         totalAmount: items.reduce((s, x) => s + x.line, 0),
         items
@@ -1325,13 +1385,10 @@ async function submitRequest(){
     };
 
     const res = await fetch(API_BASE, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-  body: new URLSearchParams({
-    action: 'submitRequest',
-    data: JSON.stringify(payload.data)   // ส่งเฉพาะก้อน data เป็นสตริง
-  })
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
     const json = await res.json().catch(()=>null);
     if (!res.ok || !json || !json.success){
@@ -1340,10 +1397,12 @@ async function submitRequest(){
 
     CART = [];
     updateCartUI();
-    alert('ส่งคำขอเรียบร้อยแล้ว! ข้อมูลถูกบันทึกที่ชีต "Response"');
-    showPage('category');
+    showSubmittingModal(false);   // ✅ ปิด modal
+    showPage('thankyou');         // ✅ ไปหน้า Thank you
+
   }catch(err){
     console.error(err);
+    showSubmittingModal(false);
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   }
 }
