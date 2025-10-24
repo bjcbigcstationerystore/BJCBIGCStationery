@@ -19,14 +19,13 @@
     .page-container{display:flex;justify-content:center;width:100%;min-height:100vh;padding:2rem 1rem}
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
     .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
-    /* ให้ทุกหน้าวางอยู่บน content-card สีขาวแผ่นเดียว */
-body.category .content-card,
+    body.category .content-card,
 body.products .content-card,
 body.summary .content-card{
-  padding:2.5rem !important;
-  background:#ffffff !important;
-  box-shadow:0 20px 40px rgba(0,0,0,.15) !important;
-  max-width:900px !important;
+  padding:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  max-width:900px;
 }
     .category-inner,.products-inner{max-width:900px;margin:0 auto}
     @media (max-width:1024px){ .category-inner,.products-inner{max-width:100%} }
@@ -45,7 +44,7 @@ body.summary .content-card{
     .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
 
     /* hero panel reused */
-    .green-shell{ background:transparent !important; padding:0 !important; }
+    .green-shell{position:relative;border-radius:20px;padding:0;background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)), linear-gradient(180deg,#1b4e41 0%,#1c5b4a 40%,#165846 100%);overflow:hidden}
     .hero{position:relative;margin:0;padding:22px 24px 24px;text-align:center;color:#ecfdf5;background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%)}
     .hero-title{font-size:2rem;font-weight:800;margin:0}
     .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
@@ -53,9 +52,9 @@ body.summary .content-card{
     .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}.hero-dots .dim{opacity:.35}
     .hero-desc{font-weight:800;color:#f2fff7}
     .logo-box{position:absolute;top:14px;right:18px;background:#fff;border-radius:12px;padding:6px 10px;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px}
-    .panel{ background:transparent !important; box-shadow:none !important; border-radius:0 !important; margin:0 !important; }
-    .panel-head{ background:transparent !important; border:0 !important; padding:0 0 10px !important; }
-    .panel-body{ background:transparent !important; padding:0 !important; }
+    .panel{background:#fff;border-radius:0 0 20px 20px;box-shadow:0 15px 35px rgba(0,0,0,.18);overflow:hidden;margin:0;position:relative}
+    .panel-head{background:linear-gradient(180deg,#f0fdf4,#ecfdf5);border-bottom:1px solid #d9f3e5;padding:22px 28px}
+    .panel-body{padding:24px 24px 100px}
 
     /* ปุ่มกลับ (แบบเดียวกับหน้ายืนยันตัวตน/หมวด) */
     .back-btn{
@@ -438,13 +437,6 @@ body.summary .content-card{
 .ty-footer .row{ display:flex; gap:18px; justify-content:center; margin-top:6px; color:#334155; font-weight:800; }
 @media (max-width:640px){ .ty-grid{ grid-template-columns: 1fr; } }
 
-  /* ซ่อนโลโก้มุมขวาบนเมื่ออยู่หน้าที่มีโลโก้ใน hero อยู่แล้ว */
-body.category .corner-logo,
-body.products .corner-logo,
-body.summary .corner-logo,
-body.thankyou .corner-logo {
-  display: none !important;
-}  
     
   </style>
 </head>
@@ -670,67 +662,81 @@ body.thankyou .corner-logo {
     </div>
   </div>
 
-<!-- ============ Thank You (ตามรูปที่ 2) ============ -->
-<div id="thankyouContent" class="hidden">
-  <div class="max-w-2xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-xl">
-
-    <!-- ไอคอนสำเร็จ -->
-    <div class="flex justify-center mb-4">
-      <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
-        <svg viewBox="0 0 24 24" width="40" height="40" stroke="white" fill="none" stroke-width="2.5">
-          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+ <!-- ============ Thank You (ตามภาพ) ============ -->
+<div id="thankyouContent" class="hidden text-left">
+  <div class="green-shell">
+    <div class="products-inner">
+      <div class="hero">
+        <div class="logo-box">
+          <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
+        </div>
+        <div class="ty-check">
+          <!-- ไอคอนติ๊กถูก -->
+          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
+        <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
+        <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
       </div>
-    </div>
 
-    <h1 class="text-2xl font-extrabold text-center text-gray-900">🎉 ขอบคุณครับ!</h1>
-    <p class="text-center text-gray-500 mt-1">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="ty-wrap">
+            <!-- การ์ดสรุปรายการ -->
+            <div class="ty-card">
+              <h4>
+                <span>📋</span>
+                <span>รายละเอียดการเบิก</span>
+              </h4>
 
-    <!-- การ์ดรายละเอียด -->
-    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 mt-8">
-      <h4 class="flex items-center justify-center font-bold text-gray-700 mb-4">
-        <span>📋</span>
-        <span class="ml-2">รายละเอียดการเบิก</span>
-      </h4>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-semibold">หมายเลขคำขอ:</span>
-          <span id="tyRef" class="font-bold text-blue-600">REQ-00000</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-semibold">วันที่เบิก:</span>
-          <span id="tyDate" class="font-bold text-gray-800">-</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-semibold">จำนวนรายการ:</span>
-          <span id="tyQty" class="font-bold text-gray-800">-</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-semibold">ราคารวม:</span>
-          <span id="tyTotal" class="font-bold text-green-600">-</span>
+              <div class="ty-grid">
+                <div class="ty-row">
+                  <div class="ty-label">หมายเลขคำขอ:</div>
+                  <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">วันที่เบิก:</div>
+                  <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">จำนวนรายการ:</div>
+                  <div id="tyQty" class="ty-value">5 รายการ</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">ราคาทั้งหมด:</div>
+                  <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ขั้นตอนถัดไป -->
+            <div class="ty-next">
+              <span>⏰</span>
+              <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
+            </div>
+
+            <!-- ปุ่มกลับหน้าหลัก -->
+            <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
+
+            <!-- footer ติดต่อ -->
+            <div class="ty-footer">
+              หากมีคำถามเพิ่มเติม ติดต่อ
+              <div class="row">
+                <span>📞 02-123-4567</span>
+                <span>✉️ supply@company.com</span>
+              </div>
+            </div>
+          </div> <!-- /ty-wrap -->
         </div>
       </div>
-    </div>
 
-    <!-- ขั้นตอนถัดไป -->
-    <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 rounded-xl p-4 mt-5 text-center font-medium">
-      ⏰ ขั้นตอนถัดไป — ระบบจะส่งคำขอของคุณเข้าสู่ขั้นตอนอนุมัติเพื่อเตรียมอุปกรณ์
-    </div>
-
-    <!-- ปุ่มกลับ -->
-    <button onclick="goHomeFromThanks()" class="w-full py-4 rounded-xl mt-6 font-extrabold text-white text-lg"
-            style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
-      🏠 กลับสู่หน้าหลัก
-    </button>
-
-    <div class="text-center text-gray-500 text-sm mt-6">
-      หากมีคำถามเพิ่มเติม ติดต่อ<br>
-      <span class="font-bold text-gray-700">📞 02-123-4567</span> |
-      <span class="font-bold text-gray-700">✉️ supply@company.com</span>
     </div>
   </div>
 </div>
-      
+
  </div> <!-- /content-card -->
   </div> <!-- /page-container -->
 
@@ -1439,78 +1445,62 @@ body.thankyou .corner-logo {
   // ตัวเลขรวมใต้ตาราง (ของปุ่มเดิม)
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
-    
-    // วันที่แบบ 24/10/2025
-function formatDateSheet(d=new Date()){
-  return d.toLocaleDateString('en-GB');
-}
-// เวลาแบบ 20:12
-function formatTimeSheet(d=new Date()){
-  return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-}
-// แผ่รายการเป็น "รายการที่ n / จำนวน n / ราคา n"
-function flattenItemsForSheet(items){
-  const out = {};
-  items.forEach((x, i) => {
-    const k = i+1;
-    out[`รายการที่ ${k}`] = x.name || '-';
-    out[`จำนวน ${k}`]     = Number(x.qty)||0;
-    out[`ราคา ${k}`]      = Number(x.price)||0;
-  });
-  return out;
-}
 
-  /* ===== ส่งคำขอแบบแผ่คอลัมน์ (ตรงสเปคชีต) ===== */
+   /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
 async function submitRequest(){
   try{
     if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
     if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
 
-    showSubmittingModal(true);
+    showSubmittingModal(true);   // ✅ โชว์ modal “กำลังส่ง…”
 
     const items = CART.map(it => ({
       name: it.name,
-      qty:  Number(it.qty)||0,
-      price:Number(it.price)||0
+      qty: Number(it.qty)||0,
+      price: Number(it.price)||0,
+      line: (Number(it.qty)||0) * (Number(it.price)||0),
+      detail: it.detail || '',
+      image: it.image || ''
     }));
-    const totalQty    = items.reduce((s,x)=>s+x.qty,0);
-    const totalAmount = items.reduce((s,x)=>s+(x.qty*x.price),0);
 
-    const now = new Date();
-    const row = {
-      "หมายเลขคำขอ": "",                                   // ให้ฝั่ง Apps Script ใส่
-      "วันที่": formatDateSheet(now),
-      "เวลา": formatTimeSheet(now),
-      "บริษัท": CURRENT_EMP.company || "",
-      "Costcenter": CURRENT_EMP.costCenter || "",
-      "รหัสพนักงาน": CURRENT_EMP.id || "",
-      "ชื่อ-นามสกุล": CURRENT_EMP.name || "",
-      "Name BU admin": (CURRENT_BU_ADMIN.name || "—"),
-      "Email BU Admin": (CURRENT_BU_ADMIN.email || "—"),
-      "รายการเบิก (ชิ้น)": totalQty,
-      "ยอดเบิก (บาท)": Number(totalAmount.toFixed(2)),
-      ...flattenItemsForSheet(items)
+    const payload = {
+      action: 'submitRequest',
+      data: {
+        submittedAt: new Date().toISOString(),
+        company: CURRENT_EMP.company || '',
+        costCenter: CURRENT_EMP.costCenter || '',
+        employeeId: CURRENT_EMP.id || '',
+        fullName: CURRENT_EMP.name || '',
+        buAdminName: CURRENT_BU_ADMIN.name || '',     // ✅ ใช้ค่าที่ cache ไว้
+        buAdminEmail: CURRENT_BU_ADMIN.email || '',   // ✅ ใช้ค่าที่ cache ไว้
+        totalQty: items.reduce((s, x) => s + x.qty, 0),
+        totalAmount: items.reduce((s, x) => s + x.line, 0),
+        items
+      }
     };
 
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'submitrequest', row }) // <-- ส่ง row เดียวแบบแผ่
-    });
+   const res = await fetch(API_BASE, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+  body: JSON.stringify(payload)
+});
 
     const json = await res.json().catch(()=>null);
-    if (!res.ok || !json || !json.success){ throw new Error(json?.error || 'บันทึกไม่สำเร็จ'); }
+    if (!res.ok || !json || !json.success){
+      throw new Error(json && (json.message||json.error) ? (json.message||json.error) : 'บันทึกไม่สำเร็จ');
+    }
 
     LAST_SUBMIT = {
-      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-      totalQty, totalAmount
-    };
+  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+  totalQty: items.reduce((s, x) => s + x.qty, 0),
+  totalAmount: items.reduce((s, x) => s + x.line, 0)
+};
 
-    CART = [];
-    updateCartUI();
-    showSubmittingModal(false);
-    showPage('thankyou');
-    renderThankYou();
+CART = [];
+updateCartUI();
+showSubmittingModal(false);
+showPage('thankyou');
+renderThankYou();  // <-- อัพเดตค่าในหน้าขอบคุณ
 
   }catch(err){
     console.error(err);
@@ -1518,7 +1508,6 @@ async function submitRequest(){
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   }
 }
-    
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
   // วันที่/เวลาไทย
