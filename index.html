@@ -483,26 +483,35 @@ body.thankyou .content-card{
   line-height:1.6;
 }
 
-/* ปุ่มกลับสู่หน้าหลัก – ไล่เฉดแบบรูป 2 */
+/* ปุ่มเขียว โทนเดียวกับหน้าอื่น + เว้นห่างจากกล่อง "ขั้นตอนถัดไป" */
 .ty-btn{
   width:100%;
   min-height:52px;
-  border-radius:14px;
-  font-weight:800;
+  margin-top:24px;                 /* ← ขยับปุ่มลงมา */
+  border-radius:12px;
+  font-weight:900;
   color:#fff;
-  box-shadow:0 8px 18px rgba(99,102,241,.25);
-  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  background:linear-gradient(135deg,#10b981,#059669); /* emerald-500 → 600 */
+  box-shadow:0 10px 22px rgba(16,185,129,.25);
 }
-
-/* เส้นคั่นเหนือฟุตเตอร์ */
-.ty-sep{
+.ty-btn:hover{
+  background:linear-gradient(135deg,#059669,#047857);
+  transform:translateY(-1px);
+  box-shadow:0 14px 28px rgba(16,185,129,.35);
+}
+    
+/* เส้นคั่นบาง ๆ เหนือข้อความติดต่อ */
+.ty-divider{
   height:1px;
-  background:#e5e7eb;
-  margin:24px 0 14px;
+  background:#e5e7eb;  /* เทาอ่อน */
+  margin:20px 0 12px;  /* เว้นบน-ล่างตามภาพตัวอย่าง */
+  border:0;
+  border-radius:1px;
 }
 
-/* ฟุตเตอร์แบบรูป 2 */
+/* ขยับบรรทัด "หากมีคำถามเพิ่มเติม" ลงมาอีกนิด */
 .ty-footer{
+  margin-top:8px;
   text-align:center;
   color:#6b7280;
   font-weight:600;
@@ -790,7 +799,9 @@ body.thankyou .content-card{
 </div>
 
     <!-- ปุ่มกลับ -->
-    <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
+    <button class="ty-btn" onclick="goHomeFromThanks()"> กลับสู่หน้าหลัก</button>
+    
+    <div class="ty-divider"></div>  <!-- ← เส้นคั่นใหม่ -->
 
     <!-- Footer ติดต่อ -->
     <div class="ty-footer">
