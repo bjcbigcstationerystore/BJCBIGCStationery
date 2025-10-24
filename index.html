@@ -1294,21 +1294,11 @@ body.summary .content-card{
    /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
 async function submitRequest(){
   try{
-    // ตรวจว่ามีข้อมูลครบก่อน
-    if (!CURRENT_EMP) {
-      alert('กรุณายืนยันตัวตนก่อน');
-      showPage('verify');
-      return;
-    }
-    if (!CART || CART.length === 0) {
-      alert('ยังไม่มีรายการในตะกร้า');
-      return;
-    }
+    if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
+    if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
 
-    // ดึง BU Admin (ถ้ามีเก็บแล้วจะดึงซ้ำก็ได้ ไม่เสียหาย)
     const bu = await getBUAdmin(CURRENT_EMP.id || '');
 
-    // เตรียม payload
     const items = CART.map(it => ({
       name: it.name,
       qty: Number(it.qty)||0,
@@ -1321,7 +1311,7 @@ async function submitRequest(){
     const payload = {
       action: 'submitRequest',
       data: {
-        submittedAt: new Date().toISOString(),   // เวลาแบบ ISO
+        submittedAt: new Date().toISOString(),
         company: CURRENT_EMP.company || '',
         costCenter: CURRENT_EMP.costCenter || '',
         employeeId: CURRENT_EMP.id || '',
@@ -1334,7 +1324,6 @@ async function submitRequest(){
       }
     };
 
-    // เรียก Apps Script (ตัวเดียวกับ API_BASE ของคุณ)
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1343,10 +1332,9 @@ async function submitRequest(){
 
     const json = await res.json().catch(()=>null);
     if (!res.ok || !json || !json.success){
-      throw new Error(json && json.message ? json.message : 'บันทึกไม่สำเร็จ');
+      throw new Error(json && (json.message||json.error) ? (json.message||json.error) : 'บันทึกไม่สำเร็จ');
     }
 
-    // สำเร็จ -> เคลียร์ตะกร้า + แจ้งเตือน + กลับหน้าหมวด
     CART = [];
     updateCartUI();
     alert('ส่งคำขอเรียบร้อยแล้ว! ข้อมูลถูกบันทึกที่ชีต "Response"');
