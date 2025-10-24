@@ -1291,10 +1291,71 @@ body.summary .content-card{
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
 
-    /* ===== ส่งคำขอเบิก (ตัวอย่างไว้ต่อยอด) ===== */
-    async function submitRequest(){
-      alert('ส่งคำขอเบิก (ตัวอย่าง) — พร้อมเชื่อม Apps Script ต่อได้เลย');
+   /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
+async function submitRequest(){
+  try{
+    // ตรวจว่ามีข้อมูลครบก่อน
+    if (!CURRENT_EMP) {
+      alert('กรุณายืนยันตัวตนก่อน');
+      showPage('verify');
+      return;
     }
+    if (!CART || CART.length === 0) {
+      alert('ยังไม่มีรายการในตะกร้า');
+      return;
+    }
+
+    // ดึง BU Admin (ถ้ามีเก็บแล้วจะดึงซ้ำก็ได้ ไม่เสียหาย)
+    const bu = await getBUAdmin(CURRENT_EMP.id || '');
+
+    // เตรียม payload
+    const items = CART.map(it => ({
+      name: it.name,
+      qty: Number(it.qty)||0,
+      price: Number(it.price)||0,
+      line: (Number(it.qty)||0) * (Number(it.price)||0),
+      detail: it.detail || '',
+      image: it.image || ''
+    }));
+
+    const payload = {
+      action: 'submitRequest',
+      data: {
+        submittedAt: new Date().toISOString(),   // เวลาแบบ ISO
+        company: CURRENT_EMP.company || '',
+        costCenter: CURRENT_EMP.costCenter || '',
+        employeeId: CURRENT_EMP.id || '',
+        fullName: CURRENT_EMP.name || '',
+        buAdminName: bu.name || '',
+        buAdminEmail: bu.email || '',
+        totalQty: items.reduce((s, x) => s + x.qty, 0),
+        totalAmount: items.reduce((s, x) => s + x.line, 0),
+        items
+      }
+    };
+
+    // เรียก Apps Script (ตัวเดียวกับ API_BASE ของคุณ)
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json().catch(()=>null);
+    if (!res.ok || !json || !json.success){
+      throw new Error(json && json.message ? json.message : 'บันทึกไม่สำเร็จ');
+    }
+
+    // สำเร็จ -> เคลียร์ตะกร้า + แจ้งเตือน + กลับหน้าหมวด
+    CART = [];
+    updateCartUI();
+    alert('ส่งคำขอเรียบร้อยแล้ว! ข้อมูลถูกบันทึกที่ชีต "Response"');
+    showPage('category');
+  }catch(err){
+    console.error(err);
+    alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
+  }
+}
   </script>
 
   <!-- Cart Drawer -->
