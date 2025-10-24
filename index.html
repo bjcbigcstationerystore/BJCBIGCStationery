@@ -388,6 +388,56 @@ body.summary .content-card{
 /* จุดเขียวหน้าหัวข้อให้เล็กลงนิดนึง */
 #summaryContent .dot{ width: .55rem !important; height: .55rem !important; }
     
+    /* ===== Thank You styles (แบบภาพตัวอย่าง) ===== */
+.ty-wrap{
+  max-width: 720px; margin: 0 auto; padding: 28px 18px 34px;
+}
+.ty-check{
+  width: 84px; height: 84px; border-radius: 9999px;
+  display:flex; align-items:center; justify-content:center;
+  margin: 0 auto 14px;
+  background: #22c55e; color:#fff; box-shadow: 0 12px 28px rgba(34,197,94,.35);
+}
+.ty-title{
+  font-weight: 900; font-size: 1.9rem; text-align:center; color:#0f172a;
+}
+.ty-sub{
+  margin-top: 6px; text-align:center; color:#6b7280; font-weight: 600;
+}
+.ty-card{
+  margin-top: 18px; background:#eef2ff; border:1px solid #e5e7eb; border-radius:16px;
+  padding: 18px; box-shadow: 0 10px 22px rgba(0,0,0,.06);
+}
+.ty-card h4{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:900; color:#1f2937; margin-bottom:10px;
+}
+.ty-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+.ty-row{ display:flex; justify-content:space-between; gap:12px; padding:10px 12px; background:#fff; border-radius:12px; }
+.ty-label{ color:#6b7280; font-weight:700; }
+.ty-value{ color:#0f172a; font-weight:800; }
+.ty-ref{ color:#3b82f6; font-weight:900; }
+.ty-total{ color:#10b981; font-weight:900; }
+
+.ty-next{
+  margin-top:16px; background:#fff7ed; border:1px solid #fde68a; color:#92400e;
+  padding:16px; border-radius:16px; font-weight:700;
+  display:flex; align-items:flex-start; gap:10px;
+}
+.ty-btn{
+  margin-top:18px;
+  width:100%; min-height:48px; border-radius:12px; font-weight:900; color:#fff;
+  background: linear-gradient(135deg,#6366f1,#8b5cf6);
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.ty-btn:hover{ filter:brightness(1.05); }
+.ty-footer{
+  margin-top:18px; text-align:center; color:#6b7280; font-weight:600; font-size:.9rem;
+}
+.ty-footer .row{ display:flex; gap:18px; justify-content:center; margin-top:6px; color:#334155; font-weight:800; }
+@media (max-width:640px){ .ty-grid{ grid-template-columns: 1fr; } }
+
+    
   </style>
 </head>
 
@@ -612,7 +662,7 @@ body.summary .content-card{
     </div>
   </div>
 
-      <!-- ============ Thank You ============ -->
+ <!-- ============ Thank You (ตามภาพ) ============ -->
 <div id="thankyouContent" class="hidden text-left">
   <div class="green-shell">
     <div class="products-inner">
@@ -620,22 +670,66 @@ body.summary .content-card{
         <div class="logo-box">
           <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
         </div>
-        <h1 class="hero-title">ขอบคุณสำหรับการใช้ระบบเบิกอุปกรณ์</h1>
-        <div class="hero-sub">YOUR REQUEST HAS BEEN SUBMITTED</div>
+        <div class="ty-check">
+          <!-- ไอคอนติ๊กถูก -->
+          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
+        <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
         <div class="hero-dots"><span></span><span class="dim"></span><span></span></div>
-        <p class="hero-desc">ระบบได้บันทึกรายการของคุณเรียบร้อยแล้ว</p>
       </div>
 
       <div class="panel">
-        <div class="panel-head">
-          <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900">ขอบคุณค่ะ/ครับ</h3>
-          <p class="text-gray-600 mt-1">ท่านสามารถกลับไปหน้าหลักเพื่อทำรายการใหม่ได้</p>
-        </div>
         <div class="panel-body">
-          <div class="flex justify-center">
-            <button class="py-3 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold"
-                    onclick="goHomeFromThanks()">หน้าหลัก</button>
-          </div>
+          <div class="ty-wrap">
+            <!-- การ์ดสรุปรายการ -->
+            <div class="ty-card">
+              <h4>
+                <span>📋</span>
+                <span>รายละเอียดการเบิก</span>
+              </h4>
+
+              <div class="ty-grid">
+                <div class="ty-row">
+                  <div class="ty-label">หมายเลขคำขอ:</div>
+                  <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">วันที่เบิก:</div>
+                  <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">จำนวนรายการ:</div>
+                  <div id="tyQty" class="ty-value">5 รายการ</div>
+                </div>
+                <div class="ty-row">
+                  <div class="ty-label">ราคาทั้งหมด:</div>
+                  <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ขั้นตอนถัดไป -->
+            <div class="ty-next">
+              <span>⏰</span>
+              <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
+            </div>
+
+            <!-- ปุ่มกลับหน้าหลัก -->
+            <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
+
+            <!-- footer ติดต่อ -->
+            <div class="ty-footer">
+              หากมีคำถามเพิ่มเติม ติดต่อ
+              <div class="row">
+                <span>📞 02-123-4567</span>
+                <span>✉️ supply@company.com</span>
+              </div>
+            </div>
+          </div> <!-- /ty-wrap -->
         </div>
       </div>
 
@@ -720,6 +814,7 @@ body.summary .content-card{
     let PRODUCTS = [];
     let selectedCategory = '';
     let modalItem = { name:'', price:0, detail:'', image:'' };
+    let LAST_SUBMIT = null; // { ref, totalQty, totalAmount }
 
     /* ===== CART STATE ===== */
     let CART = []; // [{ key, name, price, qty }]
@@ -822,7 +917,7 @@ body.summary .content-card{
     }
 
     /* ============ Utilities ============ */
-    const baht = n => '฿' + (Number(n||0)).toLocaleString('th-TH');
+    const baht = n => '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     function normalizeCompanyName(s=''){
       const t = String(s).toLowerCase();
       if (t.includes('big c') || t.includes('bigc')) return 'Big C';
@@ -1395,10 +1490,17 @@ async function submitRequest(){
       throw new Error(json && (json.message||json.error) ? (json.message||json.error) : 'บันทึกไม่สำเร็จ');
     }
 
-    CART = [];
-    updateCartUI();
-    showSubmittingModal(false);   // ✅ ปิด modal
-    showPage('thankyou');         // ✅ ไปหน้า Thank you
+    LAST_SUBMIT = {
+  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+  totalQty: items.reduce((s, x) => s + x.qty, 0),
+  totalAmount: items.reduce((s, x) => s + x.line, 0)
+};
+
+CART = [];
+updateCartUI();
+showSubmittingModal(false);
+showPage('thankyou');
+renderThankYou();  // <-- อัพเดตค่าในหน้าขอบคุณ
 
   }catch(err){
     console.error(err);
@@ -1406,10 +1508,22 @@ async function submitRequest(){
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   }
 }
+    function renderThankYou(){
+  const d = LAST_SUBMIT || {};
+  // วันที่/เวลาไทย
+  const now = new Date();
+  const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
+
+  document.getElementById('tyRef').textContent   = d.ref || '—';
+  document.getElementById('tyQty').textContent   = (d.totalQty ?? 0) + ' รายการ';
+  document.getElementById('tyTotal').textContent = '฿' + Number(d.totalAmount||0).toLocaleString('th-TH', {minimumFractionDigits:2});
+  document.getElementById('tyDate').textContent  = dateTH;
+}
+    
   </script>
 
   <!-- Cart Drawer -->
-  <div id="cartMask" class="cart-mask" onclick="closeCart(event)">
+  <div id="cartMask" class="cart-mask" onclick="closeCart()">
     <div id="cartPanel" class="cart-panel" onclick="event.stopPropagation();">
       <div class="cart-header">
         <div style="font-size:1.3rem;font-weight:900;">ตะกร้าสินค้า</div>
