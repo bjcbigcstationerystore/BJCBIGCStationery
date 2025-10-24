@@ -663,70 +663,66 @@ body.summary .content-card{
   </div>
 
 <!-- ============ Thank You (ตามรูปที่ 2) ============ -->
-<div id="thankyouContent" class="hidden text-left">
-  <div class="panel">
-    <div class="panel-body">
-      <div class="ty-wrap">
-        <!-- หัวข้อ -->
-        <div class="ty-check">
-          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
-            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </div>
-        <h1 class="ty-title">🎉 ขอบคุณครับ!</h1>
-        <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
-        <!-- ไม่มี hero-dots และไม่มีโลโก้มุม -->
+<div id="thankyouContent" class="hidden">
+  <div class="max-w-2xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-xl">
 
-        <!-- การ์ดสรุปรายละเอียด -->
-        <div class="ty-card">
-          <h4>
-            <span>📋</span>
-            <span>รายละเอียดการเบิก</span>
-          </h4>
-
-          <div class="ty-grid">
-            <div class="ty-row">
-              <div class="ty-label">หมายเลขคำขอ:</div>
-              <div id="tyRef" class="ty-value ty-ref">#REQ-2024-001234</div>
-            </div>
-            <div class="ty-row">
-              <div class="ty-label">วันที่เบิก:</div>
-              <div id="tyDate" class="ty-value">15 มกราคม 2567</div>
-            </div>
-            <div class="ty-row">
-              <div class="ty-label">จำนวนรายการ:</div>
-              <div id="tyQty" class="ty-value">5 รายการ</div>
-            </div>
-            <div class="ty-row">
-              <div class="ty-label">ราคาทั้งหมด:</div>
-              <div id="tyTotal" class="ty-value ty-total">฿2,450.00</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ขั้นตอนถัดไป -->
-        <div class="ty-next">
-          <span>⏰</span>
-          <div>ขั้นตอนถัดไป — ระบบจะส่งรายการของคุณไปยังขั้นตอนการอนุมัติต่อไป เพื่อดำเนินการอนุมัติและเตรียมอุปกรณ์</div>
-        </div>
-
-        <!-- ปุ่มกลับหน้าหลัก -->
-        <button class="ty-btn" onclick="goHomeFromThanks()">🏠 กลับสู่หน้าหลัก</button>
-
-        <!-- footer ติดต่อ -->
-        <div class="ty-footer">
-          หากมีคำถามเพิ่มเติม ติดต่อ
-          <div class="row">
-            <span>📞 02-123-4567</span>
-            <span>✉️ supply@company.com</span>
-          </div>
-        </div>
-      </div> <!-- /ty-wrap -->
+    <!-- ไอคอนสำเร็จ -->
+    <div class="flex justify-center mb-4">
+      <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
+        <svg viewBox="0 0 24 24" width="40" height="40" stroke="white" fill="none" stroke-width="2.5">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>
+
+    <h1 class="text-2xl font-extrabold text-center text-gray-900">🎉 ขอบคุณครับ!</h1>
+    <p class="text-center text-gray-500 mt-1">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</p>
+
+    <!-- การ์ดรายละเอียด -->
+    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 mt-8">
+      <h4 class="flex items-center justify-center font-bold text-gray-700 mb-4">
+        <span>📋</span>
+        <span class="ml-2">รายละเอียดการเบิก</span>
+      </h4>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-semibold">หมายเลขคำขอ:</span>
+          <span id="tyRef" class="font-bold text-blue-600">REQ-00000</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-semibold">วันที่เบิก:</span>
+          <span id="tyDate" class="font-bold text-gray-800">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-semibold">จำนวนรายการ:</span>
+          <span id="tyQty" class="font-bold text-gray-800">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-semibold">ราคารวม:</span>
+          <span id="tyTotal" class="font-bold text-green-600">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ขั้นตอนถัดไป -->
+    <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 rounded-xl p-4 mt-5 text-center font-medium">
+      ⏰ ขั้นตอนถัดไป — ระบบจะส่งคำขอของคุณเข้าสู่ขั้นตอนอนุมัติเพื่อเตรียมอุปกรณ์
+    </div>
+
+    <!-- ปุ่มกลับ -->
+    <button onclick="goHomeFromThanks()" class="w-full py-4 rounded-xl mt-6 font-extrabold text-white text-lg"
+            style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
+      🏠 กลับสู่หน้าหลัก
+    </button>
+
+    <div class="text-center text-gray-500 text-sm mt-6">
+      หากมีคำถามเพิ่มเติม ติดต่อ<br>
+      <span class="font-bold text-gray-700">📞 02-123-4567</span> |
+      <span class="font-bold text-gray-700">✉️ supply@company.com</span>
+    </div>
+
   </div>
 </div>
-
     </div>
   </div>
 </div>
