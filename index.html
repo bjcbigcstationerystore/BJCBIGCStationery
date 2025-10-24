@@ -19,13 +19,14 @@
     .page-container{display:flex;justify-content:center;width:100%;min-height:100vh;padding:2rem 1rem}
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
     .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
-    body.category .content-card,
+    /* ให้ทุกหน้าวางอยู่บน content-card สีขาวแผ่นเดียว */
+body.category .content-card,
 body.products .content-card,
 body.summary .content-card{
-  padding:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  max-width:900px;
+  padding:2.5rem !important;
+  background:#ffffff !important;
+  box-shadow:0 20px 40px rgba(0,0,0,.15) !important;
+  max-width:900px !important;
 }
     .category-inner,.products-inner{max-width:900px;margin:0 auto}
     @media (max-width:1024px){ .category-inner,.products-inner{max-width:100%} }
@@ -44,7 +45,7 @@ body.summary .content-card{
     .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
 
     /* hero panel reused */
-    .green-shell{position:relative;border-radius:20px;padding:0;background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)), linear-gradient(180deg,#1b4e41 0%,#1c5b4a 40%,#165846 100%);overflow:hidden}
+    .green-shell{ background:transparent !important; padding:0 !important; }
     .hero{position:relative;margin:0;padding:22px 24px 24px;text-align:center;color:#ecfdf5;background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%)}
     .hero-title{font-size:2rem;font-weight:800;margin:0}
     .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
@@ -52,9 +53,9 @@ body.summary .content-card{
     .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}.hero-dots .dim{opacity:.35}
     .hero-desc{font-weight:800;color:#f2fff7}
     .logo-box{position:absolute;top:14px;right:18px;background:#fff;border-radius:12px;padding:6px 10px;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px}
-    .panel{background:#fff;border-radius:0 0 20px 20px;box-shadow:0 15px 35px rgba(0,0,0,.18);overflow:hidden;margin:0;position:relative}
-    .panel-head{background:linear-gradient(180deg,#f0fdf4,#ecfdf5);border-bottom:1px solid #d9f3e5;padding:22px 28px}
-    .panel-body{padding:24px 24px 100px}
+    .panel{ background:transparent !important; box-shadow:none !important; border-radius:0 !important; margin:0 !important; }
+    .panel-head{ background:transparent !important; border:0 !important; padding:0 0 10px !important; }
+    .panel-body{ background:transparent !important; padding:0 !important; }
 
     /* ปุ่มกลับ (แบบเดียวกับหน้ายืนยันตัวตน/หมวด) */
     .back-btn{
@@ -1435,62 +1436,78 @@ body.summary .content-card{
   // ตัวเลขรวมใต้ตาราง (ของปุ่มเดิม)
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
+    
+    // วันที่แบบ 24/10/2025
+function formatDateSheet(d=new Date()){
+  return d.toLocaleDateString('en-GB');
+}
+// เวลาแบบ 20:12
+function formatTimeSheet(d=new Date()){
+  return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+}
+// แผ่รายการเป็น "รายการที่ n / จำนวน n / ราคา n"
+function flattenItemsForSheet(items){
+  const out = {};
+  items.forEach((x, i) => {
+    const k = i+1;
+    out[`รายการที่ ${k}`] = x.name || '-';
+    out[`จำนวน ${k}`]     = Number(x.qty)||0;
+    out[`ราคา ${k}`]      = Number(x.price)||0;
+  });
+  return out;
+}
 
-   /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
+  /* ===== ส่งคำขอแบบแผ่คอลัมน์ (ตรงสเปคชีต) ===== */
 async function submitRequest(){
   try{
     if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
     if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
 
-    showSubmittingModal(true);   // ✅ โชว์ modal “กำลังส่ง…”
+    showSubmittingModal(true);
 
     const items = CART.map(it => ({
       name: it.name,
-      qty: Number(it.qty)||0,
-      price: Number(it.price)||0,
-      line: (Number(it.qty)||0) * (Number(it.price)||0),
-      detail: it.detail || '',
-      image: it.image || ''
+      qty:  Number(it.qty)||0,
+      price:Number(it.price)||0
     }));
+    const totalQty    = items.reduce((s,x)=>s+x.qty,0);
+    const totalAmount = items.reduce((s,x)=>s+(x.qty*x.price),0);
 
-    const payload = {
-      action: 'submitRequest',
-      data: {
-        submittedAt: new Date().toISOString(),
-        company: CURRENT_EMP.company || '',
-        costCenter: CURRENT_EMP.costCenter || '',
-        employeeId: CURRENT_EMP.id || '',
-        fullName: CURRENT_EMP.name || '',
-        buAdminName: CURRENT_BU_ADMIN.name || '',     // ✅ ใช้ค่าที่ cache ไว้
-        buAdminEmail: CURRENT_BU_ADMIN.email || '',   // ✅ ใช้ค่าที่ cache ไว้
-        totalQty: items.reduce((s, x) => s + x.qty, 0),
-        totalAmount: items.reduce((s, x) => s + x.line, 0),
-        items
-      }
+    const now = new Date();
+    const row = {
+      "หมายเลขคำขอ": "",                                   // ให้ฝั่ง Apps Script ใส่
+      "วันที่": formatDateSheet(now),
+      "เวลา": formatTimeSheet(now),
+      "บริษัท": CURRENT_EMP.company || "",
+      "Costcenter": CURRENT_EMP.costCenter || "",
+      "รหัสพนักงาน": CURRENT_EMP.id || "",
+      "ชื่อ-นามสกุล": CURRENT_EMP.name || "",
+      "Name BU admin": (CURRENT_BU_ADMIN.name || "—"),
+      "Email BU Admin": (CURRENT_BU_ADMIN.email || "—"),
+      "รายการเบิก (ชิ้น)": totalQty,
+      "ยอดเบิก (บาท)": Number(totalAmount.toFixed(2)),
+      ...flattenItemsForSheet(items)
     };
 
-   const res = await fetch(API_BASE, {
-  method: 'POST',
-  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-  body: JSON.stringify(payload)
-});
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'submitrequest', row }) // <-- ส่ง row เดียวแบบแผ่
+    });
 
     const json = await res.json().catch(()=>null);
-    if (!res.ok || !json || !json.success){
-      throw new Error(json && (json.message||json.error) ? (json.message||json.error) : 'บันทึกไม่สำเร็จ');
-    }
+    if (!res.ok || !json || !json.success){ throw new Error(json?.error || 'บันทึกไม่สำเร็จ'); }
 
     LAST_SUBMIT = {
-  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-  totalQty: items.reduce((s, x) => s + x.qty, 0),
-  totalAmount: items.reduce((s, x) => s + x.line, 0)
-};
+      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+      totalQty, totalAmount
+    };
 
-CART = [];
-updateCartUI();
-showSubmittingModal(false);
-showPage('thankyou');
-renderThankYou();  // <-- อัพเดตค่าในหน้าขอบคุณ
+    CART = [];
+    updateCartUI();
+    showSubmittingModal(false);
+    showPage('thankyou');
+    renderThankYou();
 
   }catch(err){
     console.error(err);
@@ -1498,6 +1515,7 @@ renderThankYou();  // <-- อัพเดตค่าในหน้าขอบ
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   }
 }
+    
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
   // วันที่/เวลาไทย
