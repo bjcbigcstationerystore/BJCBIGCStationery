@@ -1325,10 +1325,13 @@ async function submitRequest(){
     };
 
     const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+  body: new URLSearchParams({
+    action: 'submitRequest',
+    data: JSON.stringify(payload.data)   // ส่งเฉพาะก้อน data เป็นสตริง
+  })
+});
 
     const json = await res.json().catch(()=>null);
     if (!res.ok || !json || !json.success){
