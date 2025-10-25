@@ -7,6 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    #summaryContent .form-value ul{ margin:0; padding-left:1.25rem; }
+#summaryContent .form-value li{ line-height:1.45; }
+    
     :root{
       --emerald-900:#064e3b;
       --emerald-800:#065f46;
@@ -1467,8 +1470,8 @@ body.thankyou .content-card{
   emails: bu.emails || []
 };
 
-document.getElementById('s_bu_name').textContent  = CURRENT_BU_ADMIN.names.join(' | ') || '—';
-document.getElementById('s_bu_email').textContent = CURRENT_BU_ADMIN.emails.join(' | ') || '—';
+document.getElementById('s_bu_name').innerHTML  = asListHTML(CURRENT_BU_ADMIN.names);
+document.getElementById('s_bu_email').innerHTML = asListHTML(CURRENT_BU_ADMIN.emails);
 
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
