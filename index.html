@@ -1431,17 +1431,21 @@ body.thankyou .content-card{
 
     /* ===== เรียก BU Admin จาก Apps Script (ใหม่) ===== ต้องมี action=getBUAdmin ฝั่ง Apps Script (ดูขั้นถัดไป) */
     async function getBUAdmin(employeeId){
-      try{
-        const url = `${API_BASE}?action=getBUAdmin&employeeId=${encodeURIComponent(employeeId)}`;
-        const res = await fetch(url, {method:'GET', cache:'no-store'});
-        if(!res.ok) return {name:'—', email:'—'};
-        const data = await res.json().catch(()=>null);
-        if(data && data.success && data.data){
-          return { name: data.data.name || '—', email: data.data.email || '—' };
-        }
-      }catch(_){}
-      return {name:'—', email:'—'};
+  try{
+    const url = `${API_BASE}?action=getBUAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const res = await fetch(url, {method:'GET', cache:'no-store'});
+    if(!res.ok) return { names:[], emails:[] };
+
+    const data = await res.json().catch(()=>null);
+    if(data && data.success && data.data){
+      return {
+        names: data.data.names || [],
+        emails: data.data.emails || []
+      };
     }
+  }catch(_){}
+  return { names:[], emails:[] };
+}
 
     /* ===== เรนเดอร์หน้า Summary (ใหม่) ===== */
     async function renderSummary(){
@@ -1458,9 +1462,13 @@ body.thankyou .content-card{
 
   // BU Admin (ดึงครั้งเดียวแล้ว cache)
   const bu = await getBUAdmin(emp.id || '');
-  CURRENT_BU_ADMIN = { name: bu.name || '—', email: bu.email || '—' };
-  document.getElementById('s_bu_name').textContent  = (bu.names || []).join(' | ');
-document.getElementById('s_bu_email').textContent = (bu.emails || []).join(' | ');
+  CURRENT_BU_ADMIN = {
+  names: bu.names || [],
+  emails: bu.emails || []
+};
+
+document.getElementById('s_bu_name').textContent  = CURRENT_BU_ADMIN.names.join(' | ') || '—';
+document.getElementById('s_bu_email').textContent = CURRENT_BU_ADMIN.emails.join(' | ') || '—';
 
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
@@ -1564,8 +1572,8 @@ const row = {
   'Costcenter': CURRENT_EMP.costCenter || '',
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
-  'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | '),
-'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | '),
+ 'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
+'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
   'รายการเบิก (ชิ้น)': totalQty,
   'ยอดเบิก (บาท)': totalCost
 };
