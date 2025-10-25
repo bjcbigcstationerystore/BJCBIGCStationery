@@ -897,7 +897,7 @@ body.thankyou .content-card{
     /* ===== CART STATE ===== */
     let CART = []; // [{ key, name, price, qty }]
     let CURRENT_EMP = null;
-    let CURRENT_BU_ADMIN = { name: '—', email: '—' }; // ✅ เก็บ BU Admin ไว้ครั้งเดียว
+    let CURRENT_BU_ADMIN = { names: [], emails: [] };
 
     function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
     function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
