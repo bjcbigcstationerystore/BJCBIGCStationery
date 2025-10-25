@@ -1543,21 +1543,40 @@ async function submitRequest(){
       image: it.image || ''
     }));
 
-    const payload = {
-      action: 'submitRequest',
-      data: {
-        submittedAt: new Date().toISOString(),
-        company: CURRENT_EMP.company || '',
-        costCenter: CURRENT_EMP.costCenter || '',
-        employeeId: CURRENT_EMP.id || '',
-        fullName: CURRENT_EMP.name || '',
-        buAdminName: CURRENT_BU_ADMIN.name || '',     // ✅ ใช้ค่าที่ cache ไว้
-        buAdminEmail: CURRENT_BU_ADMIN.email || '',   // ✅ ใช้ค่าที่ cache ไว้
-        totalQty: items.reduce((s, x) => s + x.qty, 0),
-        totalAmount: items.reduce((s, x) => s + x.line, 0),
-        items
-      }
-    };
+    const now = new Date();
+const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
+const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+
+const totalQty  = items.reduce((s, x) => s + x.qty, 0);
+const totalCost = items.reduce((s, x) => s + x.line, 0);
+
+// เตรียม Object แบบแผ่คอลัมน์
+const row = {
+  'หมายเลขคำขอ': '',               // ระบบจะเติมเอง
+  'วันที่': dateTH,
+  'เวลา': timeTH,
+  'บริษัท': CURRENT_EMP.company || '',
+  'Costcenter': CURRENT_EMP.costCenter || '',
+  'รหัสพนักงาน': CURRENT_EMP.id || '',
+  'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
+  'Name BU admin': CURRENT_BU_ADMIN.name || '',
+  'Email BU Admin': CURRENT_BU_ADMIN.email || '',
+  'รายการเบิก (ชิ้น)': totalQty,
+  'ยอดเบิก (บาท)': totalCost
+};
+
+// เพิ่ม “รายการที่ n / จำนวน n / ราคา n” แบบไดนามิก
+items.forEach((it, idx) => {
+  const n = idx + 1;
+  row[`รายการที่ ${n}`] = it.name;
+  row[`จำนวน ${n}`] = Number(it.qty) || 0;
+  row[`ราคา ${n}`] = Number(it.price) || 0;
+});
+
+const payload = {
+  action: 'submitRequest',
+  row   : row                // ✅ ส่งฟอร์แมตแผ่คอลัมน์แทน data เดิม
+};
 
    const res = await fetch(API_BASE, {
   method: 'POST',
