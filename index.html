@@ -1459,8 +1459,8 @@ body.thankyou .content-card{
   // BU Admin (ดึงครั้งเดียวแล้ว cache)
   const bu = await getBUAdmin(emp.id || '');
   CURRENT_BU_ADMIN = { name: bu.name || '—', email: bu.email || '—' };
-  document.getElementById('s_bu_name').textContent  = CURRENT_BU_ADMIN.name;
-  document.getElementById('s_bu_email').textContent = CURRENT_BU_ADMIN.email;
+  document.getElementById('s_bu_name').textContent  = (bu.names || []).join(' | ');
+document.getElementById('s_bu_email').textContent = (bu.emails || []).join(' | ');
 
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
@@ -1564,8 +1564,8 @@ const row = {
   'Costcenter': CURRENT_EMP.costCenter || '',
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
-  'Name BU admin': CURRENT_BU_ADMIN.name || '',
-  'Email BU Admin': CURRENT_BU_ADMIN.email || '',
+  'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | '),
+'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | '),
   'รายการเบิก (ชิ้น)': totalQty,
   'ยอดเบิก (บาท)': totalCost
 };
