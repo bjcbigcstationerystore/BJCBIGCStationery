@@ -1544,7 +1544,12 @@ async function submitRequest(){
     }));
 
     const now = new Date();
-const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
+
+const d = String(now.getDate()).padStart(2,'0');
+const m = String(now.getMonth()+1).padStart(2,'0');
+const y = now.getFullYear() + 543;
+
+const dateTH = `${d}/${m}/${y}`;
 const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
 
 const totalQty  = items.reduce((s, x) => s + x.qty, 0);
