@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th">c
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -1449,6 +1449,14 @@ body.thankyou .content-card{
   }catch(_){}
   return { names:[], emails:[] };
 }
+
+      function asListHTML(arr){
+    if(!arr || arr.length === 0) return '—';
+    const safe = arr.map(s => String(s || '')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;'));
+    return `<ul class="list-disc pl-6 space-y-1">${safe.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+  }                                                    
 
     /* ===== เรนเดอร์หน้า Summary (ใหม่) ===== */
     async function renderSummary(){
