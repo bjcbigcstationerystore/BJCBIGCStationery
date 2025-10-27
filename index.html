@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">c
+<html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -410,10 +410,7 @@ body.thankyou .content-card{background:transparent;box-shadow:none;padding:0;}
 body.thankyou .page-container{align-items:flex-start;padding-top:32px;}
 
     /* ซ่อนโลโก้มุมขวาบนตัว global เฉพาะหน้าขอบคุณ */
-body.thankyou .corner-logo{ 
-  display: none !important; 
-}
-    body.thankyou .corner-logo{ display:none !important; }
+body.thankyou .corner-logo{ display:none !important; }
 
 /* ให้หน้า Thank You เปลี่ยนพื้นหลังทั้ง html และ body */
 html.thankyou,
@@ -1253,10 +1250,11 @@ let inflight = { categories: null, items: null };
     setTop();
   }
 
-  window.scrollTo({ top:0, behavior:'instant' });
+  window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
      if (which === 'summary' || which === 'thankyou'){
   document.getElementById('cartFab')?.classList.remove('show');
+ }
 }
 
     function abortInflight(){
@@ -1280,15 +1278,12 @@ let inflight = { categories: null, items: null };
 }
 
     function goHomeFromThanks(){
-  // ✅ รอบใหม่เสมอ + ยกเลิก request ค้าง
   FORCE_FRESH = true;
   abortInflight();
-
   CART = [];
   LAST_SUBMIT = null;
   updateCartUI();
   document.getElementById('cartMask')?.classList.remove('show');
-
   resetVerifyForm();
   showPage('home');
 }
@@ -1331,11 +1326,6 @@ let inflight = { categories: null, items: null };
       resetVerifyForm();
       showPage('home');
     }
-
-    function goHomeFromThanks(){
-  resetVerifyForm();    // ล้างสถานะเก่า
-  showPage('home');     // กลับหน้าหลัก
-}
 
     document.addEventListener('DOMContentLoaded', ()=>{
       const empInput = document.getElementById('employeeId');
@@ -1456,15 +1446,14 @@ let inflight = { categories: null, items: null };
     }
 
     function setProceedButton(){
-      const btn = document.getElementById('verifyBtn');
-      stage = 'proceed';
-      btn.disabled = false;
-      btn.classList.remove('opacity-80','cursor-not-allowed');
-      btn.textContent = 'ดำเนินการต่อ';
-      btn.onclick = null;
-      btn.removeEventListener('click', verifyEmployee);
-      btn.addEventListener('click', ()=>showPage('category'));
-    }
+  const btn = document.getElementById('verifyBtn');
+  stage = 'proceed';
+  btn.disabled = false;
+  btn.classList.remove('opacity-80','cursor-not-allowed');
+  btn.textContent = 'ดำเนินการต่อ';
+  // เคลียร์ handler เดิมทุกอย่าง แล้วเซ็ตอันเดียว
+  btn.onclick = () => showPage('category');
+}
 
     function backToVerifyProceed(){
       showPage('verify');
@@ -1473,15 +1462,14 @@ let inflight = { categories: null, items: null };
     }
 
     function resetVerifyButton(){
-      const btn = document.getElementById('verifyBtn');
-      stage = 'verify';
-      btn.disabled = false;
-      btn.classList.remove('opacity-80','cursor-not-allowed');
-      btn.textContent = 'ยืนยันตัวตน';
-      btn.onclick = null;
-      btn.removeEventListener('click', ()=>showPage('category'));
-      btn.addEventListener('click', verifyEmployee);
-    }
+  const btn = document.getElementById('verifyBtn');
+  stage = 'verify';
+  btn.disabled = false;
+  btn.classList.remove('opacity-80','cursor-not-allowed');
+  btn.textContent = 'ยืนยันตัวตน';
+  // เคลียร์ handler เดิมทุกอย่าง แล้วเซ็ตอันเดียว
+  btn.onclick = verifyEmployee;
+}
 
     function showLoadingProductsModal(show = true){
       const m = document.getElementById('loadingProductsModal');
@@ -1642,14 +1630,6 @@ const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit
 
 const totalQty  = items.reduce((s, x) => s + x.qty, 0);
 const totalCost = items.reduce((s, x) => s + x.line, 0);
-
-    const costCenterVal =
-  (CURRENT_EMP && (
-    CURRENT_EMP.costCenter ||
-    CURRENT_EMP['Cost Center'] ||
-    CURRENT_EMP.COST_CENTER ||
-    CURRENT_EMP['Costcenter']
-  )) || ''; 
     
 // เตรียม Object แบบแผ่คอลัมน์
 const row = {
@@ -1679,7 +1659,7 @@ const payload = {
 
    const res = await fetch(API_BASE, {
   method: 'POST',
-  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+  headers: { 'Content-Type': 'application/json;charset=utf-8' },
   body: JSON.stringify(payload)
 });
 
