@@ -1568,6 +1568,14 @@ const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit
 const totalQty  = items.reduce((s, x) => s + x.qty, 0);
 const totalCost = items.reduce((s, x) => s + x.line, 0);
 
+    const costCenterVal =
+  (CURRENT_EMP && (
+    CURRENT_EMP.costCenter ||
+    CURRENT_EMP['Cost Center'] ||
+    CURRENT_EMP.COST_CENTER ||
+    CURRENT_EMP['Costcenter']
+  )) || ''; 
+    
 // เตรียม Object แบบแผ่คอลัมน์
 const row = {
   'วันที่': dateTH,
@@ -1577,11 +1585,10 @@ const row = {
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
  'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
-'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
+ 'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
   'รายการเบิก (ชิ้น)': totalQty,
   'ยอดเบิก (บาท)': totalCost
 };
-    delete row['หมายเลขคำขอ'];
 
 // เพิ่ม “รายการที่ n / จำนวน n / ราคา n” แบบไดนามิก
 items.forEach((it, idx) => {
