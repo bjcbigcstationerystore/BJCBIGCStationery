@@ -1578,10 +1578,11 @@ const totalCost = items.reduce((s, x) => s + x.line, 0);
     
 // เตรียม Object แบบแผ่คอลัมน์
 const row = {
+  'Request number': requestNoFromColA || '',
   'วันที่': dateTH,
   'เวลา': timeTH,
   'บริษัท': CURRENT_EMP.company || '',
-  'Cost Center': costCenterVal, 
+  'Cost Center': CURRENT_EMP.costCenter || '',
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
  'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
@@ -1589,7 +1590,6 @@ const row = {
   'รายการเบิก (ชิ้น)': totalQty,
   'ยอดเบิก (บาท)': totalCost
 };
-
 // เพิ่ม “รายการที่ n / จำนวน n / ราคา n” แบบไดนามิก
 items.forEach((it, idx) => {
   const n = idx + 1;
