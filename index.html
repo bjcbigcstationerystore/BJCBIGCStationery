@@ -1653,23 +1653,24 @@ items.forEach((it, idx) => {
   row[`ราคา ${n}`] = Number(it.price) || 0;
 });
 
-   const qs = new URLSearchParams({
-  action: 'submitRequest',                 // ← ถ้า GAS ใช้ชื่ออื่น ปรับตรงนี้
-  row: JSON.stringify(row)
-});
+  const params = new URLSearchParams();
+params.set('action', 'submitRequest');       // GAS จะ .toLowerCase() = 'submitrequest'
+params.set('row', JSON.stringify(row));
 
 const ctrl = new AbortController();
 const t = setTimeout(()=>ctrl.abort('timeout'), 30000);
 
-const res = await fetch(`${API_BASE}?${qs.toString()}`, {
-  method: 'GET',
+const res = await fetch(API_BASE, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+  body: params.toString(),
   cache: 'no-store',
   signal: ctrl.signal
 }).catch(err => { throw new Error(err?.message || 'network error'); });
 
 clearTimeout(t);
 
-let text = await res.text();          // อ่านดิบก่อน
+let text = await res.text();
 let json = null;
 try { json = JSON.parse(text); } catch(_){}
 
