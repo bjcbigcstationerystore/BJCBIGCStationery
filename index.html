@@ -1573,7 +1573,7 @@ const row = {
   'วันที่': dateTH,
   'เวลา': timeTH,
   'บริษัท': CURRENT_EMP.company || '',
-  'Costcenter': CURRENT_EMP.costCenter || '',
+  'Cost Center': costCenterVal, 
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
  'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
@@ -1581,6 +1581,7 @@ const row = {
   'รายการเบิก (ชิ้น)': totalQty,
   'ยอดเบิก (บาท)': totalCost
 };
+    delete row['หมายเลขคำขอ'];
 
 // เพิ่ม “รายการที่ n / จำนวน n / ราคา n” แบบไดนามิก
 items.forEach((it, idx) => {
