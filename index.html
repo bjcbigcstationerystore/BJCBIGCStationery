@@ -1328,20 +1328,21 @@ let inflight = { categories: null, items: null };
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{
-      const empInput = document.getElementById('employeeId');
-      const btn = document.getElementById('verifyBtn');
+  const empInput = document.getElementById('employeeId');
 
-      empInput.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' && stage === 'verify'){
-          e.preventDefault();
-          verifyEmployee();
-        }
-      });
-      btn.addEventListener('click', verifyEmployee);
+  empInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' && stage === 'verify'){
+      e.preventDefault();
+      verifyEmployee();
+    }
+  });
 
-      renderCategories();
-      updateCartUI();
-    });
+  // ใช้ระบบ onclick เดิมที่คุณเขียนไว้ เพื่อกัน event ซ้ำ
+  resetVerifyButton();
+
+  renderCategories();
+  updateCartUI();
+});
 
     function showMsg(text, type){
       const msgBox = document.getElementById('message');
@@ -1458,7 +1459,7 @@ let inflight = { categories: null, items: null };
     function backToVerifyProceed(){
       showPage('verify');
       setProceedButton();
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     function resetVerifyButton(){
