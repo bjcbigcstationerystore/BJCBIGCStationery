@@ -884,19 +884,23 @@ body.thankyou .content-card{
     const container = document.getElementById('pageContainer');
     const API_BASE = 'https://script.google.com/macros/s/AKfycbzMk3CWXyFN8VQUpLdNKHG5z5IUoKYTZO7XDCGFTj-oE-EC3m2sb156xlEAmFLEi0swyQ/exec';
 
-    /* ============ STATE ============ */
-    let stage = 'verify';
-    let currentCompany = null; // 'BJC' | 'Big C'
-    let CATEGORIES = [];
-    let PRODUCTS = [];
-    let selectedCategory = '';
-    let modalItem = { name:'', price:0, detail:'', image:'' };
-    let LAST_SUBMIT = null; // { ref, totalQty, totalAmount }
+   /* ============ STATE ============ */
+let stage = 'verify';
+let currentCompany = null;
+let CATEGORIES = [];
+let PRODUCTS = [];
+let selectedCategory = '';
+let modalItem = { name:'', price:0, detail:'', image:'' };
+let LAST_SUBMIT = null;
 
-    /* ===== CART STATE ===== */
-    let CART = []; // [{ key, name, price, qty }]
-    let CURRENT_EMP = null;
-    let CURRENT_BU_ADMIN = { names: [], emails: [] };
+/* ===== CART STATE ===== */
+let CART = [];
+let CURRENT_EMP = null;
+let CURRENT_BU_ADMIN = { names: [], emails: [] };
+
+/* ✅ โหลดสดรอบใหม่ + ยกเลิก request ค้าง */
+let FORCE_FRESH = false;
+let inflight = { categories: null, items: null };
 
     function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
     function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
@@ -1003,16 +1007,27 @@ body.thankyou .content-card{
 
     /* ====== Categories ====== */
     async function getCategories(company, limit = 50){
-      const params = new URLSearchParams({
-        action:'getCategories',
-        company: company||'BJC',
-        limit: Math.min(Math.max(parseInt(limit)||50, 1), 50)
-      });
-      const res = await fetch(`${API_BASE}?${params.toString()}`, { method:'GET', cache:'no-store' });
-      if(!res.ok) return [];
-      const data = await res.json().catch(()=>null);
-      return (data && data.success && Array.isArray(data.data)) ? data.data : [];
-    }
+  // ✅ ส่ง debug=1 เพื่อ bypass cache ของ Apps Script เมื่อเริ่มรอบใหม่
+  const params = new URLSearchParams({
+    action: 'getCategories',
+    company: company || 'BJC',
+    limit: Math.min(Math.max(parseInt(limit) || 50, 1), 50),
+    debug: FORCE_FRESH ? '1' : '0'
+  });
+
+  inflight.categories?.abort();
+  inflight.categories = new AbortController();
+
+  const res = await fetch(`${API_BASE}?${params.toString()}`, {
+    method: 'GET',
+    cache: 'no-store',
+    signal: inflight.categories.signal
+  }).catch(() => null);
+
+  if (!res || !res.ok) return [];
+  const data = await res.json().catch(()=>null);
+  return (data && data.success && Array.isArray(data.data)) ? data.data : [];
+}
 
     function renderCategories(){
       const grid = document.getElementById('categoryGrid');
@@ -1057,27 +1072,47 @@ body.thankyou .content-card{
 
     /* ====== Products ====== */
     async function getItems(company, category, limit=100){
-      const params = new URLSearchParams({ action:'getItems', company, category, limit });
-      const res = await fetch(`${API_BASE}?${params.toString()}`, { method:'GET', cache:'no-store' });
-      if(!res.ok) return [];
-      const data = await res.json().catch(()=>null);
-      return (data && data.success && Array.isArray(data.items)) ? data.items : [];
-    }
+  // ✅ ส่ง debug=1 รอบแรกของ session เพื่อให้ฝั่ง Apps Script ข้าม cache
+  const params = new URLSearchParams({
+    action: 'getItems',
+    company,
+    category,
+    limit,
+    debug: FORCE_FRESH ? '1' : '0'
+  });
+
+  inflight.items?.abort();
+  inflight.items = new AbortController();
+
+  const res = await fetch(`${API_BASE}?${params.toString()}`, {
+    method:'GET',
+    cache:'no-store',
+    signal: inflight.items.signal
+  }).catch(() => null);
+
+  if(!res || !res.ok) return [];
+  const data = await res.json().catch(()=>null);
+  return (data && data.success && Array.isArray(data.items)) ? data.items : [];
+}
 
     async function goProductsPage(){
-      // โหลดสินค้า
-      const grid = document.getElementById('productGrid');
-      grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">กำลังโหลดข้อมูลสินค้า…</div>`;
+  const grid = document.getElementById('productGrid');
+  PRODUCTS = [];
+  if (grid) grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">กำลังโหลดข้อมูลสินค้า…</div>`;
 
-      PRODUCTS = await getItems(currentCompany || 'BJC', selectedCategory, 200);
+  const items = await getItems(currentCompany || 'BJC', selectedCategory, 200);
+  PRODUCTS = items;
 
-      document.getElementById('prodTitle').textContent = 'รายการสินค้า';
-      document.getElementById('prodHeroTitle').textContent = selectedCategory;
-      document.getElementById('prodHeroDesc').textContent = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+  // ✅ หลังโหลดเสร็จ → ปิดโหมดโหลดสด (เหลือ cache รอบถัดไปได้เลย)
+  FORCE_FRESH = false;
 
-      renderProducts();
-      showPage('products');
-    }
+  document.getElementById('prodTitle').textContent = 'รายการสินค้า';
+  document.getElementById('prodHeroTitle').textContent = selectedCategory;
+  document.getElementById('prodHeroDesc').textContent = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+
+  renderProducts();
+  showPage('products');
+}
 
     function renderProducts(){
       const grid = document.getElementById('productGrid');
@@ -1220,12 +1255,47 @@ body.thankyou .content-card{
 
   window.scrollTo({ top:0, behavior:'instant' });
   updateCartUI();
+     if (which === 'summary' || which === 'thankyou'){
+  document.getElementById('cartFab')?.classList.remove('show');
 }
 
-    function startForm(){ showPage('verify'); }
+    function abortInflight(){
+  try { inflight.categories?.abort(); } catch(_) {}
+  try { inflight.items?.abort(); } catch(_) {}
+  inflight.categories = null;
+  inflight.items = null;
+}
+    
+    function startForm(){
+  // ✅ เริ่มรอบใหม่ → โหลดสด + ยกเลิก request ค้าง
+  FORCE_FRESH = true;
+  abortInflight();
+
+  CART = [];
+  LAST_SUBMIT = null;
+  updateCartUI();
+  document.getElementById('cartMask')?.classList.remove('show');
+
+  showPage('verify');
+}
+
+    function goHomeFromThanks(){
+  // ✅ รอบใหม่เสมอ + ยกเลิก request ค้าง
+  FORCE_FRESH = true;
+  abortInflight();
+
+  CART = [];
+  LAST_SUBMIT = null;
+  updateCartUI();
+  document.getElementById('cartMask')?.classList.remove('show');
+
+  resetVerifyForm();
+  showPage('home');
+}
 
     /* รีเซ็ต verify */
     function resetVerifyForm(){
+      abortInflight();  
       const empInput = document.getElementById('employeeId');
       const msgBox = document.getElementById('message');
       const infoBox = document.getElementById('employeeInfo');
@@ -1243,6 +1313,11 @@ body.thankyou .content-card{
       CATEGORIES = [];
       PRODUCTS = [];
       selectedCategory = '';
+
+      CART = [];
+  LAST_SUBMIT = null;
+  updateCartUI();
+  document.getElementById('cartMask')?.classList.remove('show');
 
       const cg = document.getElementById('categoryGrid');
       if (cg) cg.innerHTML = '';
