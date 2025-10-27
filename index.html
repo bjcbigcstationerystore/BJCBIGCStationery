@@ -1653,30 +1653,25 @@ items.forEach((it, idx) => {
   row[`ราคา ${n}`] = Number(it.price) || 0;
 });
 
-const payload = {
-  action: 'submitRequest',
-  row   : row                // ✅ ส่งฟอร์แมตแผ่คอลัมน์แทน data เดิม
-};
-
    const form = new FormData();
 form.append('action', 'submitRequest');
-form.append('row', JSON.stringify(row));   // ส่งข้อมูลเป็นสตริง JSON
+form.append('row', JSON.stringify(row));   // ส่งข้อมูลเป็น JSON string
 
 const ctrl = new AbortController();
-const t = setTimeout(()=>ctrl.abort('timeout'), 30000); // กันค้าง 30s
+const t = setTimeout(()=>ctrl.abort('timeout'), 30000); // กันค้าง 30 วินาที
 
 const res = await fetch(API_BASE, {
   method: 'POST',
   body: form,
   signal: ctrl.signal
 }).catch(err => { throw new Error(err?.message || 'network error'); });
+
 clearTimeout(t);
 
-    let json = null;
+let json = null;
 try { json = await res.json(); } catch(_) {}
 
 if (!res.ok) {
-  // พยายามอ่านข้อความฝั่งเซิร์ฟเวอร์
   let msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
   throw new Error(msg);
 }
