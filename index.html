@@ -522,7 +522,38 @@ body.thankyou .content-card{
   color:#334155;
   font-weight:800;
 }
-    
+    /* ===== BLOCKED (Budget not enough) ===== */
+.blk-wrap{max-width:760px;margin:0 auto;padding:24px 12px;}
+.blk-card{
+  background:#fff;border-radius:24px;box-shadow:0 24px 48px rgba(0,0,0,.12);
+  padding:28px 22px;text-align:center;position:relative;
+  background-image: radial-gradient(1200px 400px at 50% -20%, #fde1d3 0%, transparent 60%),
+                    radial-gradient(1200px 400px at 50% 120%, #ffd8f2 0%, transparent 60%);
+}
+.blk-icon{
+  width:74px;height:74px;border-radius:9999px;margin:-48px auto 12px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#ffedd5,#fecaca);font-size:34px;
+  box-shadow:0 12px 22px rgba(0,0,0,.15);
+}
+.blk-title{font-weight:900;font-size:1.8rem;color:#111827;margin-top:6px;}
+.blk-sub{color:#6b7280;font-weight:600;margin-top:4px;}
+.blk-admin{
+  margin:18px auto 0;background:linear-gradient(180deg,#f8fafc,#eef2ff);
+  border:1px solid #e5e7eb;border-radius:16px;padding:16px 14px;max-width:520px;
+}
+.blk-admin-title{color:#334155;font-weight:800;margin-bottom:6px;}
+.blk-admin-name{color:#0f172a;font-weight:900;}
+.blk-admin-email{display:inline-block;margin-top:4px;color:#2563eb;font-weight:800;text-decoration:none;}
+.blk-btn{
+  width:100%;max-width:520px;margin:18px auto 0;display:inline-flex;gap:8px;align-items:center;justify-content:center;
+  min-height:50px;border:0;border-radius:14px;color:#fff;font-weight:900;
+  background:linear-gradient(135deg,#7c3aed,#6366f1);box-shadow:0 10px 24px rgba(99,102,241,.25);
+}
+body.blocked .corner-logo{display:none!important;}
+body.summary #cartFab,
+body.thankyou #cartFab,
+body.blocked #cartFab { display: none !important; }
     
   </style>
 </head>
@@ -810,9 +841,35 @@ body.thankyou .content-card{
     </div>
   </div>
 </div>
+
+      <!-- ============ Blocked (งบประมาณไม่เพียงพอ) ============ -->
+<div id="blockedContent" class="hidden text-left">
+  <div class="blk-wrap">
+    <div class="blk-card">
+      <div class="blk-icon">⚠️</div>
+      <h1 class="blk-title">งบประมาณไม่เพียงพอ</h1>
+      <div class="blk-sub">Budget BU ของท่านไม่เพียงพอสำหรับการเบิกครั้งนี้</div>
+
+      <div class="blk-admin">
+        <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
+        <div id="blkName" class="blk-admin-name">—</div>
+        <a id="blkEmail" href="#" class="blk-admin-email">—</a>
+      </div>
+
+      <button class="blk-btn" onclick="goHomeFromBlocked()">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path d="M3 12h18M3 12l6-6M3 12l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        กลับสู่หน้าหลัก
+      </button>
+    </div>
+  </div>
+</div>
+
       
  </div> <!-- /content-card -->
   </div> <!-- /page-container -->
+
 
   <!-- Loading Modal -->
   <div id="checkingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
@@ -894,6 +951,21 @@ let LAST_SUBMIT = null;
 let CART = [];
 let CURRENT_EMP = null;
 let CURRENT_BU_ADMIN = { names: [], emails: [] };
+
+    /* ===== NEW: Budget & Admin from Emp HO (K, L, M) ===== */
+let CURRENT_BUDGET = null;  // ค่าคอลัมน์ K (null/0/ตัวเลข)
+let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+
+async function getBudgetAndAdmin(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const res = await fetch(url, { method:'GET', cache:'no-store' });
+    if(!res.ok) return null;
+    const data = await res.json().catch(()=>null);
+    // คาดหวัง { success:true, data:{ budget:number|null, adminName:string, adminEmail:string } }
+    return (data && data.success) ? (data.data || null) : null;
+  }catch(_){ return null; }
+}
 
 /* ✅ โหลดสดรอบใหม่ + ยกเลิก request ค้าง */
 let FORCE_FRESH = false;
@@ -1177,7 +1249,7 @@ let inflight = { categories: null, items: null };
     }
     function confirmAdd(){
   let qty = normalizeQty(mQty.value);
-  if (qty <= 0) qty = 1;
+  if (!Number.isFinite(qty) || qty <= 0) qty = 1;
   addToCart(modalItem, qty);
   closeItemModal();
 }
@@ -1196,25 +1268,27 @@ let inflight = { categories: null, items: null };
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
 
-   function showPage(which){
-  const home = document.getElementById('homeContent');
-  const verify = document.getElementById('verifyContent');
-  const cate = document.getElementById('categoryContent');
-  const prod = document.getElementById('productsContent');
-  const sum  = document.getElementById('summaryContent');
-  const thx  = document.getElementById('thankyouContent');
+  function showPage(which){
+  const home    = document.getElementById('homeContent');
+  const verify  = document.getElementById('verifyContent');
+  const cate    = document.getElementById('categoryContent');
+  const prod    = document.getElementById('productsContent');
+  const sum     = document.getElementById('summaryContent');
+  const thx     = document.getElementById('thankyouContent');
+  const blocked = document.getElementById('blockedContent');   // ✅ เพิ่มตัวแปร
 
-  // ซ่อนทุกหน้า
+  // ซ่อนทุกหน้าให้ครบ
   home.classList.add('hidden');
   verify.classList.add('hidden');
   cate.classList.add('hidden');
   prod.classList.add('hidden');
-  if (sum) sum.classList.add('hidden');
-  if (thx) thx.classList.add('hidden');
+  if (sum)     sum.classList.add('hidden');
+  if (thx)     thx.classList.add('hidden');
+  if (blocked) blocked.classList.add('hidden');                 // ✅ ซ่อน Blocked ทุกครั้ง
 
-  // ล้างคลาส state บน body
-  document.body.classList.remove('category','products','summary','not-home','thankyou'); 
-     document.documentElement.classList.remove('thankyou'); 
+  // ล้างคลาส state
+  document.body.classList.remove('category','products','summary','not-home','thankyou','blocked');
+  document.documentElement.classList.remove('thankyou');
 
   if (which === 'home'){
     home.classList.remove('hidden');
@@ -1241,22 +1315,42 @@ let inflight = { categories: null, items: null };
     document.body.classList.add('not-home','products');
     setTop();
   } else if (which === 'summary'){
-    if (sum){ sum.classList.remove('hidden'); }
+    if (sum) sum.classList.remove('hidden');
     document.body.classList.add('not-home','summary');
     setTop();
-  } else if (which === 'thankyou'){         // ✅ อยู่ในกลุ่มเงื่อนไขเดียวกัน
-    if (thx){ thx.classList.remove('hidden'); }
+  } else if (which === 'thankyou'){
+    if (thx) thx.classList.remove('hidden');
     document.body.classList.add('not-home','thankyou');
-    document.documentElement.classList.add('thankyou'); 
+    document.documentElement.classList.add('thankyou');
+    setTop();
+  } else if (which === 'blocked'){
+    if (blocked) blocked.classList.remove('hidden');            // ✅ แสดง Blocked แบบถูกต้อง
+    document.body.classList.add('not-home','blocked');
     setTop();
   }
 
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
-     if (which === 'summary' || which === 'thankyou'){
-  document.getElementById('cartFab')?.classList.remove('show');
- }
+  if (which === 'summary' || which === 'thankyou'){
+    document.getElementById('cartFab')?.classList.remove('show');
+  }
 }
+
+    function showBlocked(){
+  const nEl = document.getElementById('blkName');
+  const eEl = document.getElementById('blkEmail');
+  if(nEl) nEl.textContent = CURRENT_ADMIN_CONTACT.name || '—';
+  if(eEl){
+    const mail = CURRENT_ADMIN_CONTACT.email || '—';
+    eEl.textContent = mail;
+    eEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
+  }
+  showPage('blocked');
+}
+function goHomeFromBlocked(){
+  goHomeFromThanks(); // ใช้ flow เคลียร์ตะกร้า/รีเซ็ตเดียวกัน
+}
+
 
     function abortInflight(){
   try { inflight.categories?.abort(); } catch(_) {}
@@ -1265,16 +1359,20 @@ let inflight = { categories: null, items: null };
   inflight.items = null;
 }
     
-    function startForm(){
-  // ✅ เริ่มรอบใหม่ → โหลดสด + ยกเลิก request ค้าง
+   function startForm(){
   FORCE_FRESH = true;
   abortInflight();
 
   CART = [];
   LAST_SUBMIT = null;
+
+  // ✅ รีเซ็ต Budget/Admin/BU cache
+  CURRENT_BUDGET = null;
+  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+  CURRENT_BU_ADMIN = { names: [], emails: [] };
+
   updateCartUI();
   document.getElementById('cartMask')?.classList.remove('show');
-
   showPage('verify');
 }
 
@@ -1289,39 +1387,43 @@ let inflight = { categories: null, items: null };
   showPage('home');
 }
 
-    /* รีเซ็ต verify */
     function resetVerifyForm(){
-      abortInflight();  
-      const empInput = document.getElementById('employeeId');
-      const msgBox = document.getElementById('message');
-      const infoBox = document.getElementById('employeeInfo');
+  abortInflight();  
 
-      empInput.value = '';
-      msgBox.className = 'hidden';
-      msgBox.textContent = '';
-      infoBox.classList.add('hidden');
-      infoBox.innerHTML = '';
+  const empInput = document.getElementById('employeeId');
+  const msgBox   = document.getElementById('message');
+  const infoBox  = document.getElementById('employeeInfo');
 
-      stage = 'verify';
-      resetVerifyButton();
+  empInput.value = '';
+  msgBox.className = 'hidden';
+  msgBox.textContent = '';
+  infoBox.classList.add('hidden');
+  infoBox.innerHTML = '';
 
-      currentCompany = null;
-      CATEGORIES = [];
-      PRODUCTS = [];
-      selectedCategory = '';
+  stage = 'verify';
+  resetVerifyButton();
 
-      CART = [];
+  currentCompany   = null;
+  CATEGORIES       = [];
+  PRODUCTS         = [];
+  selectedCategory = '';
+
+  CART = [];
   LAST_SUBMIT = null;
+
+  // ✅ รีเซ็ต Budget/Admin/BU cache
+  CURRENT_BUDGET = null;
+  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+  CURRENT_BU_ADMIN = { names: [], emails: [] };
+
   updateCartUI();
   document.getElementById('cartMask')?.classList.remove('show');
 
-      const cg = document.getElementById('categoryGrid');
-      if (cg) cg.innerHTML = '';
-      const pg = document.getElementById('productGrid');
-      if (pg) pg.innerHTML = '';
+  const cg = document.getElementById('categoryGrid'); if (cg) cg.innerHTML = '';
+  const pg = document.getElementById('productGrid');  if (pg) pg.innerHTML = '';
 
-      showCheckingModal(false);
-    }
+  showCheckingModal(false);
+}
 
     function goBack(){
       resetVerifyForm();
@@ -1390,14 +1492,26 @@ let inflight = { categories: null, items: null };
       btn.classList.add('opacity-80','cursor-not-allowed');
 
       try{
-        const emp = await getEmployeeData(rawInput);
+        let emp = await getEmployeeData(cleaned);
+if (!emp && cleaned !== rawInput) {
+  emp = await getEmployeeData(rawInput);
+}
         if(emp){
-          CURRENT_EMP = emp;
-          showEmployeeInfo(emp);
-          showCheckingModal(false); // ปิด popup ทันที
-          setProceedButton();
-          preloadCategoriesFor(emp.company).catch(console.error); // โหลดหมวดแบบไม่รอ
-        }else{
+  CURRENT_EMP = emp;
+
+  // 🔽 โหลดค่า K/L/M จาก Emp HO
+  const extra = await getBudgetAndAdmin((emp.id||'').trim());
+  CURRENT_BUDGET = (extra && extra.budget != null) ? Number(extra.budget) : null;
+  CURRENT_ADMIN_CONTACT = {
+    name:  (extra && extra.adminName)  ? String(extra.adminName)  : '—',
+    email: (extra && extra.adminEmail) ? String(extra.adminEmail) : '—'
+  };
+
+  showEmployeeInfo(emp);
+  showCheckingModal(false); // ปิด popup ทันที
+  setProceedButton();
+  preloadCategoriesFor(emp.company).catch(console.error); // โหลดหมวดแบบไม่รอ
+}else{
           showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
           setCentered();
           resetVerifyButton();
@@ -1608,15 +1722,38 @@ document.getElementById('s_bu_email').innerHTML = asListHTML(CURRENT_BU_ADMIN.em
 let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
 
 async function submitRequest(){
-  if (IS_SUBMITTING) return; // ✅ กัน Double-click
+  if (IS_SUBMITTING) return;
   IS_SUBMITTING = true;
+  showSubmittingModal(true);
 
-  try{
-    if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
-    if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
+  try {
+    if (!CURRENT_EMP) {
+      alert('กรุณายืนยันตัวตนก่อน');
+      showPage('verify');
+      return;
+    }
+    if (!CART || CART.length === 0) {
+      alert('ยังไม่มีรายการในตะกร้า');
+      return;
+    }
 
-    showSubmittingModal(true);   // ✅ โชว์ modal “กำลังส่ง…”
+    // ⛔ Gate: ตรวจงบประมาณจาก Emp HO (คอลัมน์ K)
+    if (CURRENT_BUDGET === null) {
+      const extra = await getBUAdmin((CURRENT_EMP.id||'').trim()); // ถ้าคุณตั้งใจดึงจาก getBudgetAndAdmin ให้คงอันเดิม
+      const more  = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
+      CURRENT_BUDGET = (more && more.budget != null) ? Number(more.budget) : 0;
+      CURRENT_ADMIN_CONTACT = {
+        name:  (more && more.adminName)  ? String(more.adminName)  : '—',
+        email: (more && more.adminEmail) ? String(more.adminEmail) : '—'
+      };
+    }
+    if (!CURRENT_BUDGET || Number(CURRENT_BUDGET) === 0) {
+      showSubmittingModal(false);
+      showBlocked();       // ➜ ไปหน้า “งบประมาณไม่เพียงพอ”
+      return;              // ไม่ส่งคำขอ
+    }
 
+    // เตรียม payload
     const items = CART.map(it => ({
       name: it.name,
       qty: Number(it.qty)||0,
@@ -1636,7 +1773,6 @@ async function submitRequest(){
     const totalQty  = items.reduce((s, x) => s + x.qty, 0);
     const totalCost = items.reduce((s, x) => s + x.line, 0);
 
-    // เตรียม Object สำหรับส่งไป Google Apps Script
     const row = {
       'วันที่': dateTH,
       'เวลา': timeTH,
@@ -1661,7 +1797,7 @@ async function submitRequest(){
     params.set('row', JSON.stringify(row));
 
     const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort('timeout'), 30000);
+    const timer = setTimeout(()=>ctrl.abort('timeout'), 30000);
 
     const res = await fetch(API_BASE, {
       method: 'POST',
@@ -1671,16 +1807,14 @@ async function submitRequest(){
       signal: ctrl.signal
     }).catch(err => { throw new Error(err?.message || 'network error'); });
 
-    clearTimeout(t);
+    clearTimeout(timer);
 
-    let text = await res.text();
+    const raw = await res.text();
     let json = null;
-    try { json = JSON.parse(text); } catch(_){}
-
-    console.log('[submitRequest] status=', res.status, 'raw=', text, 'json=', json);
+    try { json = JSON.parse(raw); } catch(_) {}
 
     if (!res.ok) {
-      let msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
+      const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
       throw new Error(msg);
     }
     if (!json || json.success !== true) {
@@ -1689,24 +1823,26 @@ async function submitRequest(){
 
     LAST_SUBMIT = {
       ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-      totalQty: items.reduce((s, x) => s + x.qty, 0),
-      totalAmount: items.reduce((s, x) => s + x.line, 0)
+      totalQty: totalQty,
+      totalAmount: totalCost
     };
 
+    // เคลียร์ตะกร้า + ไป Thank You
     CART = [];
     updateCartUI();
     showSubmittingModal(false);
     showPage('thankyou');
     renderThankYou();
 
-  }catch(err){
+  } catch (err) {
     console.error(err);
     showSubmittingModal(false);
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
-  }finally{
-    IS_SUBMITTING = false;   // ✅ ปลดล็อกเมื่อสำเร็จ/ล้มเหลว
+  } finally {
+    IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
   }
 }
+
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
   // วันที่/เวลาไทย
@@ -1718,6 +1854,24 @@ async function submitRequest(){
   document.getElementById('tyTotal').textContent = '฿' + Number(d.totalAmount||0).toLocaleString('th-TH', {minimumFractionDigits:2});
   document.getElementById('tyDate').textContent  = dateTH;
 }
+    document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    // ปิด modal สินค้า
+    const modal = document.getElementById('itemModal');
+    if (modal && modal.style.display === 'flex') closeItemModal();
+
+    // ปิดตะกร้า
+    const mask = document.getElementById('cartMask');
+    if (mask && mask.classList.contains('show')) closeCart();
+
+    // ปิด loading/submitting modal ถ้าเปิดอยู่ (กันค้าง)
+    ['checkingModal','loadingProductsModal','submittingModal'].forEach(id=>{
+      const m = document.getElementById(id);
+      if (m && m.classList.contains('flex')) m.classList.add('hidden');
+      if (m) m.classList.remove('flex');
+    });
+  }
+});
     
   </script>
 
