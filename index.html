@@ -1149,8 +1149,9 @@ let inflight = { categories: null, items: null };
       mQty.value = q;
       mTotal.textContent = baht(q * (modalItem.price || 0));
     }
-    // คิดราคาเมื่อ "พิมพ์" จำนวน
-    mQty.addEventListener('input', updateTotal);
+    if (mQty) {
+  mQty.addEventListener('input', updateTotal);
+}
 
     function openItem(idx){
       const p = PRODUCTS[idx];
@@ -1609,14 +1610,7 @@ let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
 async function submitRequest(){
   if (IS_SUBMITTING) return; // ✅ กัน Double-click
   IS_SUBMITTING = true;
-  try{
-    // ... (โค้ดเดิมทั้งหมดของคุณใน try) ...
-  }catch(err){
-    // ... (โค้ดเดิม catch) ...
-  }finally{
-    IS_SUBMITTING = false;   // ✅ ปลดล็อกเมื่อสำเร็จ/ล้มเหลว
-  }
-}
+
   try{
     if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
     if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
@@ -1633,85 +1627,84 @@ async function submitRequest(){
     }));
 
     const now = new Date();
+    const d = String(now.getDate()).padStart(2,'0');
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const y = now.getFullYear() + 543;
+    const dateTH = `${d}/${m}/${y}`;
+    const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
 
-const d = String(now.getDate()).padStart(2,'0');
-const m = String(now.getMonth()+1).padStart(2,'0');
-const y = now.getFullYear() + 543;
+    const totalQty  = items.reduce((s, x) => s + x.qty, 0);
+    const totalCost = items.reduce((s, x) => s + x.line, 0);
 
-const dateTH = `${d}/${m}/${y}`;
-const timeTH = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+    // เตรียม Object สำหรับส่งไป Google Apps Script
+    const row = {
+      'วันที่': dateTH,
+      'เวลา': timeTH,
+      'บริษัท': CURRENT_EMP.company || '',
+      'Cost Center': CURRENT_EMP.costCenter || '',
+      'รหัสพนักงาน': CURRENT_EMP.id || '',
+      'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
+      'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
+      'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
+      'รายการเบิก (ชิ้น)': totalQty,
+      'ยอดเบิก (บาท)': totalCost
+    };
+    items.forEach((it, idx) => {
+      const n = idx + 1;
+      row[`รายการที่ ${n}`] = it.name;
+      row[`จำนวน ${n}`]   = Number(it.qty) || 0;
+      row[`ราคา ${n}`]    = Number(it.price) || 0;
+    });
 
-const totalQty  = items.reduce((s, x) => s + x.qty, 0);
-const totalCost = items.reduce((s, x) => s + x.line, 0);
-    
-// เตรียม Object แบบแผ่คอลัมน์
-const row = {
-  'วันที่': dateTH,
-  'เวลา': timeTH,
-  'บริษัท': CURRENT_EMP.company || '',
-  'Cost Center': CURRENT_EMP.costCenter || '',
-  'รหัสพนักงาน': CURRENT_EMP.id || '',
-  'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
- 'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
- 'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
-  'รายการเบิก (ชิ้น)': totalQty,
-  'ยอดเบิก (บาท)': totalCost
-};
-// เพิ่ม “รายการที่ n / จำนวน n / ราคา n” แบบไดนามิก
-items.forEach((it, idx) => {
-  const n = idx + 1;
-  row[`รายการที่ ${n}`] = it.name;
-  row[`จำนวน ${n}`] = Number(it.qty) || 0;
-  row[`ราคา ${n}`] = Number(it.price) || 0;
-});
+    const params = new URLSearchParams();
+    params.set('action', 'submitRequest');
+    params.set('row', JSON.stringify(row));
 
-  const params = new URLSearchParams();
-params.set('action', 'submitRequest');       // GAS จะ .toLowerCase() = 'submitrequest'
-params.set('row', JSON.stringify(row));
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort('timeout'), 30000);
 
-const ctrl = new AbortController();
-const t = setTimeout(()=>ctrl.abort('timeout'), 30000);
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: params.toString(),
+      cache: 'no-store',
+      signal: ctrl.signal
+    }).catch(err => { throw new Error(err?.message || 'network error'); });
 
-const res = await fetch(API_BASE, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-  body: params.toString(),
-  cache: 'no-store',
-  signal: ctrl.signal
-}).catch(err => { throw new Error(err?.message || 'network error'); });
+    clearTimeout(t);
 
-clearTimeout(t);
+    let text = await res.text();
+    let json = null;
+    try { json = JSON.parse(text); } catch(_){}
 
-let text = await res.text();
-let json = null;
-try { json = JSON.parse(text); } catch(_){}
+    console.log('[submitRequest] status=', res.status, 'raw=', text, 'json=', json);
 
-console.log('[submitRequest] status=', res.status, 'raw=', text, 'json=', json);
-
-if (!res.ok) {
-  let msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-  throw new Error(msg);
-}
-if (!json || json.success !== true) {
-  throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
-}
+    if (!res.ok) {
+      let msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    if (!json || json.success !== true) {
+      throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
+    }
 
     LAST_SUBMIT = {
-  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-  totalQty: items.reduce((s, x) => s + x.qty, 0),
-  totalAmount: items.reduce((s, x) => s + x.line, 0)
-};
+      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+      totalQty: items.reduce((s, x) => s + x.qty, 0),
+      totalAmount: items.reduce((s, x) => s + x.line, 0)
+    };
 
-CART = [];
-updateCartUI();
-showSubmittingModal(false);
-showPage('thankyou');
-renderThankYou();  // <-- อัพเดตค่าในหน้าขอบคุณ
+    CART = [];
+    updateCartUI();
+    showSubmittingModal(false);
+    showPage('thankyou');
+    renderThankYou();
 
   }catch(err){
     console.error(err);
     showSubmittingModal(false);
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
+  }finally{
+    IS_SUBMITTING = false;   // ✅ ปลดล็อกเมื่อสำเร็จ/ล้มเหลว
   }
 }
     function renderThankYou(){
