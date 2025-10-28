@@ -926,7 +926,9 @@ body.blocked .content-card{
     <path d="M3 6.75h18v10.5H3z" stroke="currentColor" stroke-width="1.6"/>
     <path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.6"/>
   </svg>
-  <span>📧 Email BU Admin: —</span>
+  <span aria-hidden="true">📧</span>
+  <span class="label">Email BU Admin:</span>
+  <span id="blkEmailVal">—</span>
 </a>
       </div>
 
@@ -1421,12 +1423,15 @@ async function openCategory(name){
 
     function showBlocked(){
   const nEl = document.getElementById('blkName');
-  const eEl = document.getElementById('blkEmail');
+  const aEl = document.getElementById('blkEmail');
+  const vEl = document.getElementById('blkEmailVal');  // ⟵ span ใหม่
+
   if(nEl) nEl.textContent = CURRENT_ADMIN_CONTACT.name || '—';
-  if(eEl){
+
+  if(aEl){
     const mail = CURRENT_ADMIN_CONTACT.email || '—';
-    eEl.textContent = mail;
-    eEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
+    if (vEl) vEl.textContent = mail;                   // ⟵ อัปเดตเฉพาะค่าอีเมล
+    aEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
   }
   showPage('blocked');
 }
