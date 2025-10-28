@@ -1175,11 +1175,11 @@ let inflight = { categories: null, items: null };
       updateTotal();
     }
     function confirmAdd(){
-      const qty = normalizeQty(mQty.value);
-      if(qty <= 0){ closeItemModal(); return; }
-      addToCart(modalItem, qty); // ✅ เพิ่มเข้าตะกร้า
-      closeItemModal();
-    }
+  let qty = normalizeQty(mQty.value);
+  if (qty <= 0) qty = 1;
+  addToCart(modalItem, qty);
+  closeItemModal();
+}
 
     /* ====== Employee ====== */
     async function getEmployeeData(rawId){
@@ -1604,7 +1604,19 @@ document.getElementById('s_bu_email').innerHTML = asListHTML(CURRENT_BU_ADMIN.em
 }
 
    /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
+let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
+
 async function submitRequest(){
+  if (IS_SUBMITTING) return; // ✅ กัน Double-click
+  IS_SUBMITTING = true;
+  try{
+    // ... (โค้ดเดิมทั้งหมดของคุณใน try) ...
+  }catch(err){
+    // ... (โค้ดเดิม catch) ...
+  }finally{
+    IS_SUBMITTING = false;   // ✅ ปลดล็อกเมื่อสำเร็จ/ล้มเหลว
+  }
+}
   try{
     if (!CURRENT_EMP) { alert('กรุณายืนยันตัวตนก่อน'); showPage('verify'); return; }
     if (!CART || CART.length === 0) { alert('ยังไม่มีรายการในตะกร้า'); return; }
