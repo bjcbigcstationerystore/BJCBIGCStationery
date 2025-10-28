@@ -18,7 +18,7 @@
       --emerald-500:#10b981;
       --logo-h:32px;
     }
-    html,body{height:100%;margin:0;font-family:'Prompt',sans-serif;background:#064e3b;color:#0f172a}
+    html,body{height:100%;margin:0;font-family:'Prompt',sans-serif;color:#0f172a}
     .page-container{display:flex;justify-content:center;width:100%;min-height:100vh;padding:2rem 1rem}
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
     .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
@@ -524,32 +524,74 @@ body.thankyou .content-card{
 }
     /* ===== BLOCKED (Budget not enough) ===== */
 .blk-wrap{max-width:760px;margin:0 auto;padding:24px 12px;}
+/* การ์ดกลางแบบในรูป */
 .blk-card{
-  background:#fff;border-radius:24px;box-shadow:0 24px 48px rgba(0,0,0,.12);
-  padding:28px 22px;text-align:center;position:relative;
-  background-image: radial-gradient(1200px 400px at 50% -20%, #fde1d3 0%, transparent 60%),
-                    radial-gradient(1200px 400px at 50% 120%, #ffd8f2 0%, transparent 60%);
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  background:#ffffff;
+  border-radius:28px;
+  box-shadow:0 25px 50px -12px rgba(0,0,0,.25);
+  padding:32px 24px;
+  text-align:center;
+  position:relative;
 }
+
+/* ไอคอนเตือนแบบวงกลมไล่สี */
 .blk-icon{
-  width:74px;height:74px;border-radius:9999px;margin:-48px auto 12px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#ffedd5,#fecaca);font-size:34px;
-  box-shadow:0 12px 22px rgba(0,0,0,.15);
+  width:88px;height:88px;margin:-48px auto 8px;
+  border-radius:9999px;display:flex;align-items:center;justify-content:center;
+  background: linear-gradient(135deg,#ff884d,#ff5b6b);
+  color:#fff; box-shadow:0 12px 24px rgba(0,0,0,.15);
 }
-.blk-title{font-weight:900;font-size:1.8rem;color:#111827;margin-top:6px;}
-.blk-sub{color:#6b7280;font-weight:600;margin-top:4px;}
+
+/* กล่องติดต่อ: ไล่สีฟ้าอ่อน */
 .blk-admin{
-  margin:18px auto 0;background:linear-gradient(180deg,#f8fafc,#eef2ff);
-  border:1px solid #e5e7eb;border-radius:16px;padding:16px 14px;max-width:520px;
+  margin:18px auto 0;
+  background: linear-gradient(90deg,#eff6ff 0%, #eef2ff 100%);
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:18px 16px;
+  max-width:520px;
 }
-.blk-admin-title{color:#334155;font-weight:800;margin-bottom:6px;}
+.blk-admin-emoji{ font-size:34px; line-height:1; margin-bottom:8px; }
+.blk-admin-title{color:#1f2937;font-weight:800;margin-bottom:6px;}
 .blk-admin-name{color:#0f172a;font-weight:900;}
-.blk-admin-email{display:inline-block;margin-top:4px;color:#2563eb;font-weight:800;text-decoration:none;}
-.blk-btn{
-  width:100%;max-width:520px;margin:18px auto 0;display:inline-flex;gap:8px;align-items:center;justify-content:center;
-  min-height:50px;border:0;border-radius:14px;color:#fff;font-weight:900;
-  background:linear-gradient(135deg,#7c3aed,#6366f1);box-shadow:0 10px 24px rgba(99,102,241,.25);
+.blk-admin-email{
+  display:inline-flex; align-items:center; gap:8px;
+  margin-top:8px; color:#1d4ed8; font-weight:700; text-decoration:none; /* ตัวอักษรธรรมดา */
 }
+
+/* ปุ่ม “กลับสู่หน้าหลัก” ไล่สีม่วง */
+.blk-btn{
+  width:100%;max-width:520px;margin:18px auto 0;
+  display:inline-flex;gap:8px;align-items:center;justify-content:center;
+  min-height:52px;border:0;border-radius:16px;color:#fff;font-weight:900;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  box-shadow:0 14px 28px rgba(79,70,229,.25);
+  transition:transform .2s, box-shadow .2s;
+}
+.blk-btn:hover{ transform:translateY(-1px); box-shadow:0 20px 36px rgba(79,70,229,.35); }
+/* พื้นหลังไล่สีแบบภาพตัวอย่าง */
+html.blocked,
+body.blocked{
+  background: linear-gradient(135deg, #ffe7aa 0%, #f9b49e 100%) !important;
+}
+
+/* หน้านี้ไม่ใช้กรอบขาวใหญ่ของระบบเดิม */
+body.blocked .content-card{
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* จัดหน้าให้คล้ายภาพ: กึ่งกลาง มีระยะขอบ */
+body.blocked .page-container{
+  align-items: flex-start;
+  padding: 28px 16px;
+}
+
+/* ซ่อนโลโก้มุมขวาบน */
 body.blocked .corner-logo{display:none!important;}
 body.summary #cartFab,
 body.thankyou #cartFab,
@@ -846,15 +888,21 @@ body.blocked #cartFab { display: none !important; }
 <div id="blockedContent" class="hidden text-left">
   <div class="blk-wrap">
     <div class="blk-card">
-      <div class="blk-icon">⚠️</div>
+      <div class="blk-icon" aria-hidden="true">
+  <svg viewBox="0 0 24 24" width="40" height="40" fill="none">
+    <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+    <path d="M12 8v5m0 4h.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
       <h1 class="blk-title">งบประมาณไม่เพียงพอ</h1>
       <div class="blk-sub">Budget BU ของท่านไม่เพียงพอสำหรับการเบิกครั้งนี้</div>
 
-      <div class="blk-admin">
-        <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
-        <div id="blkName" class="blk-admin-name">—</div>
-        <a id="blkEmail" href="#" class="blk-admin-email">—</a>
-      </div>
+     <div class="blk-admin">
+  <div class="blk-admin-emoji">👨‍💼</div>
+  <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
+  <div id="blkName" class="blk-admin-name">—</div>
+  <div id="blkEmail" class="blk-admin-email">📧 —</div>
+</div>
 
       <button class="blk-btn" onclick="goHomeFromBlocked()">
         <svg viewBox="0 0 24 24" width="20" height="20">
@@ -1329,10 +1377,11 @@ async function openCategory(name){
     document.documentElement.classList.add('thankyou');
     setTop();
   } else if (which === 'blocked'){
-    if (blocked) blocked.classList.remove('hidden');            // ✅ แสดง Blocked แบบถูกต้อง
-    document.body.classList.add('not-home','blocked');
-    setTop();
-  }
+  if (blocked) blocked.classList.remove('hidden');
+  document.body.classList.add('not-home','blocked');
+  document.documentElement.classList.add('blocked');
+  setTop();
+}
 
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
@@ -1347,8 +1396,8 @@ async function openCategory(name){
   if(nEl) nEl.textContent = CURRENT_ADMIN_CONTACT.name || '—';
   if(eEl){
     const mail = CURRENT_ADMIN_CONTACT.email || '—';
-    eEl.textContent = mail;
-    eEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
+    // อีเมลเป็นตัวอักษรธรรมดา + อิโมจิ
+    eEl.textContent = `📧 ${mail}`;
   }
   showPage('blocked');
 }
