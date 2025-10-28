@@ -564,7 +564,7 @@ body.blocked #cartFab { display: none !important; }
       <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="corner-logo absolute top-4 right-4 w-28 h-auto" alt="Logo" />
 
       <!-- Cart Floating Button -->
-      <button id="cartFab" class="cart-btn" onclick="openCart()">
+      <button id="cartFab" class="cart-btn" onclick="openCart()" aria-label="เปิดตะกร้า">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2zm7 0a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -858,7 +858,7 @@ body.blocked #cartFab { display: none !important; }
 
       <button class="blk-btn" onclick="goHomeFromBlocked()">
         <svg viewBox="0 0 24 24" width="20" height="20">
-          <path d="M3 12h18M3 12l6-6M3 12l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3 12h18M3 12l6-6M3 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         กลับสู่หน้าหลัก
       </button>
@@ -908,7 +908,8 @@ body.blocked #cartFab { display: none !important; }
   <div id="itemModal" class="modal-mask">
     <div class="modal">
       <div class="flex justify-center mb-3">
-        <img id="mImg" class="w-36 h-36 object-contain" src="" alt=""/>
+        <img id="mImg" class="w-36 h-36 object-contain" src="" alt=""
+     onerror="this.src='https://via.placeholder.com/144?text=%20'"/>
       </div>
       <h3 id="mName" class="text-xl font-extrabold text-center text-gray-900"></h3>
       <p id="mDetail" class="text-sm text-center text-gray-600 mt-1"></p>
@@ -1046,7 +1047,7 @@ let inflight = { categories: null, items: null };
             <!-- ขวา: ราคา(รวม) บน + ปุ่มลบ ล่าง -->
             <div class="right">
               <div class="line">${line}</div>
-              <button class="remove" onclick="removeFromCart('${it.key.replace(/'/g, "\\'")}')">ลบ</button>
+              <button class="remove" onclick="removeFromCart('...')" aria-label="ลบรายการนี้">ลบ</button>
             </div>
           </div>
         `;
@@ -1115,15 +1116,19 @@ let inflight = { categories: null, items: null };
       `).join('');
     }
 
-    async function openCategory(name){
-      selectedCategory = name;
-      showLoadingProductsModal(true);
-      try{
-        await goProductsPage(); // โหลดสินค้า +เปลี่ยนหน้า
-      }finally{
-        showLoadingProductsModal(false); // ปิด popup ไม่ว่าผลจะสำเร็จหรือ error
-      }
-    }
+    let OPENING = false;
+async function openCategory(name){
+  if (OPENING) return;
+  OPENING = true;
+  selectedCategory = name;
+  showLoadingProductsModal(true);
+  try{
+    await goProductsPage();
+  }finally{
+    showLoadingProductsModal(false);
+    OPENING = false;
+  }
+}
 
     function showSubmittingModal(show=true){
   const m = document.getElementById('submittingModal');
@@ -1738,15 +1743,14 @@ async function submitRequest(){
     }
 
     // ⛔ Gate: ตรวจงบประมาณจาก Emp HO (คอลัมน์ K)
-    if (CURRENT_BUDGET === null) {
-      const extra = await getBUAdmin((CURRENT_EMP.id||'').trim()); // ถ้าคุณตั้งใจดึงจาก getBudgetAndAdmin ให้คงอันเดิม
-      const more  = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
-      CURRENT_BUDGET = (more && more.budget != null) ? Number(more.budget) : 0;
-      CURRENT_ADMIN_CONTACT = {
-        name:  (more && more.adminName)  ? String(more.adminName)  : '—',
-        email: (more && more.adminEmail) ? String(more.adminEmail) : '—'
-      };
-    }
+   if (CURRENT_BUDGET === null) {
+  const more = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
+  CURRENT_BUDGET = (more && more.budget != null) ? Number(more.budget) : 0;
+  CURRENT_ADMIN_CONTACT = {
+    name:  (more && more.adminName)  ? String(more.adminName)  : '—',
+    email: (more && more.adminEmail) ? String(more.adminEmail) : '—'
+  };
+}
     if (!CURRENT_BUDGET || Number(CURRENT_BUDGET) === 0) {
       showSubmittingModal(false);
       showBlocked();       // ➜ ไปหน้า “งบประมาณไม่เพียงพอ”
