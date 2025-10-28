@@ -919,12 +919,12 @@ body.blocked .content-card{
 
       <!-- กล่องติดต่อ BU Admin -->
       <div class="blk-admin">
-        <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
-        <div class="blk-admin-name">👨‍💼 <span id="blkName">—</span></div>
-        <a id="blkEmail" href="#" class="blk-admin-email" rel="nofollow noopener">
-  <span>📧 Email BU Admin: —</span>
-</a>
-      </div>
+  <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
+  <div class="blk-admin-name">👨‍💼 <span id="blkName">—</span></div>
+  <a id="blkEmail" href="#" class="blk-admin-email" rel="nofollow noopener">
+    <span id="blkEmailText">📧 Email BU Admin: —</span>
+  </a>
+</div>
 
       <!-- ปุ่มกลับหน้าหลัก -->
       <button class="blk-btn" onclick="goHomeFromBlocked()">
@@ -1416,17 +1416,24 @@ async function openCategory(name){
 }
 
     function showBlocked(){
-  const nEl = document.getElementById('blkName');
-  const aEl = document.getElementById('blkEmail');
-  const vEl = document.getElementById('blkEmailVal');  // ⟵ span ใหม่
+  const nameEl = document.getElementById('blkName');
+  const linkEl = document.getElementById('blkEmail');
+  const textEl = document.getElementById('blkEmailText'); // ← span ภายใน
 
-  if(nEl) nEl.textContent = CURRENT_ADMIN_CONTACT.name || '—';
+  if (nameEl) nameEl.textContent = CURRENT_ADMIN_CONTACT?.name || '—';
 
-  if(aEl){
-    const mail = CURRENT_ADMIN_CONTACT.email || '—';
-    if (vEl) vEl.textContent = mail;                   // ⟵ อัปเดตเฉพาะค่าอีเมล
-    aEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
+  const mail = (CURRENT_ADMIN_CONTACT?.email || '—').trim();
+
+  // อัปเดตเฉพาะข้อความใน span ให้คงคำว่า "Email BU Admin:" และอิโมจิไว้
+  if (textEl) {
+    textEl.textContent = `📧 Email BU Admin: ${mail}`;
   }
+
+  // อัปเดตลิงก์ให้เป็น mailto: เฉพาะกรณีที่เป็นอีเมลจริง
+  if (linkEl) {
+    linkEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
+  }
+
   showPage('blocked');
 }
 function goHomeFromBlocked(){
