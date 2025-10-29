@@ -778,28 +778,27 @@ body.blocked .content-card{
   text-decoration:underline;
 }
 
-/* หัวเรื่องใหม่ */
 .verify-title{
   font-weight:900;
   font-size:1.75rem;
   letter-spacing:.02em;
   text-transform:uppercase;
   color:#0f172a;
+  margin-bottom:.5rem;           /* เว้นหัวข้อใหญ่กับหัวข้อรอง */
 }
 .verify-subtitle{
-  margin-top:6px;
   font-size:1.125rem;
   color:#334155;
   font-weight:700;
+  margin:.25rem 0 .875rem;       /* เว้นด้านล่างให้ใกล้ภาพแรก */
 }
 .verify-desc{
   font-size:.95rem;
   color:#64748b;
   text-align:left;
-  margin-top:2rem;
+  margin: .5rem 0 .35rem;   /* ลดช่องว่างบน/ล่าง */
 }
 
-/* ช่องกรอกกลาง ๆ โทนสะอาด */
 .verify-input{
   width:100%;
   padding:12px 14px 12px 48px;
@@ -810,7 +809,7 @@ body.blocked .content-card{
   font-size:1rem;
   color:#0f172a;
   transition: all .2s ease-in-out;
-  margin-top:16px;      /* ⬅️ เพิ่มระยะจากข้อความเหนือช่องกรอก */
+  margin-top:.5rem;          /* จาก 16px → ~8px */
 }
     
     /* === icon-in-input (ซ้าย) === */
@@ -866,7 +865,8 @@ body.blocked .content-card{
   padding: 12px;
   cursor: pointer;
   transition: all .2s ease-in-out;
-  margin-top: 1rem;
+  /* ขยับปุ่มลงให้โปร่งขึ้น */
+  margin-top: 2rem; /* ≈ 28px */
 }
     
   </style>
@@ -912,7 +912,7 @@ body.blocked .content-card{
 <p class="verify-subtitle">ระบบเบิกอุปกรณ์สำนักงาน</p>
 
 <!-- ย้ายข้อความเล็กให้ชิดซ้าย -->
-<p class="verify-desc mt-5 text-left">กรอกรหัสพนักงานเพื่อเข้าใช้งานระบบ</p>
+<p class="verify-desc text-left">กรอกรหัสพนักงานเพื่อเข้าใช้งานระบบ</p>
 
     <!-- คง id เดิมเพื่อไม่ให้กระทบสคริปต์ -->
     <label for="employeeId" class="sr-only">รหัสพนักงาน</label>
