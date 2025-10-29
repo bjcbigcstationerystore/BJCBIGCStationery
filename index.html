@@ -1891,7 +1891,19 @@ function goHomeFromBlocked(){
   updateCartUI();
 });
 
-   function showMsg(){ /* no-op: ไม่ทำอะไร */ }
+   function showMsg(text, type='info'){
+  const box = document.getElementById('message');
+  if(!box){ alert(text); return; }
+
+  const base = 'mt-4 p-4 rounded-lg text-center border ';
+  const theme = (type === 'error')
+    ? 'bg-red-50 text-red-700 border-red-200'
+    : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+
+  box.className = base + theme;
+  box.textContent = text;
+  box.classList.remove('hidden');
+}
 
     function stripForSearch(s){
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g,'');
@@ -1914,25 +1926,40 @@ function goHomeFromBlocked(){
   const rawInput = (inputEl?.value || '').trim();
 
   if (!rawInput) {
-    showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
+    showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error');
     return;
   }
 
-  // ปิดวงกลมโหลดก่อน เพื่อกันค้าง
-  showCheckingModal(false);
+  // แสดงตัวโหลดระหว่างดึงข้อมูลพนักงาน
+  showCheckingModal(true);
   showLoadingProductsModal(false);
 
-  // เซ็ตข้อมูลจำลองพนักงาน (ไม่ตรวจสอบ)
-  CURRENT_EMP = {
-    id: rawInput,
-    company: 'BJC',
-    name: '-',
-    costCenter: '-'
-  };
+  try{
+    // เรียก Apps Script → action=getEmployee
+    const emp = await getEmployeeData(rawInput);
 
-  // โหลดหมวดหมู่และไปหน้าต่อ
-  preloadCategoriesFor('BJC');
-  showPage('category');
+    if (!emp) {
+      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
+      return;
+    }
+
+    // แม็ปฟิลด์จาก API มายังสถานะของแอป (เผื่อชื่อคีย์ต่างกัน)
+    CURRENT_EMP = {
+      id:        emp.employeeId || emp.id || rawInput,
+      company:   normalizeCompanyName(emp.company || 'BJC'),
+      name:      emp.fullName   || emp.name || '-',
+      costCenter: emp.costCenter || emp.cost || '-'
+    };
+
+    // โหลดหมวดหมู่ตามบริษัทจริง แล้วไปหน้าหมวดหมู่
+    await preloadCategoriesFor(CURRENT_EMP.company);
+    showPage('category');
+  }catch(err){
+    console.error(err);
+    showMsg('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน', 'error');
+  }finally{
+    showCheckingModal(false);
+  }
 }
 
     function setProceedButton(){
