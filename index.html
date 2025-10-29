@@ -1487,24 +1487,36 @@ async function fetchJSON(url, {method='GET', headers, body, timeout=12000, signa
 }
 
     /* ====== Categories ====== */
-    async function getCategories(company, limit=50){
+    async function getCategories(company, limit = 50){
   const params = new URLSearchParams({
     action:'getCategories',
     company: company || 'BJC',
-    limit: Math.min(Math.max(parseInt(limit)||50,1),50),
-    debug: FORCE_FRESH ? '1':'0'
+    limit: Math.min(Math.max(parseInt(limit) || 50, 1), 50),
+    debug: FORCE_FRESH ? '1' : '0'
   });
 
+  // ยกเลิกคำขอเก่า
   inflight.categories?.abort();
-  inflight.categories = new AbortController();
 
-  const { ok, json } = await fetchJSON(`${API_BASE}?${params.toString()}`, {
-    timeout: 12000,
-    signal: inflight.categories
-  }).catch(()=>({ok:false}));
+  const ctrl = new AbortController();
+  inflight.categories = ctrl;
 
-  if(!ok) return [];
-  return (json && json.success && Array.isArray(json.data)) ? json.data : [];
+  const timer = setTimeout(() => { try{ ctrl.abort('timeout'); }catch(_){} }, 15000);
+
+  try{
+    const res = await fetch(`${API_BASE}?${params.toString()}`, {
+      method:'GET',
+      cache:'no-store',
+      signal: ctrl.signal
+    });
+    if(!res.ok) return [];
+    const data = await res.json().catch(()=>null);
+    return (data && data.success && Array.isArray(data.data)) ? data.data : [];
+  }catch(_){
+    return [];
+  }finally{
+    clearTimeout(timer);
+  }
 }
 
     function renderCategories(){
@@ -1545,9 +1557,11 @@ async function openCategory(name){
   else { m.classList.add('hidden'); m.classList.remove('flex'); }
 }
 
-    async function preloadCategoriesFor(company){
+   async function preloadCategoriesFor(company){
   try {
-    showCheckingModal(true);
+    // ใช้ตัวโหลด "กำลังโหลดรายการสินค้า…" แทน เพื่อไม่สับสนว่าเป็นการส่งคำขอ
+    showLoadingProductsModal(true);
+
     currentCompany = normalizeCompanyName(company);
     CATEGORIES = await getCategories(currentCompany, 50);
 
@@ -1557,7 +1571,7 @@ async function openCategory(name){
     console.error('โหลดหมวดหมู่ไม่สำเร็จ:', err);
     showMsg('ไม่สามารถโหลดหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง','error');
   } finally {
-    showCheckingModal(false);
+    showLoadingProductsModal(false);
   }
 }
 
@@ -1573,6 +1587,10 @@ async function openCategory(name){
 
   // ยกเลิกคำขอเก่าที่ยังค้าง
   inflight.items?.abort();
+     // ยกเลิก request ค้างเมื่อผู้ใช้ออกจากหน้า (กันแท็บหมุนค้าง)
+window.addEventListener('beforeunload', () => {
+  try { abortInflight(); } catch(_) {}
+});
 
   const ctrl = new AbortController();
   inflight.items = ctrl;
