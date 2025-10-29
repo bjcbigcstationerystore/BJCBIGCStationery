@@ -709,14 +709,17 @@ body.blocked .content-card{
   border-radius:18px;
   border:1px solid rgba(15,23,42,.06);
   box-shadow:0 16px 36px rgba(2,8,23,.10);
-  padding:36px 40px;        /* ↑ padding เพิ่ม */
+  padding:56px 44px;       /* 🔹 เพิ่ม padding ด้านบน-ล่างมากขึ้น */
   text-align:center;
   width:100%;
-  max-width:560px;
+  max-width:580px;         /* 🔹 ขยายความกว้างเล็กน้อย */
   margin:auto;
 }
-@media (max-width:480px){
-  .verify-box{ max-width:92vw; padding:28px 22px; }
+@media (max-width: 480px){
+  .verify-box{
+    padding:40px 24px;
+    max-width:90vw;
+  }
 }
 
 .verify-box::after{ content:none; }
