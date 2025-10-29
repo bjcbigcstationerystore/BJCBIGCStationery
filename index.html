@@ -1468,11 +1468,24 @@ async function openCategory(name){
 }
 
     async function preloadCategoriesFor(company){
-      currentCompany = normalizeCompanyName(company);
-      CATEGORIES = await getCategories(currentCompany, 50);
-      renderCategories();
-      updateCartUI();
-    }
+  try {
+    showSubmittingModal(true); // ✅ เปิด modal โหลดก่อนเริ่ม
+    currentCompany = normalizeCompanyName(company);
+
+    // โหลดข้อมูลหมวดหมู่
+    CATEGORIES = await getCategories(currentCompany, 50);
+
+    // แสดงผล
+    renderCategories();
+    updateCartUI();
+
+  } catch (err) {
+    console.error('โหลดหมวดหมู่ไม่สำเร็จ:', err);
+    showMsg('ไม่สามารถโหลดหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง','error');
+  } finally {
+    showSubmittingModal(false); // ✅ ปิด modal โหลดเมื่อเสร็จ
+  }
+}
 
     /* ====== Products ====== */
    async function getItems(company, category, limit=100){
