@@ -704,23 +704,31 @@ body.blocked .content-card{
     /* === Verify Card on white background === */
 
 .verify-box{
-  position:relative;  
-  background:#f9fafb;
-  border-radius:12px;                     /* ⬅️ ลดมุมโค้งให้นุ่มขึ้น */
-  box-shadow:0 10px 24px rgba(0,0,0,.06);  /* ⬅️ เงาน้อยลง */
-  padding:20px 22px 22px;                 /* ⬅️ ลดพื้นที่ในกล่อง */
+  position:relative;
+  background:#ffffff;                 /* ขาวสนิท เพื่อคอนทราสต์ */
+  border-radius:14px;                 /* มุมโค้งนุ่มขึ้นเล็กน้อย */
+  border:1px solid rgba(2,6,23,.06);  /* เส้นขอบจาง ๆ ช่วยแยกชั้น */
+  padding:16px 18px;                  /* ลด padding ลง */
   text-align:center;
   width:100%;
-  max-width:340px;                        /* ⬅️ จำกัดความกว้างรวม */
+  max-width:280px;                    /* ← จาก 340px ➜ 280px (เล็กลงจริง) */
   margin:auto;
+
+  /* เงาหลายชั้น: ใต้การ์ดเข้มขึ้นเล็กน้อย + วงนอกฟุ้ง */
+  box-shadow:
+    0 2px 8px rgba(15,23,42,.06),
+    0 10px 28px rgba(15,23,42,.10);
 }
-    .verify-box::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:12px;
-  box-shadow:0 0 50px 5px rgba(16,185,129,0.05);
-  z-index:-1;
+
+/* ปรับขนาดไอคอนให้บาลานซ์กับการ์ดเล็ก */
+.verify-icon{
+  width:52px; height:52px;            /* เดิม 56x56 */
+  margin:-36px auto 12px;
+  border-radius:9999px;
+  background:#10b981; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px;
+  box-shadow:0 6px 18px rgba(16,185,129,.28);
 }
 
 .verify-icon {
@@ -810,7 +818,7 @@ body.blocked .content-card{
         <button onclick="startForm()" class="btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg shadow-lg">เริ่มต้นการเบิกอุปกรณ์</button>
       </div>
 
-        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh] bg-white">
+        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh]">
   <div class="verify-box">
     <div class="verify-icon"><span>🏢</span></div>
     <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">ยืนยันตัวตน</h1>
