@@ -25,7 +25,41 @@
   background:#064e3b;
   color:#0f172a;
 }
-    .page-container{display:flex;justify-content:center;width:100%;min-height:100vh;padding:2rem 1rem}
+   /* Top App Bar */
+.appbar{
+  position:fixed; inset:0 0 auto 0; height:56px;
+  background:#065f46; color:#ecfdf5; z-index:10000;
+  box-shadow:0 6px 18px rgba(0,0,0,.18);
+}
+.appbar-inner{
+  height:100%; display:flex; align-items:center; gap:10px;
+  padding:0 14px;
+}
+    /* โลโก้มีพื้นหลังสีขาว ขอบโค้ง + เงา */
+.appbar-logo{
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center;
+  padding:6px 10px;                         /* ช่องว่างรอบโลโก้ */
+  background:#ffffff;                      /* กรอบสีขาว */
+  border:1px solid rgba(255,255,255,.35);  /* เส้นขอบบางโปร่ง */
+  border-radius:12px;                      /* ขอบโค้ง */
+  box-shadow:0 6px 14px rgba(0,0,0,.12);   /* เงาอ่อน */
+  max-height:36px;                         /* คุมความสูงให้พอดีแถบ */
+}
+
+.appbar-logo-img{
+  height:30px;                             /* ขนาดโลโก้ภายใน */
+  width:auto;
+  display:block;
+}
+    
+
+/* กัน App Bar ทับเนื้อหา */
+.page-container{
+  display:flex; justify-content:center; width:100%; min-height:100vh;
+  padding:calc(56px + 1.25rem) 1rem 2rem;   /* เผื่อที่ด้านบน */
+}
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
     .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
     body.category .content-card,
@@ -663,9 +697,19 @@ body.blocked .content-card{
 </head>
 
 <body>
+  <div class="appbar">
+    <div class="appbar-inner">
+  <div class="appbar-logo">
+    <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" class="appbar-logo-img">
+  </div>
+  <div class="appbar-title sr-only">BJC Big C Stationery Store</div>
+</div>
+  </div>
+
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
-      <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" class="corner-logo absolute top-4 right-4 w-28 h-auto" alt="Logo" />
+      <!-- ใช้โลโก้บน App Bar แล้ว จึงซ่อนตัวนี้ -->
+<!-- <img ... class="corner-logo ..."> -->
 
       <!-- Cart Floating Button -->
       <button id="cartFab" class="cart-btn" onclick="openCart()" aria-label="เปิดตะกร้า">
@@ -693,11 +737,6 @@ body.blocked .content-card{
       </div>
 
       <!-- ============ Verify ============ -->
-      <div id="verifyContent" class="hidden text-left">
-        <button onclick="goBack()" class="flex items-center text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-          กลับ
-        </button>
         <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">ยืนยันตัวตน</h1>
         <h2 class="text-xl font-semibold text-emerald-700 text-center mb-8">กรุณากรอกรหัสพนักงาน</h2>
 
@@ -1513,7 +1552,7 @@ function goHomeFromBlocked(){
   updateCartUI();
   document.getElementById('cartMask')?.classList.remove('show');
   resetVerifyForm();
-  showPage('home');
+  showPage('verify');    // << กลับไปที่หน้า verify
 }
 
     function resetVerifyForm(){
@@ -1559,7 +1598,7 @@ function goHomeFromBlocked(){
       showPage('home');
     }
 
-    document.addEventListener('DOMContentLoaded', ()=>{
+   document.addEventListener('DOMContentLoaded', ()=>{
   const empInput = document.getElementById('employeeId');
 
   empInput.addEventListener('keydown', (e)=>{
@@ -1569,10 +1608,9 @@ function goHomeFromBlocked(){
     }
   });
 
-  // ใช้ระบบ onclick เดิมที่คุณเขียนไว้ เพื่อกัน event ซ้ำ
+  // หน้าแรก = ยืนยันตัวตน
   resetVerifyButton();
-
-  renderCategories();
+  showPage('verify');           // << เปิดมาเป็นหน้า verify ทันที
   updateCartUI();
 });
 
