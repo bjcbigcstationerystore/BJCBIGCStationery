@@ -25,6 +25,15 @@
   background:##ffffff;
   color:#0f172a;
 }
+    
+   /* ✅ หน้า verify ให้ตัดกรอบ/เงา/ padding ของ .content-card ทิ้ง */
+body.verify .content-card{
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  max-width:none !important;
+}
+    
    /* Top App Bar */
 .appbar{
   position:fixed; inset:0 0 auto 0; height:56px;
@@ -693,17 +702,16 @@ body.blocked .content-card{
   max-width: 960px !important;
 }
     /* === Verify Card on white background === */
-.verify-wrap
 
-  
 .verify-box{
+  position:relative;  
   background:#f9fafb;
   border-radius:12px;                     /* ⬅️ ลดมุมโค้งให้นุ่มขึ้น */
-  box-shadow:0 6px 16px rgba(0,0,0,.07);  /* ⬅️ เงาน้อยลง */
-  padding:22px 20px 20px;                 /* ⬅️ ลดพื้นที่ในกล่อง */
+  box-shadow:0 10px 24px rgba(0,0,0,.06);  /* ⬅️ เงาน้อยลง */
+  padding:20px 22px 22px;                 /* ⬅️ ลดพื้นที่ในกล่อง */
   text-align:center;
   width:100%;
-  max-width:360px;                        /* ⬅️ จำกัดความกว้างรวม */
+  max-width:340px;                        /* ⬅️ จำกัดความกว้างรวม */
   margin:auto;
 }
     .verify-box::after{
@@ -715,15 +723,18 @@ body.blocked .content-card{
   z-index:-1;
 }
 
-
-.verify-icon{
-  width:64px; height:64px; margin:-52px auto 12px;
-  border-radius:9999px;
-  background:#10b981;            /* เขียว */
-  color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font-size:30px;
-  box-shadow:0 8px 18px rgba(16,185,129,.35);
+.verify-icon {
+  width: 56px;
+  height: 56px;
+  margin: -42px auto 14px;
+  border-radius: 9999px;
+  background: #10b981;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 5px 14px rgba(16, 185, 129, 0.25);
 }
 
 /* input + button บนพื้นหลังขาว ให้ดูสะอาด */
@@ -799,10 +810,9 @@ body.blocked .content-card{
         <button onclick="startForm()" class="btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg shadow-lg">เริ่มต้นการเบิกอุปกรณ์</button>
       </div>
 
-        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh]">
+        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh] bg-white">
   <div class="verify-box">
     <div class="verify-icon"><span>🏢</span></div>
-
     <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">ยืนยันตัวตน</h1>
     <p class="text-emerald-700 font-semibold mt-1 mb-5">กรุณากรอกรหัสพนักงาน</p>
 
@@ -1522,7 +1532,7 @@ async function openCategory(name){
     resetVerifyButton();
   } else if (which === 'verify'){
     verify.classList.remove('hidden');
-    document.body.classList.add('not-home');
+    document.body.classList.add('not-home','verify');
     setCentered();
     stage = 'verify';
     resetVerifyButton();
