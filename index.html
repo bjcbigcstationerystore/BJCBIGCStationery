@@ -1465,28 +1465,46 @@ let inflight = { categories: null, items: null };
       return 'BJC';
     }
 
+    // === fetch ชนิดมี timeout + รวมการโยง signal ภายนอก ===
+async function fetchJSON(url, {method='GET', headers, body, timeout=12000, signal} = {}){
+  const ctrl = new AbortController();
+  const id   = setTimeout(()=>ctrl.abort('timeout'), timeout);
+
+  // รวมสัญญาณยกเลิกจากภายนอก (ถ้ามี)
+  const link = new AbortController();
+  function forwardAbort(){ try{ link.abort(); }catch(_){} }
+  ctrl.signal.addEventListener('abort', forwardAbort);
+  if (signal) signal.addEventListener('abort', forwardAbort);
+
+  try{
+    const res  = await fetch(url, {method, headers, body, cache:'no-store', signal: link.signal});
+    const text = await res.text();              // ป้องกัน body read ซ้ำ
+    let json   = null; try{ json = JSON.parse(text); }catch(_){}
+    return { ok: res.ok, status: res.status, json, text };
+  }finally{
+    clearTimeout(id);
+  }
+}
+
     /* ====== Categories ====== */
-    async function getCategories(company, limit = 50){
-  // ✅ ส่ง debug=1 เพื่อ bypass cache ของ Apps Script เมื่อเริ่มรอบใหม่
+    async function getCategories(company, limit=50){
   const params = new URLSearchParams({
-    action: 'getCategories',
+    action:'getCategories',
     company: company || 'BJC',
-    limit: Math.min(Math.max(parseInt(limit) || 50, 1), 50),
-    debug: FORCE_FRESH ? '1' : '0'
+    limit: Math.min(Math.max(parseInt(limit)||50,1),50),
+    debug: FORCE_FRESH ? '1':'0'
   });
 
   inflight.categories?.abort();
   inflight.categories = new AbortController();
 
-  const res = await fetch(`${API_BASE}?${params.toString()}`, {
-    method: 'GET',
-    cache: 'no-store',
-    signal: inflight.categories.signal
-  }).catch(() => null);
+  const { ok, json } = await fetchJSON(`${API_BASE}?${params.toString()}`, {
+    timeout: 12000,
+    signal: inflight.categories
+  }).catch(()=>({ok:false}));
 
-  if (!res || !res.ok) return [];
-  const data = await res.json().catch(()=>null);
-  return (data && data.success && Array.isArray(data.data)) ? data.data : [];
+  if(!ok) return [];
+  return (json && json.success && Array.isArray(json.data)) ? json.data : [];
 }
 
     function renderCategories(){
@@ -1691,13 +1709,10 @@ async function openCategory(name){
 
     /* ====== Employee ====== */
     async function getEmployeeData(rawId){
-      const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
-      const res = await fetch(url, { method:'GET', cache:'no-store' });
-      if(!res.ok) return null;
-      const data = await res.json().catch(()=>null);
-      if (data && data.success && data.data) return data.data;
-      return null;
-    }
+  const url = `${API_BASE}?action=getEmployee&employeeId=${encodeURIComponent(rawId)}&debug=0`;
+  const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+  return (ok && json && json.success && json.data) ? json.data : null;
+}
 
     /* ====== Layout helpers ====== */
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
@@ -2005,21 +2020,12 @@ function goHomeFromBlocked(){
     }
 
     /* ===== เรียก BU Admin จาก Apps Script (ใหม่) ===== ต้องมี action=getBUAdmin ฝั่ง Apps Script (ดูขั้นถัดไป) */
-    async function getBUAdmin(employeeId){
+    async function getBudgetAndAdmin(employeeId){
   try{
-    const url = `${API_BASE}?action=getBUAdmin&employeeId=${encodeURIComponent(employeeId)}`;
-    const res = await fetch(url, {method:'GET', cache:'no-store'});
-    if(!res.ok) return { names:[], emails:[] };
-
-    const data = await res.json().catch(()=>null);
-    if(data && data.success && data.data){
-      return {
-        names: data.data.names || [],
-        emails: data.data.emails || []
-      };
-    }
-  }catch(_){}
-  return { names:[], emails:[] };
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    return (ok && json && json.success) ? (json.data || null) : null;
+  }catch(_){ return null; }
 }
 
       function asListHTML(arr){
