@@ -624,8 +624,8 @@ body.thankyou .ty-total{ color:#10b981 !important; }
   background:#ffffff;
   border-radius:28px;
   box-shadow:0 26px 56px rgba(0,0,0,.14);
-  /* ↑ เพิ่มบน/ล่างให้ยาวขึ้น */
-  padding:56px 32px 44px;
+  /* ↑ ให้พื้นที่ด้านบนพอสำหรับวางไอคอนอยู่ “ในกรอบ” */
+  padding:40px 32px 44px;
   text-align:center;
 }
 
@@ -636,11 +636,14 @@ body.thankyou .ty-total{ color:#10b981 !important; }
 
 .blk-icon{
   width:96px; height:96px; border-radius:9999px;
-  margin:-62px auto 10px; /* ซ้อนพอดีเหมือนภาพ */
+  /* ↑ วางอยู่ในกรอบ ไม่ล้นออกขอบบน */
+  margin:0 auto 14px;
   display:flex; align-items:center; justify-content:center;
   background:linear-gradient(180deg,#ffb36b 0%, #ff7a59 100%);
   box-shadow:0 14px 30px rgba(0,0,0,.18), inset 0 2px 0 rgba(255,255,255,.35);
 }
+    .blk-title{ margin-top:6px; }
+.blk-sub{   margin-top:6px; }
 .blk-icon svg{ width:46px; height:46px; color:#ffffff; }
 
 .blk-title{ font-weight:800; font-size:2rem; color:#111827; margin-top:6px; }
