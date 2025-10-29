@@ -949,7 +949,9 @@ body.blocked .content-card{
     <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
     <div id="employeeInfo" class="hidden mt-4"></div>
 
-    <button class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all duration-300 text-sm">
+    <button id="verifyBtn"
+        class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all duration-300 text-sm"
+        onclick="verifyEmployee()">
   ยืนยันตัวตน
 </button>
   </div>
@@ -1839,16 +1841,20 @@ function goHomeFromBlocked(){
    document.addEventListener('DOMContentLoaded', ()=>{
   const empInput = document.getElementById('employeeId');
 
-  empInput.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter' && stage === 'verify'){
-      e.preventDefault();
-      verifyEmployee();
-    }
-  });
+  if (empInput){
+    empInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && stage === 'verify'){
+        e.preventDefault();
+        verifyEmployee();
+      }
+    });
+  }
 
   // หน้าแรก = ยืนยันตัวตน
-  resetVerifyButton();
-  showPage('verify');           // << เปิดมาเป็นหน้า verify ทันที
+  try { resetVerifyButton(); } catch(_) {}
+  showCheckingModal(false);                    // ⬅️ ปิดตัวโหลดเผื่อมีค้าง
+  showLoadingProductsModal(false);             // ⬅️ ปิด overlay โหลดสินค้าเผื่อค้าง
+  showPage('verify');
   updateCartUI();
 });
 
@@ -1968,11 +1974,11 @@ if (!emp && cleaned !== rawInput) {
 
     function setProceedButton(){
   const btn = document.getElementById('verifyBtn');
+  if(!btn) return;                           // ⬅️ กัน error
   stage = 'proceed';
   btn.disabled = false;
   btn.classList.remove('opacity-80','cursor-not-allowed');
   btn.textContent = 'ดำเนินการต่อ';
-  // เคลียร์ handler เดิมทุกอย่าง แล้วเซ็ตอันเดียว
   btn.onclick = () => showPage('category');
 }
 
@@ -1984,11 +1990,11 @@ if (!emp && cleaned !== rawInput) {
 
     function resetVerifyButton(){
   const btn = document.getElementById('verifyBtn');
+  if(!btn) return;                           // ⬅️ กัน error
   stage = 'verify';
   btn.disabled = false;
   btn.classList.remove('opacity-80','cursor-not-allowed');
   btn.textContent = 'ยืนยันตัวตน';
-  // เคลียร์ handler เดิมทุกอย่าง แล้วเซ็ตอันเดียว
   btn.onclick = verifyEmployee;
 }
 
