@@ -1502,8 +1502,7 @@ async function openCategory(name){
     }
 
     /* ====== Products ====== */
-    async function getItems(company, category, limit=100){
-  // ✅ ส่ง debug=1 รอบแรกของ session เพื่อให้ฝั่ง Apps Script ข้าม cache
+   async function getItems(company, category, limit=100){
   const params = new URLSearchParams({
     action: 'getItems',
     company,
@@ -1512,18 +1511,33 @@ async function openCategory(name){
     debug: FORCE_FRESH ? '1' : '0'
   });
 
+  // ยกเลิกคำขอเก่าที่ยังค้าง
   inflight.items?.abort();
-  inflight.items = new AbortController();
 
-  const res = await fetch(`${API_BASE}?${params.toString()}`, {
-    method:'GET',
-    cache:'no-store',
-    signal: inflight.items.signal
-  }).catch(() => null);
+  const ctrl = new AbortController();
+  inflight.items = ctrl;
 
-  if(!res || !res.ok) return [];
-  const data = await res.json().catch(()=>null);
-  return (data && data.success && Array.isArray(data.items)) ? data.items : [];
+  // ⏱️ timeout กันค้าง (15s)
+  const timer = setTimeout(() => {
+    try { ctrl.abort('timeout'); } catch(_) {}
+  }, 15000);
+
+  try{
+    const res = await fetch(`${API_BASE}?${params.toString()}`, {
+      method:'GET',
+      cache:'no-store',
+      signal: ctrl.signal
+    });
+
+    if(!res.ok) return [];
+    const data = await res.json().catch(()=>null);
+    return (data && data.success && Array.isArray(data.items)) ? data.items : [];
+  } catch(_){
+    // ถ้าค้าง/หลุด ให้กลับเป็นลิสต์ว่าง แต่อย่าให้ UI ค้าง
+    return [];
+  } finally{
+    clearTimeout(timer);
+  }
 }
 
     async function goProductsPage(){
@@ -1546,22 +1560,39 @@ async function openCategory(name){
 }
 
     function renderProducts(){
-      const grid = document.getElementById('productGrid');
-      if(!grid) return;
+  const grid = document.getElementById('productGrid');
+  if(!grid){ showLoadingProductsModal(false); return; }
 
-      if(!PRODUCTS || PRODUCTS.length === 0){
-        grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">ไม่พบรายการในหมวดนี้</div>`;
-        return;
-      }
+  if(!PRODUCTS || PRODUCTS.length === 0){
+    grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">ไม่พบรายการในหมวดนี้</div>`;
+    showLoadingProductsModal(false);
+    return;
+  }
 
-      grid.innerHTML = PRODUCTS.map((p,idx) => `
-        <button class="prod-card" onclick="openItem(${idx})">
-          <img class="prod-img" src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/112?text=%20'" alt="">
-          <div class="font-bold text-gray-900 leading-snug">${p.name || '-'}</div>
-          <div class="text-emerald-600 font-extrabold mt-1">${baht(p.price)}</div>
-        </button>
-      `).join('');
+  grid.innerHTML = PRODUCTS.map((p,idx) => `
+    <button class="prod-card" onclick="openItem(${idx})">
+      <img class="prod-img" src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/112?text=%20'" alt="">
+      <div class="font-bold text-gray-900 leading-snug">${p.name || '-'}</div>
+      <div class="text-emerald-600 font-extrabold mt-1">${baht(p.price)}</div>
+    </button>
+  `).join('');
+
+  // ✅ เผื่อค่า fetch สำเร็จแต่ overlay ยังไม่ถูกปิด
+  showLoadingProductsModal(false);
+}
+    // ⛑️ Failsafe: ถ้า overlay โหลดสินค้าค้างเกิน 20s ให้ปิดเอง
+(function(){
+  let t = null;
+  const orig = showLoadingProductsModal;
+  window.showLoadingProductsModal = function(show=true){
+    orig(show);
+    clearTimeout(t);
+    if(show){
+      t = setTimeout(()=>{ try{ orig(false); }catch(_){ } }, 20000);
     }
+  };
+})();
+
 
     function backToCategories(){ showPage('category'); }
 
@@ -1637,18 +1668,16 @@ async function openCategory(name){
   const prod    = document.getElementById('productsContent');
   const sum     = document.getElementById('summaryContent');
   const thx     = document.getElementById('thankyouContent');
-  const blocked = document.getElementById('blockedContent');   // ✅ เพิ่มตัวแปร
+  const blocked = document.getElementById('blockedContent');
 
-  // ซ่อนทุกหน้าให้ครบ
   home.classList.add('hidden');
   verify.classList.add('hidden');
   cate.classList.add('hidden');
   prod.classList.add('hidden');
   if (sum)     sum.classList.add('hidden');
   if (thx)     thx.classList.add('hidden');
-  if (blocked) blocked.classList.add('hidden');                 // ✅ ซ่อน Blocked ทุกครั้ง
+  if (blocked) blocked.classList.add('hidden');
 
-  // ล้างคลาส state
   document.body.classList.remove('category','products','summary','not-home','thankyou','blocked');
   document.documentElement.classList.remove('thankyou');
 
@@ -1686,10 +1715,13 @@ async function openCategory(name){
     document.documentElement.classList.add('thankyou');
     setTop();
   } else if (which === 'blocked'){
-  if (blocked) blocked.classList.remove('hidden');
-  document.body.classList.add('not-home','blocked');
-  setCentered();  // จัดกึ่งกลางแนวตั้งตามภาพ
-}
+    if (blocked) blocked.classList.remove('hidden');
+    document.body.classList.add('not-home','blocked');
+    setCentered();
+  }
+
+  // ✅ กัน overlay ค้าง
+  showLoadingProductsModal(false);
 
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
