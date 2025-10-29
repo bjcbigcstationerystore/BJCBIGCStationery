@@ -685,6 +685,13 @@ body.blocked .corner-logo{ display:none !important; }
 body.summary #cartFab,
 body.thankyou #cartFab,
 body.blocked #cartFab { display:none !important; }
+    
+body.blocked .appbar{ 
+  display:none !important;
+  }
+body.blocked .page-container{ 
+  padding: 2rem 1rem 2rem !important;
+  }
 
 /* พื้นหลังไล่สีแบบรูป 2 */
 body.blocked{
@@ -862,6 +869,32 @@ body.blocked .content-card{
   /* ขยับปุ่มลงให้โปร่งขึ้น */
   margin-top: 2rem; /* ≈ 28px */
 }
+                             
+body.blocked .logo-box{
+  display:none !important;
+}      
+                             /* === BLOCKED OVERRIDES: ซ่อน App Bar + ปรับ padding หน้ากลาง === */
+
+/* ซ่อน App Bar (แถบสีเขียว + โลโก้บนแถบ) */
+body.blocked .appbar{
+  display:none !important;
+}
+
+/* ตัด padding-top ที่เผื่อไว้ให้ App Bar */
+body.blocked .page-container{
+  /* ของเดิมคือ calc(56px + 1.25rem) 1rem 2rem; */
+  padding: 2rem 1rem 2rem !important;
+}
+
+/* กันโลโก้กล่องเล็กใน hero เผลอโผล่ */
+body.blocked .logo-box{
+  display:none !important;
+}
+
+/* (มีอยู่แล้ว) ซ่อนโลโก้มุมขวาบน + ปุ่มตะกร้า */
+body.blocked .corner-logo{ display:none !important; }
+body.blocked #cartFab { display:none !important; }
+
     
   </style>
 </head>
