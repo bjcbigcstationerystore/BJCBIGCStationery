@@ -706,65 +706,67 @@ body.blocked .content-card{
 .verify-box{
   position:relative;
   background:#ffffff;
-  border-radius:14px;
-  border:1px solid rgba(15,23,42,.06);         /* เส้นบางสีเทาอ่อน */
-  box-shadow:0 12px 28px rgba(2,8,23,.08);     /* เงาเทา นุ่ม ๆ */
-  padding:28px 32px;
+  border-radius:18px;
+  border:1px solid rgba(15,23,42,.06);
+  box-shadow:0 16px 36px rgba(2,8,23,.10);
+  padding:36px 40px;        /* ↑ padding เพิ่ม */
   text-align:center;
   width:100%;
-  max-width:360px;                              /* ✅ ขนาดกลาง */
+  max-width:560px;
   margin:auto;
 }
-/* ลบฮาโล่เขียวออก */
+@media (max-width:480px){
+  .verify-box{ max-width:92vw; padding:28px 22px; }
+}
+
 .verify-box::after{ content:none; }
 
 .verify-icon{
-  width:60px; height:60px; margin:-46px auto 16px;
+  width:84px; height:84px;
+  margin:-58px auto 18px;
   border-radius:9999px;
   background:#10b981; color:#fff;
   display:flex; align-items:center; justify-content:center;
-  font-size:28px;
-  box-shadow:0 6px 16px rgba(16,185,129,.25);
+  font-size:36px;
+  box-shadow:0 10px 22px rgba(16,185,129,.28);
 }
 
 /* หัวเรื่องใหม่ */
 .verify-title{
-  font-weight:800;
-  font-size:1.25rem;            /* ใหญ่พอดีกรอบกลาง */
+  font-weight:900;
+  font-size:1.75rem;
   letter-spacing:.02em;
   text-transform:uppercase;
   color:#0f172a;
 }
 .verify-subtitle{
-  margin-top:2px;
-  font-size:1rem;
+  margin-top:6px;
+  font-size:1.125rem;
   color:#334155;
-  font-weight:600;
+  font-weight:700;
 }
-.verify-desc {
-  font-size: 0.8rem;
-  color: #64748b;
-  text-align: left;
-  margin-top: 1.5rem;
+.verify-desc{
+  font-size:.95rem;
+  color:#64748b;
+  text-align:left;
+  margin-top:2rem;
 }
 
 /* ช่องกรอกกลาง ๆ โทนสะอาด */
 .verify-input{
   width:100%;
-  padding:12px 14px;
+  padding:16px 18px;        /* ↑ สูง/กว้างขึ้น */
   text-align:center;
   background:#fff;
   border:1.5px solid #cbd5e1;
-  border-radius:10px;
-  font-size:1rem;             /* ขนาดตัวอักษรปกติในช่อง */
+  border-radius:12px;       /* มุมมนขึ้น */
+  font-size:1.05rem;        /* ↑ ตัวอักษรใหญ่ขึ้น */
   color:#0f172a;
   transition: all .2s ease-in-out;
 }
-
-/* 🔹 ปรับขนาดตัวอักษรของ placeholder ให้เล็กลง */
 .verify-input::placeholder{
-  font-size:0.85rem;          /* ลดจาก 1rem → 0.85rem */
-  color:#94a3b8;              /* สีเทาอ่อนอ่านสบายตา */
+  font-size:.95rem;         /* ↑ */
+  color:#94a3b8;
 }
     
 .verify-input:focus{
@@ -776,12 +778,14 @@ body.blocked .content-card{
 /* ปุ่มคงโทนเดิม */
 .verify-action{
   width:100%;
-  min-height:46px;
-  border-radius:12px;
-  font-weight:800;
+  min-height:56px;                  /* ↑ สูงขึ้น */
+  padding:14px 18px;                /* ↑ */
+  border-radius:14px;
+  font-weight:900;
+  font-size:1.05rem;                /* ↑ ขนาดตัวอักษร */
   color:#fff;
   background:linear-gradient(135deg,#10b981,#059669);
-  box-shadow:0 10px 22px rgba(16,185,129,.25);
+  box-shadow:0 12px 26px rgba(16,185,129,.28);
 }
 .verify-action:hover{
   background:linear-gradient(135deg,#059669,#047857);
