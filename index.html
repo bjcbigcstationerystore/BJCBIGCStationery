@@ -28,7 +28,12 @@
   height:100%;
   margin:0;
   font-family:'Prompt', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background:#ffffff;
+
+  /* โทนเขียวเข้มอ่อนลง (emerald 600–700 look) */
+  background:
+    radial-gradient(1000px 400px at 20% -10%, rgba(5,150,105,.25) 0%, transparent 70%),
+    radial-gradient(1000px 400px at 80% 110%, rgba(4,120,87,.22) 0%, transparent 70%),
+    linear-gradient(180deg,#10b981 0%, #059669 45%, #047857 100%);
   color:#0f172a;
 }
     
@@ -40,40 +45,9 @@ body.verify .content-card{
   max-width:none !important;
 }
     
-   /* Top App Bar */
-.appbar{
-  position:fixed; inset:0 0 auto 0; height:56px;
-  background:#065f46; color:#ecfdf5; z-index:10000;
-  box-shadow:0 6px 18px rgba(0,0,0,.18);
-}
-.appbar-inner{
-  height:100%; display:flex; align-items:center; gap:10px;
-  padding:0 14px;
-}
-    /* โลโก้มีพื้นหลังสีขาว ขอบโค้ง + เงา */
-.appbar-logo{
-  display:inline-flex; 
-  align-items:center; 
-  justify-content:center;
-  padding:6px 10px;                         /* ช่องว่างรอบโลโก้ */
-  background:#ffffff;                      /* กรอบสีขาว */
-  border:1px solid rgba(255,255,255,.35);  /* เส้นขอบบางโปร่ง */
-  border-radius:12px;                      /* ขอบโค้ง */
-  box-shadow:0 6px 14px rgba(0,0,0,.12);   /* เงาอ่อน */
-  max-height:36px;                         /* คุมความสูงให้พอดีแถบ */
-}
-
-.appbar-logo-img{
-  height:30px;                             /* ขนาดโลโก้ภายใน */
-  width:auto;
-  display:block;
-}
-    
-
-/* กัน App Bar ทับเนื้อหา */
 .page-container{
   display:flex; justify-content:center; width:100%; min-height:100vh;
-  padding:calc(56px + 1.25rem) 1rem 2rem;   /* เผื่อที่ด้านบน */
+  padding:2rem 1rem 2rem;
 }
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
     .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
@@ -757,37 +731,28 @@ body.blocked .content-card{
 }
 
 .verify-box::after{ content:none; }
-
-.verify-icon{
-  width:85px; 
-  height:85px; 
-  margin:-40px auto 36px;
-  border-radius:9999px; 
-  background:#10b981; 
-  color:#fff;
-  display:flex; 
-  align-items:center; 
-  justify-content:center;
-  font-size:44px; 
-  box-shadow:0 6px 16px rgba(16,185,129,.25);
+    /* ✅ NEW: Logo sizing on verify page */
+.verify-logo{
+  margin: -40px auto 35px;         /* ขยับขึ้นเล็กน้อย */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-    
-    .verify-icon{
-  width:85px;
-  height:85px;
-  margin:-55px auto 28px;
-  border-radius:9999px;
-  background:#10b981;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 8px 20px rgba(16,185,129,.28);
+.verify-logo-img{
+  max-width: 56%;
+  height: auto;
+}
+@media (max-width: 480px){
+  .verify-logo{
+    margin: -10px auto 20px;
+  }
+  .verify-logo-img{ max-width: 70%; }
 }
 
-.icon-img{
-  width:60px;            /* ⬆️ ปรับขนาดภาพ */
-  height:55px;
-  filter: brightness(0) invert(1); /* ทำให้เป็นสีขาว เหมือนอิโมจิเดิม */
+/* ปรับเฉพาะโลโก้ในวงกลม verify ให้ไม่อึดอัด */
+.logo-in-verify{
+  width:auto;
+  height:42px;     /* โลโก้จะอยู่กึ่งกลางวงกลมสวยขึ้น */
 }
 
 .icon-credit{
@@ -807,26 +772,34 @@ body.blocked .content-card{
 }
 
 .verify-title{
-  font-weight:900;
-  font-size:1.75rem;
-  letter-spacing:.02em;
+  font-weight:700;
+  font-size:1.7rem;
+  letter-spacing:.01em;
   text-transform:uppercase;
   color:#0f172a;
-  margin-bottom:.5rem;           /* เว้นหัวข้อใหญ่กับหัวข้อรอง */
+  margin-bottom:.25rem;           /* เว้นหัวข้อใหญ่กับหัวข้อรอง */
 }
 .verify-subtitle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   font-size:1.125rem;
   color:#334155;
   font-weight:700;
-  margin:.25rem 0 .875rem;       /* เว้นด้านล่างให้ใกล้ภาพแรก */
+  margin:.15rem 0 1.8rem;       /* เว้นด้านล่างให้ใกล้ภาพแรก */
 }
 .verify-desc{
   font-size:.95rem;
   color:#64748b;
   text-align:left;
-  margin: .5rem 0 .35rem;   /* ลดช่องว่างบน/ล่าง */
+  margin: .15rem 0 .25rem;   /* ชิดช่องกรอกขึ้น */
 }
-
+.input-wrapper{
+  position:relative;
+  width:100%;
+  margin-top:.1rem;          /* ลดช่องว่างบน wrapper */
+}
 .verify-input{
   width:100%;
   padding:12px 14px 12px 48px;
@@ -837,7 +810,7 @@ body.blocked .content-card{
   font-size:1rem;
   color:#0f172a;
   transition: all .2s ease-in-out;
-  margin-top:.5rem;          /* จาก 16px → ~8px */
+  margin-top:.25rem;         /* เดิม .5rem → กระชับ */
 }
     
     /* === icon-in-input (ซ้าย) === */
@@ -927,22 +900,7 @@ body.blocked #cartFab { display:none !important; }
 </head>
 
 <body>
-  <div class="appbar">
-    <div class="appbar-inner">
-  <div class="appbar-logo">
-    <img
-  src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
-  alt="BJC Big C"
-  class="appbar-logo-img"
-  decoding="async"
-  loading="lazy"
-  onerror="this.onerror=null;this.src='https://via.placeholder.com/120x30?text=%20';"
-/>
-  </div>
-  <div class="appbar-title sr-only">BJC Big C Stationery Store</div>
-</div>
-  </div>
-
+  
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
       <!-- ใช้โลโก้บน App Bar แล้ว จึงซ่อนตัวนี้ -->
@@ -955,15 +913,24 @@ body.blocked #cartFab { display:none !important; }
         </svg>
         <span id="cartBadge" class="cart-badge" style="display:none">0</span>
       </button>
-
        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh]">
   <div class="verify-box">
-    <div class="verify-icon">
-  <img src="https://i.postimg.cc/CKkxKHBg/office.png" alt="Office Icon" class="icon-img">
+    <div class="verify-logo">
+  <img
+    src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png"
+    alt="BJC Big C"
+    class="verify-logo-img"
+    decoding="async"
+    loading="lazy"
+    onerror="this.onerror=null;this.src='https://via.placeholder.com/240x60?text=%20';"
+  />
 </div>
 
     <h1 class="verify-title">BJC Big C STATIONERY STORE</h1>
-<p class="verify-subtitle">ระบบเบิกอุปกรณ์สำนักงาน</p>
+<p class="verify-subtitle">
+  <span class="verify-badge" aria-hidden="true">🏢</span>
+  ระบบเบิกอุปกรณ์สำนักงาน
+</p>
 
 <!-- ย้ายข้อความเล็กให้ชิดซ้าย -->
 <p class="verify-desc text-left">กรอกรหัสพนักงานเพื่อเข้าใช้งานระบบ</p>
