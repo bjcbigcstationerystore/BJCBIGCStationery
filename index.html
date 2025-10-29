@@ -459,22 +459,34 @@ body.thankyou .content-card{background:transparent;box-shadow:none;padding:0;}
 body.thankyou .page-container{align-items:flex-start;padding-top:32px;}
 
     /* ซ่อนโลโก้มุมขวาบนตัว global เฉพาะหน้าขอบคุณ */
+body.thankyou .appbar{                     /* ซ่อน top appbar สีเขียว */
+  display:none !important;
+}
+
+/* ซ่อนโลโก้มุมขวาบน (เผื่อมี) */
 body.thankyou .corner-logo{ display:none !important; }
+
+/* กันกรอบโลโก้เล็กใน hero ที่บางธีมอาจโผล่ (กันเหนียว) */
+body.thankyou .logo-box{ display:none !important; }
 
 /* ให้หน้า Thank You เปลี่ยนพื้นหลังทั้ง html และ body */
 html.thankyou,
 body.thankyou {
   background:#f8fafc !important;
 }
-body.thankyou .page-container {
-  padding: 24px 12px;                      /* เว้นขอบบนล่างนิดหน่อย */
+
+/* ตัด padding-top ที่ปกติเผื่อให้ appbar ออกไปด้วย */
+body.thankyou .page-container{
+  padding: 24px 12px !important;           /* ไม่มี calc(56px + …) แล้ว */
   align-items: flex-start;
 }
+
+/* การ์ดหลักของหน้า Thank You */
 body.thankyou .content-card{
-  background: transparent;                 /* โปร่งใส */
+  background: transparent;
   box-shadow: none;
   padding: 0;
-  max-width: 480px;                        /* กรอบแคบลง */
+  max-width: 480px;
 }
 
 /* กลุ่มสไตล์ของหน้าขอบคุณ (รูปที่ 2) */
