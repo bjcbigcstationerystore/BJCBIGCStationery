@@ -94,12 +94,6 @@ body.summary .content-card{
     .btn-primary{background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));transition:.25s}
     .btn-primary:hover{background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700));transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
     .alert-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;border-radius:12px}
-    .emp-frame{border:2px solid #059669;border-radius:16px;background:#fff;box-shadow:0 0 15px rgba(5,150,105,.08)}
-    .dot{width:.7rem;height:.7rem;border-radius:9999px;background:#059669;display:inline-block;margin-right:.6rem}
-    .field-row{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed #e5e7eb}.field-row:last-child{border-bottom:0}
-    .field-label{color:#4b5563;font-weight:600}.field-value{color:#111827;font-weight:500}
-    .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .75rem;border-radius:9999px;background:#d1fae5;color:#065f46;font-weight:600;font-size:.9rem}
-    .pill .dot{width:.5rem;height:.5rem;margin:0;background:#10b981}
 
     /* hero panel reused */
     .green-shell{position:relative;border-radius:20px;padding:0;background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)), linear-gradient(180deg,#1b4e41 0%,#1c5b4a 40%,#165846 100%);overflow:hidden}
@@ -923,7 +917,6 @@ body.blocked .content-card{
 </div>
 
     <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
-    <div id="employeeInfo" class="hidden mt-4"></div>
 
     <button id="verifyBtn"
         class="verify-button"
@@ -1770,13 +1763,10 @@ function goHomeFromBlocked(){
 
   const empInput = document.getElementById('employeeId');
   const msgBox   = document.getElementById('message');
-  const infoBox  = document.getElementById('employeeInfo');
 
   empInput.value = '';
   msgBox.className = 'hidden';
   msgBox.textContent = '';
-  infoBox.classList.add('hidden');
-  infoBox.innerHTML = '';
 
   stage = 'verify';
   resetVerifyButton();
@@ -1860,7 +1850,6 @@ function goHomeFromBlocked(){
 
       msgBox.classList.add('hidden');
       msgBox.textContent='';
-      hideEmployeeInfo(false);
 
       if(!cleaned){
         showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
@@ -1888,10 +1877,10 @@ if (!emp && cleaned !== rawInput) {
     email: (extra && extra.adminEmail) ? String(extra.adminEmail) : '—'
   };
 
-  showEmployeeInfo(emp);
-  showCheckingModal(false); // ปิด popup ทันที
+  showEmployeeInfo(false);
+  showCheckingModal(); // ปิด popup ทันที
   setProceedButton();
-  preloadCategoriesFor(emp.company).catch(console.error); // โหลดหมวดแบบไม่รอ
+  preloadCategoriesFor(emp.company).catch(console.error);
 }else{
           showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
           setCentered();
@@ -1907,39 +1896,6 @@ if (!emp && cleaned !== rawInput) {
         currentBtn.disabled = false;
         currentBtn.classList.remove('opacity-80','cursor-not-allowed');
       }
-    }
-
-    function showEmployeeInfo(emp){
-      setTop();
-      window.scrollTo({top:0,behavior:'smooth'});
-
-      const div=document.getElementById('employeeInfo');
-      const msgBox=document.getElementById('message');
-
-      msgBox.className='mt-4 alert-success p-4 mb-4 text-center text-base';
-      msgBox.textContent='พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง';
-      msgBox.classList.remove('hidden');
-
-      div.innerHTML= `
-        <div class="emp-frame p-6">
-          <div class="flex items-center mb-4"><span class="dot"></span><h3 class="text-2xl font-bold text-emerald-900">ข้อมูลพนักงาน</h3></div>
-          <div class="field-row"><span class="field-label">Employee ID:</span><span class="field-value">${emp.id}</span></div>
-          <div class="field-row"><span class="field-label">Full Name:</span><span class="field-value">${emp.name}</span></div>
-          <div class="field-row"><span class="field-label">Company:</span><span class="field-value">${emp.company}</span></div>
-          <div class="field-row"><span class="field-label">Status:</span><span class="field-value"><span class="pill"><span class="dot"></span>${emp.status}</span></span></div>
-          <div class="field-row"><span class="field-label">FORMAT_NAME:</span><span class="field-value">${emp.formatName}</span></div>
-          <div class="field-row"><span class="field-label">DIVISION_NAME:</span><span class="field-value">${emp.divisionName}</span></div>
-          <div class="field-row"><span class="field-label">COST_CENTER:</span><span class="field-value">${emp.costCenter}</span></div>
-        </div>
-      `;
-      div.classList.remove('hidden');
-    }
-
-    function hideEmployeeInfo(resetToCenter = true){
-      const div=document.getElementById('employeeInfo');
-      div.classList.add('hidden');
-      div.innerHTML='';
-      if(resetToCenter) setCentered();
     }
 
     function setProceedButton(){
