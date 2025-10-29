@@ -709,10 +709,10 @@ body.blocked .content-card{
   border-radius:18px;
   border:1px solid rgba(15,23,42,.06);
   box-shadow:0 20px 42px rgba(2,8,23,.12);
-  padding:100px 48px;
+  padding:70px 40px;
   text-align:center;
   width:100%;
-  max-width:600px;
+  max-width:580px;
   margin:auto;
 }
 @media (max-width: 480px){
@@ -725,13 +725,51 @@ body.blocked .content-card{
 .verify-box::after{ content:none; }
 
 .verify-icon{
-  width:84px; height:84px;
-  margin:-58px auto 18px;
+  width:85px; 
+  height:85px; 
+  margin:-40px auto 36px;
+  border-radius:9999px; 
+  background:#10b981; 
+  color:#fff;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  font-size:44px; 
+  box-shadow:0 6px 16px rgba(16,185,129,.25);
+}
+    
+    .verify-icon{
+  width:85px;
+  height:85px;
+  margin:-55px auto 28px;
   border-radius:9999px;
-  background:#10b981; color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font-size:36px;
-  box-shadow:0 10px 22px rgba(16,185,129,.28);
+  background:#10b981;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 20px rgba(16,185,129,.28);
+}
+
+.icon-img{
+  width:60px;            /* ⬆️ ปรับขนาดภาพ */
+  height:55px;
+  filter: brightness(0) invert(1); /* ทำให้เป็นสีขาว เหมือนอิโมจิเดิม */
+}
+
+.icon-credit{
+  font-size:0.75rem;
+  text-align:center;
+  color:#94a3b8;
+  margin-top:8px;
+}
+
+.icon-credit a{
+  color:#047857;
+  text-decoration:none;
+}
+
+.icon-credit a:hover{
+  text-decoration:underline;
 }
 
 /* หัวเรื่องใหม่ */
@@ -758,15 +796,33 @@ body.blocked .content-card{
 /* ช่องกรอกกลาง ๆ โทนสะอาด */
 .verify-input{
   width:100%;
-  padding:16px 18px;        /* ↑ สูง/กว้างขึ้น */
-  text-align:center;
+  padding:12px 14px 12px 48px;
+  text-align:left;
   background:#fff;
   border:1.5px solid #cbd5e1;
-  border-radius:12px;       /* มุมมนขึ้น */
-  font-size:1.05rem;        /* ↑ ตัวอักษรใหญ่ขึ้น */
+  border-radius:10px;
+  font-size:1rem;
   color:#0f172a;
   transition: all .2s ease-in-out;
+  margin-top:16px;      /* ⬅️ เพิ่มระยะจากข้อความเหนือช่องกรอก */
 }
+    
+    /* === icon-in-input (ซ้าย) === */
+.input-wrapper{
+  position:relative;
+  width:100%;
+}
+.input-icon{
+  position:absolute;
+  left:14px;
+  top:60%;
+  transform:translateY(-50%);
+  width:24px;
+  height:24px;
+  opacity:.9;
+  pointer-events:none; /* ไม่ให้รบกวนการคลิกใน input */
+}
+    
 .verify-input::placeholder{
   font-size:.95rem;         /* ↑ */
   color:#94a3b8;
@@ -852,7 +908,9 @@ body.blocked .content-card{
 
        <div id="verifyContent" class="hidden flex justify-center items-center min-h-[80vh]">
   <div class="verify-box">
-    <div class="verify-icon">🏢</div>
+    <div class="verify-icon">
+  <img src="https://i.postimg.cc/CKkxKHBg/office.png" alt="Office Icon" class="icon-img">
+</div>
 
     <h1 class="verify-title">BJC Big C STATIONERY STORE</h1>
 <p class="verify-subtitle">ระบบเบิกอุปกรณ์สำนักงาน</p>
@@ -862,12 +920,16 @@ body.blocked .content-card{
 
     <!-- คง id เดิมเพื่อไม่ให้กระทบสคริปต์ -->
     <label for="employeeId" class="sr-only">รหัสพนักงาน</label>
-    <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" class="verify-input" />
+
+<div class="input-wrapper">
+  <img src="https://i.postimg.cc/4NKdMhvp/id-card.png" alt="badge" class="input-icon" />
+  <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" class="verify-input" />
+</div>
 
     <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
     <div id="employeeInfo" class="hidden mt-4"></div>
 
-    <button id="verifyBtn" class="verify-action mt-5">ยืนยันตัวตน</button>
+    <button id="verifyBtn" class="verify-action mt-6">ยืนยันตัวตน</button>
   </div>
 </div>
       
