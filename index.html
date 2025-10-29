@@ -1844,12 +1844,20 @@ function goHomeFromBlocked(){
     showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
     return;
   }
+
+  // ปิดวงกลมโหลดก่อน เพื่อกันค้าง
+  showCheckingModal(false);
+  showLoadingProductsModal(false);
+
+  // เซ็ตข้อมูลจำลองพนักงาน (ไม่ตรวจสอบ)
   CURRENT_EMP = {
     id: rawInput,
     company: 'BJC',
     name: '-',
     costCenter: '-'
   };
+
+  // โหลดหมวดหมู่และไปหน้าต่อ
   preloadCategoriesFor('BJC');
   showPage('category');
 }
