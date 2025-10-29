@@ -1641,8 +1641,10 @@ async function openCategory(name){
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
 
-  function showPage(which){
+function showPage(which){
+  // บังคับทุกการขอ "home" ให้ไปหน้า verify
   if (which === 'home') which = 'verify';
+
   const home    = document.getElementById('homeContent');
   const verify  = document.getElementById('verifyContent');
   const cate    = document.getElementById('categoryContent');
@@ -1651,32 +1653,28 @@ async function openCategory(name){
   const thx     = document.getElementById('thankyouContent');
   const blocked = document.getElementById('blockedContent');
 
-  home.classList.add('hidden');
-  verify.classList.add('hidden');
-  cate.classList.add('hidden');
-  prod.classList.add('hidden');
+  // ซ่อนทุกหน้า (เช็ค null เผื่อบางหน้าถูกลบ)
+  if (home)    home.classList.add('hidden');
+  if (verify)  verify.classList.add('hidden');
+  if (cate)    cate.classList.add('hidden');
+  if (prod)    prod.classList.add('hidden');
   if (sum)     sum.classList.add('hidden');
   if (thx)     thx.classList.add('hidden');
   if (blocked) blocked.classList.add('hidden');
 
-  document.body.classList.remove('category','products','summary','not-home','thankyou','blocked');
+  document.body.classList.remove('category','products','summary','not-home','thankyou','blocked','verify');
   document.documentElement.classList.remove('thankyou');
 
-  } else if (which === 'home'){
-  verify.classList.remove('hidden');
-  document.body.classList.add('not-home','verify');
-  setCentered();
-  stage = 'verify';
-  resetVerifyButton();
-    
-  } else if (which === 'verify'){
-    verify.classList.remove('hidden');
+  // เปิดหน้าตามที่ต้องการ
+  if (which === 'verify'){
+    if (verify) verify.classList.remove('hidden');
     document.body.classList.add('not-home','verify');
     setCentered();
     stage = 'verify';
     resetVerifyButton();
+
   } else if (which === 'category'){
-    cate.classList.remove('hidden');
+    if (cate) cate.classList.remove('hidden');
     document.body.classList.add('not-home','category');
     setTop();
     if (!CATEGORIES || CATEGORIES.length === 0){
@@ -1684,28 +1682,33 @@ async function openCategory(name){
     } else {
       renderCategories();
     }
+
   } else if (which === 'products'){
-    prod.classList.remove('hidden');
+    if (prod) prod.classList.remove('hidden');
     document.body.classList.add('not-home','products');
     setTop();
+
   } else if (which === 'summary'){
     if (sum) sum.classList.remove('hidden');
     document.body.classList.add('not-home','summary');
     setTop();
+
   } else if (which === 'thankyou'){
     if (thx) thx.classList.remove('hidden');
     document.body.classList.add('not-home','thankyou');
     document.documentElement.classList.add('thankyou');
     setTop();
+
   } else if (which === 'blocked'){
     if (blocked) blocked.classList.remove('hidden');
     document.body.classList.add('not-home','blocked');
     setCentered();
   }
 
-  // ✅ กัน overlay ค้าง
+  // กัน overlay โหลดค้าง
   showLoadingProductsModal(false);
 
+  // รีเซ็ต scroll + ตะกร้าลอยไม่ให้โชว์บน summary/thankyou
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
   if (which === 'summary' || which === 'thankyou'){
