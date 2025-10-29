@@ -1818,12 +1818,7 @@ function goHomeFromBlocked(){
   updateCartUI();
 });
 
-    function showMsg(text, type){
-      const msgBox = document.getElementById('message');
-      msgBox.className = 'mt-4 p-4 rounded-lg text-center ' + (type==='error' ? 'bg-red-100 text-red-700 border border-red-200' : type==='success' ? 'alert-success' : '');
-      msgBox.textContent = text;
-      msgBox.classList.remove('hidden');
-    }
+   function showMsg(){ /* no-op: ไม่ทำอะไร */ }
 
     function stripForSearch(s){
       return String(s||'').normalize('NFKC').replace(/[\s\-–—_/\.]/g,'');
@@ -1842,60 +1837,22 @@ function goHomeFromBlocked(){
     }
 
     async function verifyEmployee(){
-      const inputEl = document.getElementById('employeeId');
-      const rawInput = inputEl.value || '';
-      const cleaned = stripForSearch(rawInput);
-      const btn = document.getElementById('verifyBtn');
-      const msgBox=document.getElementById('message');
+  const inputEl = document.getElementById('employeeId');
+  const rawInput = (inputEl?.value || '').trim();
 
-      msgBox.classList.add('hidden');
-      msgBox.textContent='';
-
-      if(!cleaned){
-        showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
-        setCentered();
-        return;
-      }
-
-      showCheckingModal(true);
-      btn.disabled = true;
-      btn.classList.add('opacity-80','cursor-not-allowed');
-
-      try{
-        let emp = await getEmployeeData(cleaned);
-if (!emp && cleaned !== rawInput) {
-  emp = await getEmployeeData(rawInput);
-}
-        if(emp){
-  CURRENT_EMP = emp;
-
-  // 🔽 โหลดค่า K/L/M จาก Emp HO
-  const extra = await getBudgetAndAdmin((emp.id||'').trim());
-  CURRENT_BUDGET = (extra && extra.budget != null) ? Number(extra.budget) : null;
-  CURRENT_ADMIN_CONTACT = {
-    name:  (extra && extra.adminName)  ? String(extra.adminName)  : '—',
-    email: (extra && extra.adminEmail) ? String(extra.adminEmail) : '—'
+  if (!rawInput) {
+    showMsg('กรุณากรอกรหัสพนักงานก่อน','error');
+    return;
+  }
+  CURRENT_EMP = {
+    id: rawInput,
+    company: 'BJC',
+    name: '-',
+    costCenter: '-'
   };
-
-  showCheckingModal(); // ปิด popup ทันที
-  setProceedButton();
-  preloadCategoriesFor(emp.company).catch(console.error);
-}else{
-          showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง','error');
-          setCentered();
-          resetVerifyButton();
-          showCheckingModal(false);
-        }
-      }catch(e){
-        console.error(e);
-        showMsg('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ','error');
-        showCheckingModal(false);
-      }finally{
-        const currentBtn = document.getElementById('verifyBtn');
-        currentBtn.disabled = false;
-        currentBtn.classList.remove('opacity-80','cursor-not-allowed');
-      }
-    }
+  preloadCategoriesFor('BJC');
+  showPage('category');
+}
 
     function setProceedButton(){
   const btn = document.getElementById('verifyBtn');
