@@ -1877,7 +1877,6 @@ if (!emp && cleaned !== rawInput) {
     email: (extra && extra.adminEmail) ? String(extra.adminEmail) : '—'
   };
 
-  showEmployeeInfo(false);
   showCheckingModal(); // ปิด popup ทันที
   setProceedButton();
   preloadCategoriesFor(emp.company).catch(console.error);
