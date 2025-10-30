@@ -27,14 +27,27 @@
     html,body{
   height:100%;
   margin:0;
-  font-family:'Prompt', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:'Prompt',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  color:#0f172a;
+}
 
-  /* โทนเขียวเข้มอ่อนลง (emerald 600–700 look) */
+/* ===== หน้าแรก (verify / home) ให้เป็นพื้นเขียว ===== */
+body.verify,
+html.verify{
   background:
     radial-gradient(1000px 400px at 20% -10%, rgba(5,150,105,.25) 0%, transparent 70%),
     radial-gradient(1000px 400px at 80% 110%, rgba(4,120,87,.22) 0%, transparent 70%),
     linear-gradient(180deg,#10b981 0%, #059669 45%, #047857 100%);
-  color:#0f172a;
+}
+
+/* ===== หน้าอื่นให้พื้นเทา ===== */
+body.category,
+html.category,
+body.products,
+html.products,
+body.summary,
+html.summary{
+  background:#f3f4f6 !important; /* เทาอ่อน */
 }
     
    /* ✅ หน้า verify ให้ตัดกรอบ/เงา/ padding ของ .content-card ทิ้ง */
