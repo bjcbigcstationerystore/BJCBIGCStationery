@@ -921,6 +921,30 @@ body.summary,
 html.summary{
   background: #f3f4f6 !important;  /* เทาอ่อนแบบเดียวกับหมวดและสินค้า */
 }
+/* ===== ปรับขนาดคอนเทนต์ของแต่ละหน้าที่ไม่ใช่หน้าแรก ===== */
+body.category .page-container,
+body.products .page-container,
+body.summary .page-container{
+  width: 80%;               /* กว้างประมาณ 80% ของจอ */
+  max-width: 1200px;        /* ไม่ให้ใหญ่เกินไป */
+  margin: 0 auto;           /* จัดให้อยู่กึ่งกลาง */
+  padding: 1.5rem 0;        /* มีช่องว่างด้านบน-ล่างพอดี */
+}
+
+/* ให้เนื้อหาด้านใน (panel / card) ดูสมดุลบนพื้นเทา */
+body.category .panel,
+body.products .panel,
+body.summary .panel{
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.1);
+}
+
+/* ปรับระยะเว้นขอบรูปและการ์ดในหน้ารายการสินค้าให้กระชับขึ้น */
+body.products .item-card{
+  margin: 1rem auto !important;
+  width: 90% !important;
+  max-width: 500px;
+}
 
     
   </style>
