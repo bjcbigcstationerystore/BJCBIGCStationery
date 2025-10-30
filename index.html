@@ -894,6 +894,20 @@ body.blocked .logo-box{
 /* (มีอยู่แล้ว) ซ่อนโลโก้มุมขวาบน + ปุ่มตะกร้า */
 body.blocked .corner-logo{ display:none !important; }
 body.blocked #cartFab { display:none !important; }
+    /* ===== Override: พื้นหลังสำหรับหน้า "หมวดหมู่อุปกรณ์" เท่านั้น ===== */
+body.category,
+html.category{
+  background: #f3f4f6 !important; /* เทาอ่อน */
+}
+body.products,
+html.products{
+  background: #f3f4f6 !important; /* เทาอ่อน */
+}
+/* ===== Override: พื้นหลังสำหรับหน้า "สรุปรายการเบิกอุปกรณ์" ===== */
+body.summary,
+html.summary{
+  background: #f3f4f6 !important;  /* เทาอ่อนแบบเดียวกับหมวดและสินค้า */
+}
 
     
   </style>
