@@ -292,28 +292,6 @@ body.summary .content-card{
 }
 .sum-name{ font-weight:800; color:#0f172a; line-height:1.2; }
 .sum-desc{ font-size:.85rem; color:#6b7280; margin-top:2px; }    
-  
-/* ===== Summary: Field layout like sample #2 ===== */
-#summaryContent .form-grid{
-  display:grid; grid-template-columns:1fr 1fr; gap:16px;
-}
-#summaryContent .form-field{
-  display:flex; flex-direction:column; gap:8px;
-}
-#summaryContent .form-label{
-  color:#4b5563; font-weight:700;
-}
-#summaryContent .form-value{
-  background:#fff; border:1px solid #e5e7eb; border-radius:12px;
-  padding:14px 16px; color:#0f172a;
-  /* ใส่เงาเบาๆ (จะเอาออกก็ได้) */
-  box-shadow:inset 0 0 0 1px #eef2f7;
-}
-
-/* มือถือ: ให้เป็นคอลัมน์เดียว */
-@media (max-width:768px){
-  #summaryContent .form-grid{ grid-template-columns:1fr; }
-}
 
 /* ==== Summary: ให้ label อยู่บน และสร้างช่องคั่นในด้านในของกล่องค่า ==== */
 #summaryContent .field-row{
@@ -907,20 +885,7 @@ body.blocked .logo-box{
 /* (มีอยู่แล้ว) ซ่อนโลโก้มุมขวาบน + ปุ่มตะกร้า */
 body.blocked .corner-logo{ display:none !important; }
 body.blocked #cartFab { display:none !important; }
-    /* ===== Override: พื้นหลังสำหรับหน้า "หมวดหมู่อุปกรณ์" เท่านั้น ===== */
-body.category,
-html.category{
-  background: #f3f4f6 !important; /* เทาอ่อน */
-}
-body.products,
-html.products{
-  background: #f3f4f6 !important; /* เทาอ่อน */
-}
-/* ===== Override: พื้นหลังสำหรับหน้า "สรุปรายการเบิกอุปกรณ์" ===== */
-body.summary,
-html.summary{
-  background: #f3f4f6 !important;  /* เทาอ่อนแบบเดียวกับหมวดและสินค้า */
-}
+   
 /* ===== ปรับขนาดคอนเทนต์ของแต่ละหน้าที่ไม่ใช่หน้าแรก ===== */
 body.category .page-container,
 body.products .page-container,
@@ -1362,18 +1327,6 @@ let CURRENT_BU_ADMIN = { names: [], emails: [] };
 let CURRENT_BUDGET = null;  // ค่าคอลัมน์ K (null/0/ตัวเลข)
 let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
 
-async function getBudgetAndAdmin(employeeId){
-  try{
-    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
-    const res = await fetch(url, { method:'GET', cache:'no-store' });
-    if(!res.ok) return null;
-    const data = await res.json().catch(()=>null);
-    // คาดหวัง { success:true, data:{ budget:number|null, adminName:string, adminEmail:string } }
-    return (data && data.success) ? (data.data || null) : null;
-  }catch(_){ return null; }
-}
-
-/* ✅ โหลดสดรอบใหม่ + ยกเลิก request ค้าง */
 let FORCE_FRESH = false;
 let inflight = { categories: null, items: null };
 
@@ -1591,6 +1544,12 @@ async function openCategory(name){
     showLoadingProductsModal(false);
   }
 }
+    if (!window.__abortHookInstalled){
+  window.addEventListener('beforeunload', () => {
+    try { abortInflight(); } catch(_) {}
+  });
+  window.__abortHookInstalled = true;
+}
 
     /* ====== Products ====== */
    async function getItems(company, category, limit=100){
@@ -1604,10 +1563,6 @@ async function openCategory(name){
 
   // ยกเลิกคำขอเก่าที่ยังค้าง
   inflight.items?.abort();
-     // ยกเลิก request ค้างเมื่อผู้ใช้ออกจากหน้า (กันแท็บหมุนค้าง)
-window.addEventListener('beforeunload', () => {
-  try { abortInflight(); } catch(_) {}
-});
 
   const ctrl = new AbortController();
   inflight.items = ctrl;
@@ -2083,15 +2038,25 @@ function goHomeFromBlocked(){
   document.getElementById('s_fullname').textContent = emp.name || '-';
 
   // BU Admin (ดึงครั้งเดียวแล้ว cache)
-  const bu = await getBUAdmin(emp.id || '');
-  CURRENT_BU_ADMIN = {
-  names: bu.names || [],
-  emails: bu.emails || []
-};
+  try{
+    const res = await getBudgetAndAdmin(emp.id || '');
+    const adminName  = (res && res.adminName)  ? String(res.adminName).trim()  : '—';
+    const adminEmail = (res && res.adminEmail) ? String(res.adminEmail).trim() : '—';
 
-document.getElementById('s_bu_name').innerHTML  = asListHTML(CURRENT_BU_ADMIN.names);
-document.getElementById('s_bu_email').innerHTML = asListHTML(CURRENT_BU_ADMIN.emails);
+    // cache ไว้เผื่อใช้หน้า Blocked/ตอน submit
+    CURRENT_ADMIN_CONTACT = { name: adminName, email: adminEmail };
+    if (res && res.budget != null && CURRENT_BUDGET == null){
+      CURRENT_BUDGET = Number(res.budget); // เก็บงบเผื่อเช็คก่อน submit
+    }
 
+    // แสดงผลบนหน้า Summary
+    document.getElementById('s_bu_name').textContent  = adminName || '—';
+    document.getElementById('s_bu_email').textContent = adminEmail || '—';
+  }catch(e){
+    console.warn('getBudgetAndAdmin failed', e);
+    document.getElementById('s_bu_name').textContent  = '—';
+    document.getElementById('s_bu_email').textContent = '—';
+  }
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
   if(!wrap) return;
@@ -2217,8 +2182,8 @@ async function submitRequest(){
       'Cost Center': CURRENT_EMP.costCenter || '',
       'รหัสพนักงาน': CURRENT_EMP.id || '',
       'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
-      'Name BU admin': (CURRENT_BU_ADMIN.names || []).join(' | ') || '—',
-      'Email BU Admin': (CURRENT_BU_ADMIN.emails || []).join(' | ') || '—',
+      'Name BU admin': (CURRENT_ADMIN_CONTACT?.name || '—'),
+      'Email BU Admin': (CURRENT_ADMIN_CONTACT?.email || '—'),
       'รายการเบิก (ชิ้น)': totalQty,
       'ยอดเบิก (บาท)': totalCost
     };
