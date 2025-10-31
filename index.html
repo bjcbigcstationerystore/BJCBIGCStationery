@@ -63,14 +63,16 @@ body.verify .content-card{
   padding:2rem 1rem 2rem;
 }
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
-    .content-card{position:relative;background:rgba(255,255,255,.96);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.15);width:100%;max-width:900px;backdrop-filter:blur(10px);padding:2.5rem;color:#111827}
-    body.category .content-card,
-body.products .content-card,
-body.summary .content-card{
-  padding:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  max-width:900px;
+   /* ไม่ให้ content-card ล็อกความกว้าง + บังคับเต็มจอในหน้า category */
+body.category #mainCard{
+  width: 100% !important;          /* ⬅️ ใส่เพิ่ม */
+  max-width: none !important;
+  margin: 0 !important;            /* กันถูกจัดกึ่งกลาง */
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: block !important;
 }
     /* ให้หน้าหมวดหมู่กว้างเต็มจอจริง ๆ */
 body.category .category-inner{
@@ -86,6 +88,14 @@ body.category .cat-item{
   border-left-width:1px !important;   /* ลดเส้นหนาซ้าย */
   border-radius:14px !important;
   padding:16px !important;
+}
+    /* ให้แถบเขียวเต็ม viewport กินซ้าย-ขวาจริง */
+body.category .green-shell{
+  width: 100% !important;           /* พอ parent ไม่ล็อกแล้ว 100% ก็เต็มจอ */
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;      /* ชนขอบบน */
+  overflow: visible !important;
 }
     .corner-logo{display:none}
     body.not-home .corner-logo{display:block}
@@ -907,14 +917,21 @@ body.blocked .logo-box{
 body.blocked .corner-logo{ display:none !important; }
 body.blocked #cartFab { display:none !important; }
    
-/* ===== ปรับขนาดคอนเทนต์ของแต่ละหน้าที่ไม่ใช่หน้าแรก ===== */
-body.category .page-container,
+/* Category = เต็มจอจริง ๆ */
+body.category .page-container{
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;        /* ตัดช่องว่างด้านบน/ข้าง */
+}
+
+/* Products/Summary คงพฤติกรรมเดิม */
 body.products .page-container,
-body.summary .page-container{
-  width: 80%;               /* กว้างประมาณ 80% ของจอ */
-  max-width: 1200px;        /* ไม่ให้ใหญ่เกินไป */
-  margin: 0 auto;           /* จัดให้อยู่กึ่งกลาง */
-  padding: 1.5rem 0;        /* มีช่องว่างด้านบน-ล่างพอดี */
+body.summary  .page-container{
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 0;
 }
 
 /* ให้เนื้อหาด้านใน (panel / card) ดูสมดุลบนพื้นเทา */
@@ -931,7 +948,6 @@ body.products .item-card{
   width: 90% !important;
   max-width: 500px;
 }
-
     
   </style>
 </head>
