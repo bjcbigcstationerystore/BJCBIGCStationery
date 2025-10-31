@@ -965,6 +965,40 @@ body.products .item-card{
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* ปรับ 280–360 ตามชอบ */
   gap:16px !important;
 }
+/* ===== Category Card with Icon on Top ===== */
+body.category .cat-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  text-align:center;
+}
+
+.cat-icon{
+  width:64px;
+  height:64px;
+  object-fit:contain;
+  border:none;
+  background:none;
+  box-shadow:none;
+  border-radius:0;
+  margin-bottom:6px;
+}
+
+.cat-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:#0f172a;
+  line-height:1.25;
+}
+
+/* “x รายการ” = ตัวปกติ ไม่หนา */
+.cat-count{
+  margin-top:2px;
+  color:#059669;
+  font-weight:400;     /* ← ไม่หนา */
+}
 
 /* ย่อการ์ดหมวดหมู่ให้กะทัดรัดขึ้น */
 body.category .cat-item{
@@ -1695,23 +1729,46 @@ async function fetchJSON(url, {method='GET', headers, body, timeout=12000, signa
     clearTimeout(timer);
   }
 }
-
+/* ===== CATEGORY ICONS ===== */
+const CATEGORY_ICONS = {
+  'แฟ้มและอุปกรณ์ประกอบ': 'https://i.postimg.cc/XNHBgZPf/folder.png',
+  'อุปกรณ์ตัด': 'https://i.postimg.cc/cHDCTjFs/cut.png',
+  'อุปกรณ์เจาะ': 'https://i.postimg.cc/QtV0dFn0/stapler.png',
+  'คลิปหนีบกระดาษ': 'https://i.postimg.cc/nzvM7k5n/paper-clip.png',
+  'เครื่องเขียน': 'https://i.postimg.cc/8zXm7pQQ/stationery-1.png',
+  'สกอตเทป กาว โพสอิท': 'https://i.postimg.cc/8cRyqq0Y/scotch-tape.png',
+  'ถ่าน': 'https://i.postimg.cc/tRBnzrJs/power.png',
+  'ซองเอกสาร': 'https://i.postimg.cc/0NZ9qBL5/document.png',
+  'อุปกรณ์ทำความสะอาด': 'https://i.postimg.cc/NG8vhVTz/basket.png',
+  'เครื่องดื่ม': 'https://i.postimg.cc/VL3hdWjq/instant-coffee.png',
+  'อื่นๆ': 'https://i.postimg.cc/wvLX4Dtv/box.png'
+};
+    
     function renderCategories(){
-      const grid = document.getElementById('categoryGrid');
-      if(!grid) return;
+  const grid = document.getElementById('categoryGrid');
+  if(!grid) return;
 
-      if(!CATEGORIES || CATEGORIES.length === 0){
-        grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">กำลังโหลดหมวดหมู่จากระบบ…</div>`;
-        return;
-      }
+  if(!CATEGORIES || CATEGORIES.length === 0){
+    grid.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6">กำลังโหลดหมวดหมู่จากระบบ…</div>`;
+    return;
+  }
 
-      grid.innerHTML = CATEGORIES.map(c => `
-        <button class="cat-item" onclick="openCategory('${(c.title||'').replace(/'/g, "\\'")}')">
-          <div class="font-bold text-lg text-gray-900">${c.title}</div>
-          <div class="text-emerald-700 font-extrabold mt-1">${c.count ?? 0} รายการ</div>
-        </button>
-      `).join('');
-    }
+  grid.innerHTML = CATEGORIES.map(c => {
+    const title = (c.title || '').trim();
+    const icon  = CATEGORY_ICONS[title] || '';
+    const img   = icon 
+      ? `<img class="cat-icon" src="${icon}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+      : '';
+
+    return `
+      <button class="cat-item" onclick="openCategory('${title.replace(/'/g, "\\'")}')">
+        ${img}
+        <div class="font-bold text-lg text-gray-900">${title}</div>
+        <div class="text-emerald-700 font-normal mt-1">${c.count ?? 0} รายการ</div>
+      </button>
+    `;
+  }).join('');
+}
 
     let OPENING = false;
 async function openCategory(name){
