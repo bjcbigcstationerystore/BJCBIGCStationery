@@ -864,18 +864,6 @@ body.blocked .content-card{
 body.blocked .logo-box{
   display:none !important;
 }      
-                             /* === BLOCKED OVERRIDES: ซ่อน App Bar + ปรับ padding หน้ากลาง === */
-
-/* ซ่อน App Bar (แถบสีเขียว + โลโก้บนแถบ) */
-body.blocked .appbar{
-  display:none !important;
-}
-
-/* ตัด padding-top ที่เผื่อไว้ให้ App Bar */
-body.blocked .page-container{
-  /* ของเดิมคือ calc(56px + 1.25rem) 1rem 2rem; */
-  padding: 2rem 1rem 2rem !important;
-}
 
 /* กันโลโก้กล่องเล็กใน hero เผลอโผล่ */
 body.blocked .logo-box{
@@ -958,13 +946,9 @@ body.products .item-card{
   <input id="employeeId" type="text" placeholder="กรอกรหัสพนักงาน" class="verify-input" />
 </div>
 
-    <div id="message" class="hidden mt-4 p-4 rounded-lg text-center"></div>
+    <div id="message" aria-live="polite" class="hidden mt-4 p-4 rounded-lg text-center"></div>
 
-    <button id="verifyBtn"
-        class="verify-button"
-        onclick="verifyEmployee()">
-  ยืนยันตัวตน
-</button>
+    <button id="verifyBtn" type="button" class="verify-button" onclick="verifyEmployee()">ยืนยันตัวตน</button>
   </div>
 </div>
       
@@ -1330,16 +1314,6 @@ let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
 let FORCE_FRESH = false;
 let inflight = { categories: null, items: null };
 
-function needKLCheck(flagB){
-  const t = String(flagB || '').trim().toLowerCase();
-  return !(t === '' || t === '0'); // ถ้าว่างหรือ 0 = ไม่ต้องเช็ค
-}
-
-function hasNonBlank(v){
-  return !(v === null || v === undefined || String(v).trim() === '');
-}
-
-
     function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
     function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
     function findItemKey(p){ return (p.name || '').trim().toLowerCase(); }
@@ -1681,19 +1655,29 @@ async function openCategory(name){
   // ✅ เผื่อค่า fetch สำเร็จแต่ overlay ยังไม่ถูกปิด
   showLoadingProductsModal(false);
 }
-    // ⛑️ Failsafe: ถ้า overlay โหลดสินค้าค้างเกิน 20s ให้ปิดเอง
-(function(){
-  let t = null;
-  const orig = showLoadingProductsModal;
-  window.showLoadingProductsModal = function(show=true){
-    orig(show);
-    clearTimeout(t);
-    if(show){
-      t = setTimeout(()=>{ try{ orig(false); }catch(_){ } }, 20000);
-    }
-  };
-})();
+    let __lp_timer = null;
+function showLoadingProductsModal(show = true){
+  const m = document.getElementById('loadingProductsModal');
+  if(!m) return;
 
+  // เคลียร์ timer เก่าก่อน
+  clearTimeout(__lp_timer);
+
+  if(show){
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+    // Failsafe ปิดเองใน 20 วินาที
+    __lp_timer = setTimeout(()=> {
+      try{
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      }catch(_){}
+    }, 20000);
+  } else {
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+}
 
     function backToCategories(){ showPage('category'); }
 
@@ -1762,8 +1746,7 @@ async function openCategory(name){
 function showPage(which){
   // บังคับทุกการขอ "home" ให้ไปหน้า verify
   if (which === 'home') which = 'verify';
-
-  const home    = document.getElementById('homeContent');
+  
   const verify  = document.getElementById('verifyContent');
   const cate    = document.getElementById('categoryContent');
   const prod    = document.getElementById('productsContent');
@@ -1771,8 +1754,6 @@ function showPage(which){
   const thx     = document.getElementById('thankyouContent');
   const blocked = document.getElementById('blockedContent');
 
-  // ซ่อนทุกหน้า (เช็ค null เผื่อบางหน้าถูกลบ)
-  if (home)    home.classList.add('hidden');
   if (verify)  verify.classList.add('hidden');
   if (cate)    cate.classList.add('hidden');
   if (prod)    prod.classList.add('hidden');
@@ -2068,19 +2049,6 @@ function goHomeFromBlocked(){
   btn.textContent = 'ยืนยันตัวตน';
   btn.onclick = verifyEmployee;
 }
-
-    function showLoadingProductsModal(show = true){
-      const m = document.getElementById('loadingProductsModal');
-      if(!m) return;
-      if(show){
-        m.classList.remove('hidden');
-        m.classList.add('flex');
-      } else {
-        m.classList.add('hidden');
-        m.classList.remove('flex');
-      }
-    }
-
     /* ===== Utilities: วันที่/เวลาแบบไทย (ใหม่) ===== */
     function formatDateTH(d=new Date()){
       return d.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
