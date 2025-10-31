@@ -2025,13 +2025,25 @@ if (!mustCheck) {
   return;
 }
 
-    // 2.2) ถ้า B มีค่า/Check → เช็คงบจาก Emp HO (ต้องผ่านกฎ budget>0 และมี BU Admin name/email)
-const bud = await getBudgetAndAdmin(CURRENT_EMP.id || '');
+// ✅ ถ้า B = Check → ตรวจจากคอลัมน์ M ผ่าน checkbudgetstatus (Apps Script)
+const step = await checkBudgetStatus(CURRENT_EMP.id || '');
 
-// ใช้เกณฑ์เดียว: budget > 0 และมีทั้งชื่อ+อีเมล
-if (!passBudget(bud)) {
+if (step === 'go_request') {
+  // ผ่าน → ไปหน้าเบิกของ
+  await preloadCategoriesFor(CURRENT_EMP.company);
+  showPage('category');
+  return;
+} 
+else if (step === 'blocked') {
+  // ไม่ผ่าน → หน้างบไม่เพียงพอ
   showCheckingModal(false);
   showBlocked();
+  return;
+} 
+else {
+  // step == skip หรืออย่างอื่น → ผ่านได้เลย
+  await preloadCategoriesFor(CURRENT_EMP.company);
+  showPage('category');
   return;
 }
 
@@ -2082,12 +2094,16 @@ showPage('category');
     }
 
     /* ===== เรียก BU Admin จาก Apps Script (ใหม่) ===== ต้องมี action=getBUAdmin ฝั่ง Apps Script (ดูขั้นถัดไป) */
-    async function getBudgetAndAdmin(employeeId){
+    async function checkBudgetStatus(employeeId){
   try{
-    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const url = `${API_BASE}?action=checkbudgetstatus&employeeId=${encodeURIComponent(employeeId)}`;
     const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    return (ok && json && json.success) ? (json.data || null) : null;
-  }catch(_){ return null; }
+    if(!ok || !json || !json.success) return 'blocked';
+    return String(json.step || '').trim().toLowerCase();
+  }catch(e){
+    console.error('checkBudgetStatus failed', e);
+    return 'blocked';
+  }
 }
 
       function asListHTML(arr){
