@@ -72,8 +72,21 @@ body.summary .content-card{
   box-shadow:none!important;
   max-width:900px;
 }
-    .category-inner,.products-inner{max-width:900px;margin:0 auto}
-    @media (max-width:1024px){ .category-inner,.products-inner{max-width:100%} }
+    /* ให้หน้าหมวดหมู่กว้างเต็มจอจริง ๆ */
+body.category .category-inner{
+  max-width:100% !important;
+  width:100% !important;
+  margin:0 auto !important;
+}
+
+/* การ์ดหมวดหมู่ให้กว้างเต็มแถว ดูโปร่งขึ้น */
+body.category .cat-item{
+  width:100%;
+  text-align:center;           /* จะปรับเป็นซ้ายก็ได้ */
+  border-left-width:1px !important;   /* ลดเส้นหนาซ้าย */
+  border-radius:14px !important;
+  padding:16px !important;
+}
     .corner-logo{display:none}
     body.not-home .corner-logo{display:block}
     .corner-logo{height:var(--logo-h)!important;width:auto!important}
@@ -81,9 +94,31 @@ body.summary .content-card{
     .btn-primary{background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));transition:.25s}
     .btn-primary:hover{background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700));transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
     .alert-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;border-radius:12px}
+    /* หมวดหมู่: ให้กรอบเขียวขึ้นชิดบนสุด และไม่มีกรอบขาว */
+body.category .page-container{ padding:0 !important; }                 /* ตัดช่องว่างด้านบน */
+body.category #mainCard{ padding:0 !important; background:transparent !important; box-shadow:none !important; border-radius:0 !important; }
 
-    /* hero panel reused */
-    .green-shell{position:relative;border-radius:20px;padding:0;background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.015)), linear-gradient(180deg,#1b4e41 0%,#1c5b4a 40%,#165846 100%);overflow:hidden}
+body.category .green-shell{
+  border-radius:0 !important;   /* ไม่ต้องโค้ง */
+  margin:0 !important;          /* ไม่ทิ้งขอบ */
+  padding:0 !important;
+  overflow:visible !important;  /* กันถูกตัด */
+}
+
+/* ตัดกรอบขาวของ panel ทิ้งทั้งหมด */
+body.category .panel{
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+body.category .panel-head{
+  background:transparent !important;
+  border-bottom:0 !important;
+  padding:16px !important;
+}
+body.category .panel-body{
+  padding:16px !important;
+}
     .hero{position:relative;margin:0;padding:22px 24px 24px;text-align:center;color:#ecfdf5;background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%)}
     .hero-title{font-size:2rem;font-weight:800;margin:0}
     .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
@@ -91,9 +126,7 @@ body.summary .content-card{
     .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}.hero-dots .dim{opacity:.35}
     .hero-desc{font-weight:800;color:#f2fff7}
     .logo-box{position:absolute;top:14px;right:18px;background:#fff;border-radius:12px;padding:6px 10px;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px}
-    .panel{background:#fff;border-radius:0 0 20px 20px;box-shadow:0 15px 35px rgba(0,0,0,.18);overflow:hidden;margin:0;position:relative}
-    .panel-head{background:linear-gradient(180deg,#f0fdf4,#ecfdf5);border-bottom:1px solid #d9f3e5;padding:22px 28px}
-    .panel-body{padding:24px 24px 100px}
+    
 
     /* ปุ่มกลับ (แบบเดียวกับหน้ายืนยันตัวตน/หมวด) */
     .back-btn{
@@ -972,7 +1005,7 @@ body.products .item-card{
                 <p class="text-gray-600 mt-1">คลิกเพื่อเลือกหมวดหมู่ที่ต้องการเบิก</p>
               </div>
               <div class="panel-body">
-                <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="categoryGrid" class="grid grid-cols-1 gap-4"></div>
               </div>
 
               <button class="back-btn" onclick="backToVerifyProceed()">
