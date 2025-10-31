@@ -1096,17 +1096,12 @@ body.products .prod-card{
   font-weight:400;
   color:#475569;
 }
-    /* ย่อเฉพาะกล่องหมวดหมู่ (ไม่รวม hero ด้านบน) */
-body.category #mainCard{
-  transform: scale(0.8);
-  transform-origin: top center;
-}
-/* ===== ย่อเนื้อหาทั้งหน้าเหลือ 80% แต่ให้พื้นหลังเต็มจอ ===== */
-
+    
 /* ครอบเฉพาะเนื้อหา (ภายในกรอบขาว) ให้หด */
-body.category .category-inner {
+body.category .category-inner{
   transform: scale(0.8);
   transform-origin: top center;
+  will-change: transform; /* ช่วยให้การเรนเดอร์เนียนขึ้น */
 }
 
 /* ให้กรอบขาวและพื้นเขียวเต็มความกว้างเหมือนเดิม */
