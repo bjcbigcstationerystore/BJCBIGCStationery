@@ -1982,15 +1982,20 @@ function goHomeFromBlocked(){
     };
 
     // 2) อ่านสถานะจากชีต Status Check!B
-    const flagB = await getGlobalStatusCheck();
+const flagB = await getGlobalStatusCheck();
 
-    // 2.1) ถ้า B ว่าง/0 → ไม่ต้องเช็คงบ → ไปหน้าเบิกได้เลย
-    if (!needKLCheck(flagB)) {
-      CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
-      await preloadCategoriesFor(CURRENT_EMP.company);
-      showPage('category');
-      return;
-    }
+// ✅ ดีฟอลต์ = ต้องเช็ค (mustCheck = true) ถ้าอ่านค่า B1 ไม่ได้/ว่าง
+const mustCheck = (flagB === undefined || flagB === null)
+  ? true
+  : needKLCheck(flagB);
+
+// ถ้า "ไม่ต้องเช็ค" เท่านั้นถึงจะผ่านได้เลย
+if (!mustCheck) {
+  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+  await preloadCategoriesFor(CURRENT_EMP.company);
+  showPage('category');
+  return;
+}
 
     // 2.2) ถ้า B มีค่า/Check → เช็คงบจาก Emp HO (K/L)
     const bud = await getBudgetAndAdmin(CURRENT_EMP.id || '');
@@ -2000,17 +2005,20 @@ function goHomeFromBlocked(){
       email: (bud && (bud.adminEmail ?? bud.buAdminEmail ?? bud.email)) || '—'
     };
 
-    // เก็บงบไว้ใช้ต่อ
-    const k = bud?.k ?? bud?.K ?? bud?.budget ?? bud?.budgetK ?? '';
-    const l = bud?.l ?? bud?.L ?? bud?.balance ?? bud?.budgetL ?? '';
-    CURRENT_BUDGET = Number(k) || null;
+    const trimVal = v => String(v ?? '').trim();
 
-    // 2.3) ผ่านถ้า K หรือ L มีค่าอย่างน้อยหนึ่งช่อง
-    if (!(hasNonBlank(k) || hasNonBlank(l))) {
-      showCheckingModal(false);
-      showBlocked();
-      return;
-    }
+// ดึงทุก alias แล้วฟอกค่าให้สะอาด
+const kRaw = bud?.k ?? bud?.K ?? bud?.budget ?? bud?.budgetK ?? '';
+const lRaw = bud?.l ?? bud?.L ?? bud?.balance ?? bud?.budgetL ?? '';
+const k = trimVal(kRaw);
+const l = trimVal(lRaw);
+
+// บล็อกเมื่อ “ทั้งสองช่องว่างจริง ๆ”
+if (k === '' && l === '') {
+  showCheckingModal(false);
+  showBlocked();
+  return;
+}
 
     // ผ่านทั้งหมด → ไปหน้าเบิก
     await preloadCategoriesFor(CURRENT_EMP.company);
@@ -2035,10 +2043,11 @@ function goHomeFromBlocked(){
 }
 
     function backToVerifyProceed(){
-      showPage('verify');
-      setProceedButton();
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
+  // กลับไป verify แล้ว “ต้องกดยืนยันตัวตนใหม่” เท่านั้น
+  resetVerifyButton();         // ปุ่ม = "ยืนยันตัวตน"
+  showPage('verify');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
 
     function resetVerifyButton(){
   const btn = document.getElementById('verifyBtn');
