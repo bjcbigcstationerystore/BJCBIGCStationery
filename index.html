@@ -2009,47 +2009,20 @@ function goHomeFromBlocked(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    // 2) อ่านสถานะจากชีต Status Check!B
-const flagB = await getGlobalStatusCheck();
-
-// ✅ ดีฟอลต์ = ต้องเช็ค (mustCheck = true) ถ้าอ่านค่า B1 ไม่ได้/ว่าง
-const mustCheck = (flagB === undefined || flagB === null)
-  ? true
-  : needKLCheck(flagB);
-
-// ถ้า "ไม่ต้องเช็ค" เท่านั้นถึงจะผ่านได้เลย
-if (!mustCheck) {
-  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
-  await preloadCategoriesFor(CURRENT_EMP.company);
-  showPage('category');
-  return;
-}
-
-// ✅ ถ้า B = Check → ตรวจจากคอลัมน์ M ผ่าน checkbudgetstatus (Apps Script)
+// ✅ เช็คจากคอลัมน์ M โดยตรงเสมอ
 const step = await checkBudgetStatus(CURRENT_EMP.id || '');
 
-if (step === 'go_request') {
-  // ผ่าน → ไปหน้าเบิกของ
-  await preloadCategoriesFor(CURRENT_EMP.company);
-  showPage('category');
-  return;
-} 
-else if (step === 'blocked') {
-  // ไม่ผ่าน → หน้างบไม่เพียงพอ
+// เด้งบล็อกถ้า M = NO
+if (step === 'blocked') {
   showCheckingModal(false);
   showBlocked();
   return;
-} 
-else {
-  // step == skip หรืออย่างอื่น → ผ่านได้เลย
-  await preloadCategoriesFor(CURRENT_EMP.company);
-  showPage('category');
-  return;
 }
 
-// ผ่านทั้งหมด → ไปหน้าเบิก
+// อนุญาตทุกกรณีที่ไม่ใช่ blocked (go_request / skip / อื่นๆ -> ถือว่าผ่าน)
 await preloadCategoriesFor(CURRENT_EMP.company);
 showPage('category');
+return;
 
   }catch(err){
     console.error(err);
@@ -2228,11 +2201,9 @@ async function submitRequest(){
       return;
     }
 
-    // ⛔ Gate: ตรวจงบอีกครั้งก่อน submit (เกณฑ์เดียวกับ verify)
-const payload = await getBudgetAndAdmin((CURRENT_EMP.id || '').trim());
-
-// ถ้าไม่ผ่านกฎ budget>0 และมี BU Admin name/email ⇒ บล็อก
-if (!passBudget(payload)) {
+   // ⛔ Gate ใหม่: เช็คคอลัมน์ M ก่อนส่งทุกครั้ง
+const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
+if (stepSubmit === 'blocked') {
   showSubmittingModal(false);
   showBlocked();
   return;
