@@ -58,9 +58,15 @@ body.verify .content-card{
   max-width:none !important;
 }
     
+/* ย่อพื้นที่ว่างรอบหน้าให้เล็กลง */
 .page-container{
   display:flex; justify-content:center; width:100%; min-height:100vh;
-  padding:2rem 1rem 2rem;
+  padding:1rem .75rem 1rem;        /* เดิม 2rem → 1rem */
+}
+
+/* เดสก์ท็อป: ลดสเกลตัวหนังสือ/ระยะรวม ๆ ลงเล็กน้อย */
+@media (min-width: 1024px){
+  html{ font-size:15px; }          /* เดิมเบราว์เซอร์ ~16px → 15px */
 }
     .page-container.centered{align-items:center}.page-container.top{align-items:flex-start}
    /* ไม่ให้ content-card ล็อกความกว้าง + บังคับเต็มจอในหน้า category */
@@ -121,20 +127,20 @@ body.category .panel{
   box-shadow:none !important;
   border-radius:0 !important;
 }
-body.category .panel-head{
-  background:transparent !important;
-  border-bottom:0 !important;
-  padding:16px !important;
+body.category .panel-head{  padding:12px 18px !important; }
+body.category .panel-body{  padding:12px 18px !important; }
+    /* hero ให้เตี้ยลง + ฟอนต์เล็กลงนิด */
+.hero{
+  position:relative; margin:0;
+  padding:14px 16px 16px;          /* เดิม 22/24/24 → 14/16/16 */
+  text-align:center; color:#ecfdf5;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+    linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%);
 }
-body.category .panel-body{
-  padding:16px !important;
-}
-    .hero{position:relative;margin:0;padding:22px 24px 24px;text-align:center;color:#ecfdf5;background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), linear-gradient(180deg,#3a7a68 0%,#2f6f60 55%,#2b6758 100%)}
-    .hero-title{font-size:2rem;font-weight:800;margin:0}
-    .hero-sub{margin-top:2px;font-size:.95rem;letter-spacing:.25rem;opacity:.95}
-    .hero-dots{display:flex;gap:.65rem;justify-content:center;align-items:center;margin:.5rem 0 .85rem}
-    .hero-dots span{width:8px;height:8px;border-radius:9999px;background:#ffffffcc}.hero-dots .dim{opacity:.35}
-    .hero-desc{font-weight:800;color:#f2fff7}
+.hero-title{ font-size:1.6rem; font-weight:800; margin:0; }   /* เดิม 2rem */
+.hero-sub{ margin-top:2px; font-size:.9rem; letter-spacing:.18rem; opacity:.95; }
+.hero-desc{ font-weight:700; color:#f2fff7; }  
     .logo-box{position:absolute;top:14px;right:18px;background:#fff;border-radius:12px;padding:6px 10px;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px}
     
 
@@ -925,13 +931,18 @@ body.category .page-container{
   padding: 0 !important;        /* ตัดช่องว่างด้านบน/ข้าง */
 }
 
-/* Products/Summary คงพฤติกรรมเดิม */
-body.products .page-container,
-body.summary  .page-container{
-  width: 80%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem 0;
+/* Products = เต็มจอจริง ๆ */
+body.products .page-container{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+/* Summary คุมความกว้างที่การ์ดด้านในแทน */
+body.summary .page-container{
+  width:min(1200px,92vw);
+  margin:0 auto;
+  padding:1.25rem 0;
 }
 
 /* ให้เนื้อหาด้านใน (panel / card) ดูสมดุลบนพื้นเทา */
@@ -948,7 +959,87 @@ body.products .item-card{
   width: 90% !important;
   max-width: 500px;
 }
-    
+    /* ==== ปรับกริดหมวดหมู่ให้ auto-fit ตามหน้าจอ ==== */
+#categoryGrid{
+  display:grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* ปรับ 280–360 ตามชอบ */
+  gap:16px !important;
+}
+
+/* ย่อการ์ดหมวดหมู่ให้กะทัดรัดขึ้น */
+body.category .cat-item{
+  padding:12px !important;       /* เดิม 16px */
+  border-radius:12px !important; /* เดิม 14px */
+}
+    @media (min-width: 1280px){
+  #categoryGrid{ grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+}
+    /* สินค้า: จัดคอลัมน์อัตโนมัติ */
+#productGrid{
+  display:grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap:18px !important;          /* เดิม gap-5 ~ 20px จะใกล้เคียง */
+}
+
+/* การ์ดสินค้าเล็กลงนิด */
+body.products .prod-card{
+  padding:12px !important;      /* เดิม 14px */
+  border-radius:14px !important;
+}
+.prod-img{
+  width:100px; height:100px;    /* เดิม 112x112 */
+}
+    /* ===== Products: ทำให้กว้างเต็มจอแบบหน้า Category ===== */
+body.products #mainCard{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  display:block !important;
+}
+
+/* แถบหัว (เขียว) ให้กินเต็ม viewport */
+body.products .green-shell{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+
+/* ชั้นในของหน้า products ให้กว้างเต็ม */
+body.products .products-inner{
+  max-width:100% !important;
+  width:100% !important;
+  margin:0 auto !important;
+}
+
+/* การ์ด/พาเนลด้านในคุมความกว้างที่นี่ (ไม่บีบทั้งหน้า) */
+body.products .panel{
+  width:min(1200px,92vw);
+  margin:0 auto;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.10);
+}
+
+/* กริดสินค้าจัดคอลัมน์อัตโนมัติให้พอดีหน้าจอ */
+#productGrid{
+  display:grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap:18px !important;
+}
+
+/* การ์ดสินค้าไม่ล็อกความกว้างเป็นกล่องเดี่ยว */
+body.products .prod-card{
+  width:100% !important;
+  padding:12px !important;
+  border-radius:14px !important;
+}
+
+
   </style>
 </head>
 
