@@ -1461,6 +1461,20 @@ async function getGlobalStatusCheck(){
     return '';
   }
 }
+    // === อ่านค่า M (YES/NO) จาก Emp HO ของพนักงาน ===
+// API: ?action=getEmpStatusM&employeeId=XXXX
+async function getEmpStatusM(employeeId){
+  try{
+    const url = `${API_BASE}?action=getEmpStatusM&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || !json.success) return '';            // คืนค่าว่างถ้าอ่านไม่ได้
+    return String(json.statusM || json.M || '').trim().toUpperCase(); // 'YES' | 'NO' | ''
+  }catch(e){
+    console.warn('getEmpStatusM failed', e);
+    return '';
+  }
+}
+
 
 /** ตีความค่า B:
  * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
@@ -1982,21 +1996,30 @@ function goHomeFromBlocked(){
       }
     }
 
-   async function verifyEmployee(){
-  const inputEl = document.getElementById('employeeId');
+ // ⬅️ เงื่อนไขเดิม: เช็คคอลัมน์ M อย่างเดียว
+// - ถ้า M === 'NO'  => เด้งไปหน้า "งบประมาณไม่เพียงพอ"
+// - ถ้า M !== 'NO'  => ไปต่อ (โหลดหมวดฯ)
+async function verifyEmployee(){
+  const inputEl  = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
 
-  if (!rawInput) { showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error'); return; }
+  if (!rawInput) {
+    showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error');
+    return;
+  }
 
   showCheckingModal(true);
   showLoadingProductsModal(false);
 
   try{
-    // 1) ดึงข้อมูลพนักงาน
+    // 1) ตรวจว่ามีพนักงานจริง
     const emp = await getEmployeeData(rawInput);
-    if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
+    if (!emp) {
+      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
+      return;
+    }
 
-    // cache พนักงาน
+    // 2) cache ผู้ใช้
     CURRENT_EMP = {
       id:         emp.employeeId || emp.id || rawInput,
       company:    normalizeCompanyName(emp.company || 'BJC'),
@@ -2004,27 +2027,21 @@ function goHomeFromBlocked(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    // 2) ❗❗ เช็คสิทธิ์จากคอลัมน์ M “อย่างเดียว”
-    const step = await checkBudgetStatus(CURRENT_EMP.id);
-
-    // dev log ชั่วคราว เผื่ออยากดูค่าที่ได้จริง
-    console.log('checkbudgetstatus step =', step);
-
-    if (step === 'blocked') {
-      // ไปหน้า งบประมาณไม่เพียงพอ ทันที
-      showCheckingModal(false);
+    // 3) อ่านคอลัมน์ M ของพนักงานจาก Emp HO (YES/NO)
+    const m = await getEmpStatusM(CURRENT_EMP.id); // 'YES' | 'NO' | ''
+    if (String(m || '').toUpperCase() === 'NO') {
+      // ถ้า M = NO ให้บล็อกทันที
       showBlocked();
       return;
     }
 
-    // อนุญาตทุกกรณีที่ไม่ใช่ blocked (go_request / skip / อื่น ๆ = ผ่าน)
+    // 4) ไปต่อปกติ (M = YES หรือว่าง)
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
-    return;
 
   }catch(err){
     console.error(err);
-    showMsg('เกิดข้อผิดพลาดในการยืนยันตัวตน/ตรวจสถานะ/เช็คงบ', 'error');
+    showMsg('เกิดข้อผิดพลาดในการยืนยันตัวตน', 'error');
   }finally{
     showCheckingModal(false);
   }
