@@ -1330,6 +1330,16 @@ let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
 let FORCE_FRESH = false;
 let inflight = { categories: null, items: null };
 
+function needKLCheck(flagB){
+  const t = String(flagB || '').trim().toLowerCase();
+  return !(t === '' || t === '0'); // ถ้าว่างหรือ 0 = ไม่ต้องเช็ค
+}
+
+function hasNonBlank(v){
+  return !(v === null || v === undefined || String(v).trim() === '');
+}
+
+
     function cartCount(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0), 0); }
     function cartSum(){ return CART.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.price)||0), 0); }
     function findItemKey(p){ return (p.name || '').trim().toLowerCase(); }
@@ -1434,6 +1444,47 @@ let inflight = { categories: null, items: null };
       if (t.includes('big c') || t.includes('bigc')) return 'Big C';
       return 'BJC';
     }
+
+    /** ===== อ่านสถานะจากชีต "Status Check" (คอลัมน์ B) แบบ Global =====
+ * Apps Script ควรทำ action=getStatusCheck แล้วคืน { success:true, data:{ flag:"Check" | "0" | "" } }
+ */
+async function getGlobalStatusCheck(){
+  try{
+    const url = `${API_BASE}?action=getStatusCheck`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || !json.success) return '';
+    const flag = json.data?.flag ?? json.data?.B ?? json.data?.status ?? '';
+    return String(flag ?? '').trim();
+  }catch(_){
+    return '';
+  }
+}
+
+/** ตีความค่า B:
+ * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
+ * - อื่นๆ (รวม "Check") => ต้องเช็คงบ K/L
+ */
+function needKLCheck(flagB){
+  const t = String(flagB || '').trim().toLowerCase();
+  return !(t === '' || t === '0'); // true = ต้องเช็ค K/L
+}
+
+/** มีค่า (ไม่ว่าง) = ผ่านเกณฑ์ (นับรวม "0" ด้วยว่า "มีค่า" ตามเงื่อนไขล่าสุด) */
+function hasNonBlank(v){
+  return !(v === null || v === undefined || String(v).trim() === '');
+}
+
+/** ตัดสินจาก payload ของ getBudgetAndAdmin:
+ * อนุโลมชื่อคีย์หลายแบบ (k/K/budget/budgetK, และ l/L/balance/budgetL)
+ * เงื่อนไขใหม่: "ผ่าน" ถ้า K หรือ L มีค่าอย่างน้อยหนึ่งช่อง
+ * "บล็อก" เฉพาะกรณี K และ L ว่างทั้งคู่
+ */
+function allowByKL(payload){
+  if (!payload) return false; // safety
+  const k = payload.k ?? payload.K ?? payload.budget ?? payload.budgetK ?? '';
+  const l = payload.l ?? payload.L ?? payload.balance ?? payload.budgetL ?? '';
+  return hasNonBlank(k) || hasNonBlank(l);
+}
 
     // === fetch ชนิดมี timeout + รวมการโยง signal ภายนอก ===
 async function fetchJSON(url, {method='GET', headers, body, timeout=12000, signal} = {}){
@@ -1922,7 +1973,7 @@ function goHomeFromBlocked(){
       }
     }
 
-    async function verifyEmployee(){
+   async function verifyEmployee(){
   const inputEl = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
 
@@ -1931,33 +1982,62 @@ function goHomeFromBlocked(){
     return;
   }
 
-  // แสดงตัวโหลดระหว่างดึงข้อมูลพนักงาน
   showCheckingModal(true);
   showLoadingProductsModal(false);
 
   try{
-    // เรียก Apps Script → action=getEmployee
+    // 1) ดึงข้อมูลพนักงาน
     const emp = await getEmployeeData(rawInput);
-
     if (!emp) {
       showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
       return;
     }
 
-    // แม็ปฟิลด์จาก API มายังสถานะของแอป (เผื่อชื่อคีย์ต่างกัน)
     CURRENT_EMP = {
-      id:        emp.employeeId || emp.id || rawInput,
-      company:   normalizeCompanyName(emp.company || 'BJC'),
-      name:      emp.fullName   || emp.name || '-',
+      id:         emp.employeeId || emp.id || rawInput,
+      company:    normalizeCompanyName(emp.company || 'BJC'),
+      name:       emp.fullName   || emp.name || '-',
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    // โหลดหมวดหมู่ตามบริษัทจริง แล้วไปหน้าหมวดหมู่
+    // 2) อ่านสถานะจากชีต Status Check!B
+    const flagB = await getGlobalStatusCheck();
+
+    // 2.1) ถ้า B ว่าง/0 → ไม่ต้องเช็คงบ → ไปหน้าเบิกได้เลย
+    if (!needKLCheck(flagB)) {
+      CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+      await preloadCategoriesFor(CURRENT_EMP.company);
+      showPage('category');
+      return;
+    }
+
+    // 2.2) ถ้า B มีค่า/Check → เช็คงบจาก Emp HO (K/L)
+    const bud = await getBudgetAndAdmin(CURRENT_EMP.id || '');
+
+    CURRENT_ADMIN_CONTACT = {
+      name:  (bud && (bud.adminName  ?? bud.buAdminName  ?? bud.name))  || '—',
+      email: (bud && (bud.adminEmail ?? bud.buAdminEmail ?? bud.email)) || '—'
+    };
+
+    // เก็บงบไว้ใช้ต่อ
+    const k = bud?.k ?? bud?.K ?? bud?.budget ?? bud?.budgetK ?? '';
+    const l = bud?.l ?? bud?.L ?? bud?.balance ?? bud?.budgetL ?? '';
+    CURRENT_BUDGET = Number(k) || null;
+
+    // 2.3) ผ่านถ้า K หรือ L มีค่าอย่างน้อยหนึ่งช่อง
+    if (!(hasNonBlank(k) || hasNonBlank(l))) {
+      showCheckingModal(false);
+      showBlocked();
+      return;
+    }
+
+    // ผ่านทั้งหมด → ไปหน้าเบิก
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
+
   }catch(err){
     console.error(err);
-    showMsg('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน', 'error');
+    showMsg('เกิดข้อผิดพลาดในการยืนยันตัวตน/ตรวจสถานะ/เช็คงบ', 'error');
   }finally{
     showCheckingModal(false);
   }
@@ -2140,20 +2220,35 @@ async function submitRequest(){
       return;
     }
 
-    // ⛔ Gate: ตรวจงบประมาณจาก Emp HO (คอลัมน์ K)
-   if (CURRENT_BUDGET === null) {
-  const more = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
-  CURRENT_BUDGET = (more && more.budget != null) ? Number(more.budget) : 0;
+    // ⛔ Gate: ตรวจงบประมาณจาก Emp HO (ใช้กฎเดียวกับ verify: ผ่านถ้า K หรือ L มีค่า)
+let payload = null;
+if (CURRENT_BUDGET === null) {
+  payload = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
   CURRENT_ADMIN_CONTACT = {
-    name:  (more && more.adminName)  ? String(more.adminName)  : '—',
-    email: (more && more.adminEmail) ? String(more.adminEmail) : '—'
+    name:  (payload && (payload.adminName  ?? payload.buAdminName  ?? payload.name))  || '—',
+    email: (payload && (payload.adminEmail ?? payload.buAdminEmail ?? payload.email)) || '—'
+  };
+  // เก็บ K ไว้ (ถ้ามี) — แต่อย่าใช้ K ตัวเดียวในการตัดสิน
+  if (payload && payload.budget != null) {
+    CURRENT_BUDGET = Number(payload.budget);
+  }
+} else {
+  // CURRENT_BUDGET เคยเช็คแล้ว แต่เราอยากได้ L ด้วยเพื่อใช้กฎ OR
+  payload = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
+  CURRENT_ADMIN_CONTACT = {
+    name:  (payload && (payload.adminName  ?? payload.buAdminName  ?? payload.name))  || CURRENT_ADMIN_CONTACT.name || '—',
+    email: (payload && (payload.adminEmail ?? payload.buAdminEmail ?? payload.email)) || CURRENT_ADMIN_CONTACT.email || '—'
   };
 }
-    if (!CURRENT_BUDGET || Number(CURRENT_BUDGET) === 0) {
-      showSubmittingModal(false);
-      showBlocked();       // ➜ ไปหน้า “งบประมาณไม่เพียงพอ”
-      return;              // ไม่ส่งคำขอ
-    }
+
+const k = payload?.k ?? payload?.K ?? payload?.budget ?? payload?.budgetK ?? '';
+const l = payload?.l ?? payload?.L ?? payload?.balance ?? payload?.budgetL ?? '';
+
+if (!(hasNonBlank(k) || hasNonBlank(l))) {
+  showSubmittingModal(false);
+  showBlocked();       // ➜ ไปหน้า “งบประมาณไม่เพียงพอ”
+  return;
+}
 
     // เตรียม payload
     const items = CART.map(it => ({
