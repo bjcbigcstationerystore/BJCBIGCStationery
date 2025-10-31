@@ -1986,10 +1986,7 @@ function goHomeFromBlocked(){
   const inputEl = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
 
-  if (!rawInput) {
-    showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error');
-    return;
-  }
+  if (!rawInput) { showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error'); return; }
 
   showCheckingModal(true);
   showLoadingProductsModal(false);
@@ -1997,11 +1994,9 @@ function goHomeFromBlocked(){
   try{
     // 1) ดึงข้อมูลพนักงาน
     const emp = await getEmployeeData(rawInput);
-    if (!emp) {
-      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
-      return;
-    }
+    if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
 
+    // cache พนักงาน
     CURRENT_EMP = {
       id:         emp.employeeId || emp.id || rawInput,
       company:    normalizeCompanyName(emp.company || 'BJC'),
@@ -2009,20 +2004,23 @@ function goHomeFromBlocked(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-// ✅ เช็คจากคอลัมน์ M โดยตรงเสมอ
-const step = await checkBudgetStatus(CURRENT_EMP.id || '');
+    // 2) ❗❗ เช็คสิทธิ์จากคอลัมน์ M “อย่างเดียว”
+    const step = await checkBudgetStatus(CURRENT_EMP.id);
 
-// เด้งบล็อกถ้า M = NO
-if (step === 'blocked') {
-  showCheckingModal(false);
-  showBlocked();
-  return;
-}
+    // dev log ชั่วคราว เผื่ออยากดูค่าที่ได้จริง
+    console.log('checkbudgetstatus step =', step);
 
-// อนุญาตทุกกรณีที่ไม่ใช่ blocked (go_request / skip / อื่นๆ -> ถือว่าผ่าน)
-await preloadCategoriesFor(CURRENT_EMP.company);
-showPage('category');
-return;
+    if (step === 'blocked') {
+      // ไปหน้า งบประมาณไม่เพียงพอ ทันที
+      showCheckingModal(false);
+      showBlocked();
+      return;
+    }
+
+    // อนุญาตทุกกรณีที่ไม่ใช่ blocked (go_request / skip / อื่น ๆ = ผ่าน)
+    await preloadCategoriesFor(CURRENT_EMP.company);
+    showPage('category');
+    return;
 
   }catch(err){
     console.error(err);
@@ -2184,7 +2182,6 @@ return;
 
    /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
 let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
-
 async function submitRequest(){
   if (IS_SUBMITTING) return;
   IS_SUBMITTING = true;
@@ -2203,6 +2200,7 @@ async function submitRequest(){
 
    // ⛔ Gate ใหม่: เช็คคอลัมน์ M ก่อนส่งทุกครั้ง
 const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
+console.log('checkbudgetstatus (submit) step =', stepSubmit);
 if (stepSubmit === 'blocked') {
   showSubmittingModal(false);
   showBlocked();
