@@ -1418,6 +1418,34 @@ let inflight = { categories: null, items: null };
       if (t.includes('big c') || t.includes('bigc')) return 'Big C';
       return 'BJC';
     }
+    
+// ===== Gate helper: อนุญาตเฉพาะ budget > 0 และมี BU Admin name/email =====
+function passBudget(bud){
+  if (!bud) return false;
+
+  // รองรับชื่อคีย์หลายแบบจาก Apps Script
+  const bdRaw   = bud.budget ?? bud.k ?? bud.K ?? bud.budgetK ?? null;
+  const bd      = Number(bdRaw);
+  const name    = String(bud.adminName  ?? bud.buAdminName  ?? bud.name  ?? '').trim();
+  const email   = String(bud.adminEmail ?? bud.buAdminEmail ?? bud.email ?? '').trim();
+
+  // ผ่านเฉพาะ budget เป็นตัวเลขและ > 0 และมีทั้งชื่อ+อีเมล
+  const ok = Number.isFinite(bd) && bd > 0 && !!name && !!email;
+
+  // cache ไว้ใช้ที่อื่น
+  if (ok) {
+    CURRENT_BUDGET = bd;
+    CURRENT_ADMIN_CONTACT = { name, email };
+  } else {
+    // cache ไว้เพื่อโชว์บนหน้า Blocked แม้จะไม่ผ่าน
+    CURRENT_BUDGET = Number.isFinite(bd) ? bd : CURRENT_BUDGET;
+    CURRENT_ADMIN_CONTACT = { 
+      name:  name || (CURRENT_ADMIN_CONTACT?.name  ?? '—'),
+      email: email|| (CURRENT_ADMIN_CONTACT?.email ?? '—')
+    };
+  }
+  return ok;
+}
 
     /** ===== อ่านสถานะจากชีต "Status Check" (คอลัมน์ B) แบบ Global =====
  * Apps Script ควรทำ action=getStatusCheck แล้วคืน { success:true, data:{ flag:"Check" | "0" | "" } }
@@ -1997,32 +2025,19 @@ if (!mustCheck) {
   return;
 }
 
-    // 2.2) ถ้า B มีค่า/Check → เช็คงบจาก Emp HO (K/L)
-    const bud = await getBudgetAndAdmin(CURRENT_EMP.id || '');
+    // 2.2) ถ้า B มีค่า/Check → เช็คงบจาก Emp HO (ต้องผ่านกฎ budget>0 และมี BU Admin name/email)
+const bud = await getBudgetAndAdmin(CURRENT_EMP.id || '');
 
-    CURRENT_ADMIN_CONTACT = {
-      name:  (bud && (bud.adminName  ?? bud.buAdminName  ?? bud.name))  || '—',
-      email: (bud && (bud.adminEmail ?? bud.buAdminEmail ?? bud.email)) || '—'
-    };
-
-    const trimVal = v => String(v ?? '').trim();
-
-// ดึงทุก alias แล้วฟอกค่าให้สะอาด
-const kRaw = bud?.k ?? bud?.K ?? bud?.budget ?? bud?.budgetK ?? '';
-const lRaw = bud?.l ?? bud?.L ?? bud?.balance ?? bud?.budgetL ?? '';
-const k = trimVal(kRaw);
-const l = trimVal(lRaw);
-
-// บล็อกเมื่อ “ทั้งสองช่องว่างจริง ๆ”
-if (k === '' && l === '') {
+// ใช้เกณฑ์เดียว: budget > 0 และมีทั้งชื่อ+อีเมล
+if (!passBudget(bud)) {
   showCheckingModal(false);
   showBlocked();
   return;
 }
 
-    // ผ่านทั้งหมด → ไปหน้าเบิก
-    await preloadCategoriesFor(CURRENT_EMP.company);
-    showPage('category');
+// ผ่านทั้งหมด → ไปหน้าเบิก
+await preloadCategoriesFor(CURRENT_EMP.company);
+showPage('category');
 
   }catch(err){
     console.error(err);
@@ -2197,36 +2212,15 @@ async function submitRequest(){
       return;
     }
 
-    // ⛔ Gate: ตรวจงบประมาณจาก Emp HO (ใช้กฎเดียวกับ verify: ผ่านถ้า K หรือ L มีค่า)
-let payload = null;
-if (CURRENT_BUDGET === null) {
-  payload = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
-  CURRENT_ADMIN_CONTACT = {
-    name:  (payload && (payload.adminName  ?? payload.buAdminName  ?? payload.name))  || '—',
-    email: (payload && (payload.adminEmail ?? payload.buAdminEmail ?? payload.email)) || '—'
-  };
-  // เก็บ K ไว้ (ถ้ามี) — แต่อย่าใช้ K ตัวเดียวในการตัดสิน
-  if (payload && payload.budget != null) {
-    CURRENT_BUDGET = Number(payload.budget);
-  }
-} else {
-  // CURRENT_BUDGET เคยเช็คแล้ว แต่เราอยากได้ L ด้วยเพื่อใช้กฎ OR
-  payload = await getBudgetAndAdmin((CURRENT_EMP.id||'').trim());
-  CURRENT_ADMIN_CONTACT = {
-    name:  (payload && (payload.adminName  ?? payload.buAdminName  ?? payload.name))  || CURRENT_ADMIN_CONTACT.name || '—',
-    email: (payload && (payload.adminEmail ?? payload.buAdminEmail ?? payload.email)) || CURRENT_ADMIN_CONTACT.email || '—'
-  };
-}
+    // ⛔ Gate: ตรวจงบอีกครั้งก่อน submit (เกณฑ์เดียวกับ verify)
+const payload = await getBudgetAndAdmin((CURRENT_EMP.id || '').trim());
 
-const k = payload?.k ?? payload?.K ?? payload?.budget ?? payload?.budgetK ?? '';
-const l = payload?.l ?? payload?.L ?? payload?.balance ?? payload?.budgetL ?? '';
-
-if (!(hasNonBlank(k) || hasNonBlank(l))) {
+// ถ้าไม่ผ่านกฎ budget>0 และมี BU Admin name/email ⇒ บล็อก
+if (!passBudget(payload)) {
   showSubmittingModal(false);
-  showBlocked();       // ➜ ไปหน้า “งบประมาณไม่เพียงพอ”
+  showBlocked();
   return;
 }
-
     // เตรียม payload
     const items = CART.map(it => ({
       name: it.name,
