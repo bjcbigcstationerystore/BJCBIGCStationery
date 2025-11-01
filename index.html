@@ -50,13 +50,6 @@ html.summary{
   background:#f3f4f6 !important; /* เทาอ่อน */
 }
     
-   /* ✅ หน้า verify ให้ตัดกรอบ/เงา/ padding ของ .content-card ทิ้ง */
-body.verify .content-card{
-  background:transparent !important;
-  box-shadow:none !important;
-  padding:0 !important;
-  max-width:none !important;
-}
     
 /* ย่อพื้นที่ว่างรอบหน้าให้เล็กลง */
 .page-container{
@@ -128,8 +121,10 @@ body.products .panel{
     .btn-primary{background:linear-gradient(135deg,var(--emerald-500),var(--emerald-600));transition:.25s}
     .btn-primary:hover{background:linear-gradient(135deg,var(--emerald-600),var(--emerald-700));transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
     .alert-success{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;border-radius:12px}
-    /* หมวดหมู่: ให้กรอบเขียวขึ้นชิดบนสุด และไม่มีกรอบขาว */
-body.category .page-container{ padding:0 !important; }                 /* ตัดช่องว่างด้านบน */
+    
+    /* ให้ summary ไม่เหลือช่องว่างบน-ข้าง */
+body.category .page-container{ padding:0 !important; }
+body.summary  .page-container{ padding:0 !important; }  
 body.category #mainCard{ padding:0 !important; background:transparent !important; box-shadow:none !important; border-radius:0 !important; }
 
 body.category .green-shell{
@@ -215,12 +210,6 @@ body.category .cat-item:focus{
       border-color: var(--emerald-700) !important; /* เวลา hover ให้ขอบทั้งใบเป็นเขียวเข้ม */
       /* ซ้ำให้แน่ใจว่าด้านซ้ายเขียวด้วย (กันเคส rule เก่ามา override) */
       border-left-color: var(--emerald-700) !important;
-    }
-
-    /* รูปใหญ่ขึ้น */
-    .prod-img{
-      width:112px;height:112px;object-fit:contain;
-      margin:0 auto 10px;border-radius:12px;background:#f8fafc
     }
 
     /* Modal */
@@ -513,7 +502,7 @@ body.category .cat-item:focus{
 .thx-btn{margin-top:18px;width:100%;min-height:48px;border-radius:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 18px rgba(99,102,241,.25);}
 .thx-footer{margin-top:16px;text-align:center;color:#6b7280;font-weight:600;font-size:.9rem;}
 .thx-footer .row{display:flex;gap:16px;justify-content:center;margin-top:6px;color:#334155;font-weight:800;}
-body.thankyou .content-card{background:transparent;box-shadow:none;padding:0;}
+
 body.thankyou .page-container{align-items:flex-start;padding-top:32px;}
 
     /* ซ่อนโลโก้มุมขวาบนตัว global เฉพาะหน้าขอบคุณ */
@@ -546,6 +535,18 @@ body.thankyou .content-card{
   padding: 0;
   max-width: 480px;
 }
+    body.verify  .content-card{ background:transparent !important; box-shadow:none !important; padding:0 !important; max-width:none !important; }
+body.thankyou .content-card{ background:transparent; box-shadow:none; padding:0; }
+
+/* ⬅️ เพิ่มสำหรับ summary ให้ไม่ทิ้งระยะขอบบน */
+body.summary #mainCard{
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  max-width:none !important;
+}
+
 
 /* กลุ่มสไตล์ของหน้าขอบคุณ (รูปที่ 2) */
 .ty-wrap{ max-width:440px; margin:0 auto; }
@@ -1015,16 +1016,6 @@ body.products .item-card{
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
 }
 
-@media (min-width:1024px){
-  #categoryGrid{
-    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
-    gap:20px !important;
-    justify-content:center !important;
-    max-width:1100px; margin:0 auto;
-  }
-}
-
-
 @media (min-width: 481px){
   #productGrid{
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
@@ -1034,11 +1025,11 @@ body.products .item-card{
 
 /* ✅ Desktop: จำกัดให้เหลือ 3 คอลัมน์พอดี */
 @media (min-width:1024px){
-  #productGrid{
-    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
+  #categoryGrid{
+    grid-template-columns: repeat(4, minmax(240px, 1fr)) !important; /* 4 คอลัมน์บน Desktop */
     gap:20px !important;
     justify-content:center !important;
-    max-width:1100px; margin:0 auto;
+    max-width:1400px; margin:0 auto; /* เผื่อความกว้างให้รองรับ 4 ใบสบายๆ */
   }
 }
 
@@ -1308,6 +1299,66 @@ body, html {
   margin: 0;
   padding: 0;
 }
+    /* ✅ Summary hero full-bleed เหมือน Category/Products */
+body.summary .hero{
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  margin-left: calc(50% - 50dvw) !important;
+  margin-right: calc(50% - 50dvw) !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* ✅ Summary header box (กรอบหัวสีขาว) – เทมเพลตเดียวกับ products/category */
+.summary-header-box{
+  background:#ffffff;
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  margin-left: calc(50% - 50dvw) !important;
+  margin-right: calc(50% - 50dvw) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+  margin-bottom: 10px !important;
+  text-align:center;
+  position: relative; /* เผื่อมีวัน/เวลา มุมขวา */
+}
+.summary-header-box h2{
+  margin:0;
+  font-size:1.25rem;
+  font-weight:700;
+  color:#065f46;
+}
+.summary-header-box p{
+  margin-top:4px;
+  font-size:0.95rem;
+  font-weight:400;
+  color:#475569;
+}
+/* มุมขวาสำหรับวัน/เวลา (ถ้าใช้) */
+.summary-header-meta{
+  position:absolute;
+  right:12px;
+  top:10px;
+  text-align:right;
+  line-height:1.1;
+}
+.summary-header-meta .date{ font-size:.9rem; color:#6b7280; }
+.summary-header-meta .time{ font-size:.8rem; color:#9ca3af; }
+
+/* ✅ การ์ดภายใน Summary ให้คุมความกว้างเหมือน Products */
+body.summary .panel{
+  width:min(1200px,92vw);
+  margin:0 auto;
+  background:#f3f4f6 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+/* ไม่ต้องใช้หัว panel เดิมแล้ว (เราย้ายไป header box) */
+body.summary .panel-head{ display:none !important; }
+
 
 
 
@@ -1319,6 +1370,7 @@ html.category, body.category{
   height:auto !important;
   min-height:100% !important;
 }
+    
     
   </style>
 </head>
@@ -1446,21 +1498,17 @@ html.category, body.category{
           <div class="hero-dots"><span class="dim"></span><span class="dim"></span><span></span></div>
           <p class="hero-desc">กรุณาตรวจสอบรายการและกรอกข้อมูลให้ครบถ้วน</p>
         </div>
-
-        <div class="panel">
-          <div class="panel-head">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900">ใบเบิกอุปกรณ์สำนักงาน</h3>
-                <p class="text-gray-600">BJC Big C Stationery Request Form</p>
-              </div>
-              <div class="text-right shrink-0">
-                <div id="sumDate" class="text-sm text-gray-500"></div>
-                <div id="sumTime" class="text-xs text-gray-400"></div>
-              </div>
-            </div>
-          </div>
-
+        
+        <div class="summary-header-box">
+  <h2>ใบเบิกอุปกรณ์สำนักงาน</h2>
+  <p>BJC Big C Stationery Request Form</p>
+  <!-- วัน/เวลา มุมขวา (ถ้าไม่ต้องการ สามารถลบบล็อกนี้ได้) -->
+  <div class="summary-header-meta">
+    <div id="sumDate" class="date"></div>
+    <div id="sumTime" class="time"></div>
+  </div>
+</div>
+      <div class="panel">
           <div class="panel-body">
 
            <!-- ผู้เบิก -->
@@ -2542,8 +2590,13 @@ async function verifyEmployee(){
     /* ===== เรนเดอร์หน้า Summary (ใหม่) ===== */
     async function renderSummary(){
   // วันที่/เวลา
-  document.getElementById('sumDate').textContent = `วันที่ / Date ${formatDateTH(new Date())}`;
-  document.getElementById('sumTime').textContent = `เวลา / Time ${formatTimeTH(new Date())}`;
+ const now = new Date();
+const d = String(now.getDate()).padStart(2, '0');
+const m = String(now.getMonth() + 1).padStart(2, '0');
+const y = now.getFullYear();  // ถ้าอยากได้ พ.ศ. ใช้ now.getFullYear() + 543
+document.getElementById('sumDate').textContent = `Date : ${d}/${m}/${y}`;
+document.getElementById('sumTime').textContent = `Time : ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
 
       // ผู้เบิก
   const emp = CURRENT_EMP || {};
