@@ -981,12 +981,26 @@ body.products .item-card{
   width: 90% !important;
   max-width: 500px;
 }
-    /* ==== ปรับกริดหมวดหมู่ให้ auto-fit ตามหน้าจอ ==== */
-#categoryGrid{
-  display:grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* ปรับ 280–360 ตามชอบ */
-  gap:16px !important;
+
+    /* Desktop/Tablet: ใช้ของเดิม */
+#categoryGrid{ display:grid !important; gap:14px !important; }
+#productGrid{  display:grid !important; gap:18px !important; }
+
+@media (min-width: 481px){
+  #categoryGrid{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; }
+  #productGrid{  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; }
 }
+
+/* Mobile ≤480px: บังคับเป็น 2 คอลัมน์ */
+@media (max-width: 480px){
+  #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
+  #productGrid{  grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* ย่อการ์ด/ไอคอนให้พอดีช่อง */
+  body.category .cat-item{ padding:10px !important; border-radius:12px !important; }
+  .cat-icon{ width:36px; height:36px; }
+}
+
 /* ===== Category Card with Icon on Top ===== */
 body.category .cat-item{
   display:flex;
@@ -1074,13 +1088,6 @@ body.products .panel{
   margin:0 auto;
   border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,.10);
-}
-
-/* กริดสินค้าจัดคอลัมน์อัตโนมัติให้พอดีหน้าจอ */
-#productGrid{
-  display:grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-  gap:18px !important;
 }
 
 /* การ์ดสินค้าไม่ล็อกความกว้างเป็นกล่องเดี่ยว */
@@ -1206,6 +1213,19 @@ body.category .green-shell {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh; /* เต็มความสูงหน้าจอ */
+}
+/* Mobile: ย่อโลโก้และขยับไม่ให้ทับหัวข้อ */
+@media (max-width: 480px){
+  :root{ --logo-h:22px; }                 /* จาก 32px → 22px */
+  .logo-box{
+    top:8px; right:10px;                   /* ขยับชิดมุมมากขึ้น */
+    padding:3px 6px; border-radius:10px;
+  }
+  .hero-title{ font-size:1.35rem; }        /* หัวข้อเล็กลงนิดให้โปร่ง */
+  .hero-sub{   font-size:.8rem; letter-spacing:.12rem; }
+
+  /* ถ้าหน้ายังแน่น สามารถเลือกซ่อนโลโก้เฉพาะมือถือได้ (เอาคอมเมนต์ออกได้) */
+  /* .logo-box{ display:none !important; } */
 }
 
 
