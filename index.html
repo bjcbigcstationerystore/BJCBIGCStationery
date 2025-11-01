@@ -998,8 +998,8 @@ body.category .cat-item{
 }
 
 .cat-icon{
-  width:64px;
-  height:64px;
+  width:48px;
+  height:48px;
   object-fit:contain;
   border:none;
   background:none;
@@ -1178,9 +1178,42 @@ body.summary  .products-inner{
   padding-right: 1rem !important;
   box-sizing: border-box !important;
 }
+    /* ✅ ปรับขนาดกล่องหมวดหมู่ (Category) ให้เล็กลงเหลือ 80% ของความกว้างหน้าจอ */
+body.category .category-inner {
+  width: 80% !important;
+  max-width: 80% !important;
+  margin: 0 auto !important;
+  transform: scale(0.98);
+  transform-origin: top center;
+}
+
+/* ✅ ลดขนาด grid และระยะห่างภายในการ์ด */
+#categoryGrid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+/* ✅ ลดระยะ padding ในแต่ละการ์ดอีกเล็กน้อย */
+body.category .cat-item {
+  padding: 10px !important;
+  border-radius: 10px !important;
+}
+
+/* ✅ ให้กล่องทั้งหมดอยู่ตรงกลางแนวตั้งพอดี ไม่ต้อง scroll */
+body.category .green-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh; /* เต็มความสูงหน้าจอ */
+}
+
+
+
 
 
 html, body { overflow-x: hidden; }
+    
   </style>
 </head>
 
@@ -1867,11 +1900,10 @@ const CATEGORY_ICONS = {
       : '';
 
     return `
-      <button class="cat-item" onclick="openCategory('${title.replace(/'/g, "\\'")}')">
-        ${img}
-        <div class="font-bold text-lg text-gray-900">${title}</div>
-        <div class="text-emerald-700 font-normal mt-1">${c.count ?? 0} รายการ</div>
-      </button>
+  <button class="cat-item" onclick="openCategory('${title.replace(/'/g, "\\'")}')">
+    ${img}
+    <div class="font-bold text-lg text-gray-900">${title}</div>
+  </button>
     `;
   }).join('');
 }
