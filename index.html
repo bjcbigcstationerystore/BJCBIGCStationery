@@ -17,13 +17,13 @@
 #summaryContent .form-value li{ line-height:1.45; }
     
     :root{
-      --emerald-900:#064e3b;
-      --emerald-800:#065f46;
-      --emerald-700:#047857;
-      --emerald-600:#059669;
-      --emerald-500:#10b981;
-      --logo-h:32px;
-    }
+  --emerald-900:#064e3b;
+  --emerald-800:#065f46;
+  --emerald-700:#047857;
+  --emerald-600:#059669;
+  --emerald-500:#10b981;
+  --logo-h:24px; /* ลดจาก 32px -> 24px */
+}
     html,body{
   height:100%;
   margin:0;
@@ -1216,7 +1216,7 @@ body.category .green-shell {
 }
 /* Mobile: ย่อโลโก้และขยับไม่ให้ทับหัวข้อ */
 @media (max-width: 480px){
-  :root{ --logo-h:22px; }                 /* จาก 32px → 22px */
+  :root{ --logo-h:18px; }                 /* จาก 32px → 22px */
   .logo-box{
     top:8px; right:10px;                   /* ขยับชิดมุมมากขึ้น */
     padding:3px 6px; border-radius:10px;
