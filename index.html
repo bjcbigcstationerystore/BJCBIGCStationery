@@ -978,8 +978,8 @@ body.products .panel{
 /* ปรับระยะเว้นขอบรูปและการ์ดในหน้ารายการสินค้าให้กระชับขึ้น */
 body.products .item-card{
   margin: 1rem auto !important;
-  width: 90% !important;
-  max-width: 500px;
+  width: 100% !important;   /* ไม่บีบเกินจำเป็น */
+  max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
 }
 
     /* Desktop/Tablet: ใช้ของเดิม */
@@ -987,8 +987,20 @@ body.products .item-card{
 #productGrid{  display:grid !important; gap:18px !important; }
 
 @media (min-width: 481px){
-  #categoryGrid{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; }
-  #productGrid{  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; }
+  #productGrid{
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+    gap:18px !important;  /* เพิ่มช่องว่างนิดนึง */
+  }
+}
+
+/* ✅ Desktop: จำกัดให้เหลือ 3 คอลัมน์พอดี */
+@media (min-width:1024px){
+  #productGrid{
+    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
+    gap:20px !important;
+    justify-content:center !important;
+    max-width:1100px; margin:0 auto;
+  }
 }
 
 /* Mobile ≤480px: บังคับเป็น 2 คอลัมน์ */
@@ -1047,12 +1059,21 @@ body.category .cat-item{
 
 /* การ์ดสินค้าเล็กลงนิด */
 body.products .prod-card{
-  padding:12px !important;      /* เดิม 14px */
-  border-radius:14px !important;
+  padding:10px !important;            /* เดิม 12 */
+  border-radius:12px !important;       /* เดิม 14 */
+  display:grid;                        /* ทำให้จัดวางเว้นช่วงดีขึ้น */
+  grid-template-rows:auto 1fr auto;    /* ชื่อสินค้าอยู่กลาง, ราคาอยู่ล่าง */
 }
+
+/* ✅ รูปไม่ใหญ่เกิน */
 .prod-img{
-  width:100px; height:100px;    /* เดิม 112x112 */
+  width:88px; height:88px;             /* เดิม 100x100 */
+  object-fit:contain;
+  margin:0 auto 10px;
+  border-radius:10px;
+  background:#f8fafc;
 }
+    
     /* ===== Products: ทำให้กว้างเต็มจอแบบหน้า Category ===== */
 body.products #mainCard{
   width:100% !important;
@@ -1086,16 +1107,41 @@ body.products .products-inner{
 body.products .panel{
   width:min(1200px,92vw);
   margin:0 auto;
-  border-radius:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.10);
+  background:#f3f4f6 !important;   /* เทาอ่อนคลุมพื้นที่การ์ด */
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+/* ✅ การ์ดสินค้า: ซ้าย-ขวาแคบลง ดูโปร่ง */
+body.products .prod-card{
+  padding:10px 8px !important;      /* เดิม 12 ทุกทิศ → ซ้ายขวาเหลือ 8px */
+  border-radius:12px !important;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
 }
 
-/* การ์ดสินค้าไม่ล็อกความกว้างเป็นกล่องเดี่ยว */
-body.products .prod-card{
-  width:100% !important;
-  padding:12px !important;
-  border-radius:14px !important;
+/* ✅ รูปย่อมลงนิด ให้เหลือพื้นที่ข้อความ */
+.prod-img{
+  width:88px; height:88px;
+  object-fit:contain;
+  margin:0 auto 10px;
+  border-radius:10px;
+  background:#f8fafc;
 }
+
+/* มือถือ: ลดรูปอีกนิด */
+@media (max-width:480px){
+  .prod-img{ width:80px; height:80px; }
+}
+
+body.products .panel-body{
+  background:#f3f4f6 !important;   /* กันเคสมีตัวอื่น override */
+  padding:12px 10px !important;     /* เว้นขอบพอดีตา */
+}
+
+
 /* ✅ Category white header full-bleed */
 .category-header-box,
 .products-header-box{
