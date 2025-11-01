@@ -1097,7 +1097,8 @@ body.products .prod-card{
   border-radius:14px !important;
 }
 /* ✅ Category white header full-bleed */
-.category-header-box{
+.category-header-box,
+.products-header-box{
   background:#ffffff;
   width: 100dvw !important;
   max-width: 100dvw !important;
@@ -1105,20 +1106,21 @@ body.products .prod-card{
   margin-right: calc(50% - 50dvw) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 8px 12px !important;   /* ⬅️ เล็กลง */
-  margin-bottom: 10px !important; /* ⬅️ ช่องว่างใต้หัวน้อยลง */
+  padding: 8px 12px !important;     /* ระยะเท่ากัน */
+  margin-bottom: 10px !important;
   text-align:center;
 }
 
-/* ปรับฟอนต์และระยะในกรอบให้พอดีสายตา */
-.category-header-box h2{
+.category-header-box h2,
+.products-header-box h2{
   margin:0;
   font-size:1.25rem;
   font-weight:700;
   color:#065f46;
 }
 
-.category-header-box p{
+.category-header-box p,
+.products-header-box p{
   margin-top:4px;
   font-size:0.95rem;
   font-weight:400;
@@ -1174,8 +1176,12 @@ body.category .hero{
 
 
 body.products .hero{
-  margin-left: 1rem !important;
-  margin-right: 1rem !important;
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  margin-left: calc(50% - 50dvw) !important;
+  margin-right: calc(50% - 50dvw) !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
     /* ✅ ระยะขอบด้านข้างของเนื้อหา */
 body.category .category-inner,
@@ -1323,30 +1329,30 @@ html, body { overflow-x: hidden; }
       <div id="productsContent" class="hidden text-left">
         <div class="green-shell">
           <div class="products-inner">
-            <div class="hero">
-              <div class="logo-box">
-                <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
-              </div>
-              <h1 class="hero-title" id="prodHeroTitle">รายการสินค้า</h1>
-              <div class="hero-sub">STATIONERY&nbsp;STORE</div>
-              <div class="hero-dots"><span class="dim"></span><span></span><span class="dim"></span></div>
-              <p class="hero-desc" id="prodHeroDesc">คลิกเพื่อดูรายละเอียดและเลือกจำนวน</p>
-            </div>
+  <div class="hero">
+    <div class="logo-box">
+      <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
+    </div>
+    <h1 class="hero-title" id="prodHeroTitle">รายการสินค้า</h1>
+    <div class="hero-sub">STATIONERY&nbsp;STORE</div>
+    <div class="hero-dots"><span class="dim"></span><span></span><span class="dim"></span></div>
+  </div>
 
-            <div class="panel">
-              <div class="panel-head">
-                <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900" id="prodTitle">รายการสินค้า</h3>
-                <p class="text-gray-600 mt-1">คลิกเพื่อดูรายละเอียดและเลือกจำนวน</p>
-              </div>
-              <div class="panel-body">
-                <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
-              </div>
+  <!-- ✅ กรอบหัวสีขาว (เหมือน Category) -->
+  <div class="products-header-box">
+    <h2 class="text-emerald-800 font-bold text-xl" id="prodHeaderTitle">รายการสินค้า</h2>
+    <p class="text-gray-600" id="prodHeaderDesc">คลิกเพื่อดูรายละเอียดและเลือกจำนวน</p>
+  </div>
 
-              <button class="back-btn" onclick="backToCategories()">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-                กลับ
-              </button>
-            </div>
+  <div class="panel">
+    <div class="panel-body">
+      <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+    </div>
+    <button class="back-btn" onclick="backToCategories()">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+      กลับ
+    </button>
+  </div>
           </div>
         </div>
       </div>
@@ -2025,9 +2031,8 @@ async function openCategory(name){
   // ✅ หลังโหลดเสร็จ → ปิดโหมดโหลดสด (เหลือ cache รอบถัดไปได้เลย)
   FORCE_FRESH = false;
 
-  document.getElementById('prodTitle').textContent = 'รายการสินค้า';
-  document.getElementById('prodHeroTitle').textContent = selectedCategory;
-  document.getElementById('prodHeroDesc').textContent = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+  document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';    document.getElementById('prodHeaderTitle').textContent = 'รายการสินค้า';
+ document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
 
   renderProducts();
   showPage('products');
