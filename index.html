@@ -1421,10 +1421,6 @@ body.summary .panel{
 /* ไม่ต้องใช้หัว panel เดิมแล้ว (เราย้ายไป header box) */
 body.summary .panel-head{ display:none !important; }
 
-
-
-
-
 html, body { overflow-x: hidden; overflow-y:auto; }
 
 /* กันเคสสูงคงที่จาก height:100% ในบางหน้า → ให้หน้า Category สูงตามเนื้อหา */
@@ -1510,35 +1506,7 @@ body.category .back-btn{
   transform: scale(.7);
   transform-origin: bottom right;
 }
-/* ====================== SUMMARY DESKTOP @75% ====================== */
-@media (min-width:1024px){
-  body.summary{ --sumSZ: .75; }
 
-  /* หัวกล่องด้านบน */
-  body.summary .summary-header-box h2{
-    font-size: calc(1.25rem * var(--sumSZ)) !important;
-  }
-  body.summary .summary-header-box p{
-    font-size: calc(0.95rem * var(--sumSZ)) !important;
-  }
-
-  /* การ์ด/กรอบแต่ละส่วน */
-  body.summary .info-card{
-    padding: calc(18px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
-  }
-  body.summary .info-card .form-grid{
-    gap: calc(12px * var(--sumSZ)) !important;
-  }
-
-  /* ป้ายกำกับ + ค่า */
-  #summaryContent .form-label{
-    font-size: calc(.95rem * var(--sumSZ)) !important;
-  }
-  #summaryContent .form-value{
-    font-size: calc(1rem * var(--sumSZ)) !important;
-    padding: calc(14px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
-    border-radius: calc(12px * var(--sumSZ)) !important;
-  }
 /* ===== BU Admin card: ให้ฟิลด์เรียงทีละบรรทัด (ชนะ global !important) ===== */
 body.summary .info-card.bu-admin .form-grid{
   grid-template-columns: 1fr !important;
