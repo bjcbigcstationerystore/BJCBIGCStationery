@@ -1015,28 +1015,13 @@ body.products .item-card{
   max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
 }
 
-    /* Category grid – base */
+/* ลดช่องว่างพื้นฐานให้กระชับ */
 #categoryGrid{
   display:grid !important;
-  gap:18px !important;
-  grid-template-columns: repeat(2, 1fr) !important; /* base = 2 คอลัมน์สำหรับมือถือกว้าง */
+  gap:14px !important;               /* เดิม 18px */
 }
 
-/* มือถือจอเล็กมาก */
-@media (max-width:480px){
-  #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
-}
-
-/* เดสก์ท็อป 4 กล่องต่อแถว */
-@media (min-width:1024px){
-  #categoryGrid{
-    grid-template-columns: repeat(4, minmax(240px, 1fr)) !important;
-    gap:20px !important;
-    justify-content:center !important;
-    max-width:1400px; margin:0 auto;
-  }
-}
-
+#categoryGrid{ display:grid !important; gap:18px !important; }
 
 @media (max-width:480px){
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
@@ -1269,10 +1254,10 @@ body.products .products-inner {
 }
     /* ✅ Category hero full-bleed */
 body.category .hero{
-  width: 100% !important;
-  max-width: 100% !important;
-  margin-left: calc(50% - 50vw) !important;
-  margin-right: calc(50% - 50vw) !important;
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  margin-left: calc(50% - 50dvw) !important;
+  margin-right: calc(50% - 50dvw) !important;
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
@@ -1491,8 +1476,9 @@ body.summary .form-label {
 
 /* ================== CATEGORY PAGE ONLY (70% SCALE) ================== */
 /* ลดขนาดเฉพาะหน้าหมวดหมู่เท่านั้น */
-body.category .cat-item{
-  font-size: 0.9em !important;
+body.category .category-header-box,
+body.category .panel-body{
+  font-size: 0.7em !important;
   line-height: 1.4 !important;
 }
 
@@ -1556,56 +1542,31 @@ body.category .back-btn{
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 }
-/* ===== Summary: จัดผู้เบิก & BU Admin ข้างกันเฉพาะ Desktop ===== */
-.summary-duo{
-  display:block;                 /* มือถือ/แท็บเล็ต: เรียงบน-ล่างตามเดิม */
-  gap: 12px;
-}
 
-@media (min-width:1024px){
-  .summary-duo{
-    display:grid;
-    grid-template-columns: 1fr 1fr;  /* ซ้าย 50% : ขวา 50% */
-    gap: 12px;                       /* ระยะห่างระหว่างการ์ด */
-    align-items: start;
+    async function loadBUHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
+    const res = await fetch(url, { cache:'no-store' });
+    const js  = await res.json();
+
+    const nameEl  = document.getElementById('s_buhead_name');
+    const emailEl = document.getElementById('s_buhead_email');
+
+    if (!nameEl || !emailEl) return;
+
+    if (js.success && js.allowed){
+      nameEl.textContent  = js.data?.buHeadName  || '—';
+      emailEl.textContent = js.data?.buHeadEmail || '—';
+    } else {
+      nameEl.textContent  = '—';
+      emailEl.textContent = '—';
+    }
+  }catch(err){
+    console.error('loadBUHead:', err);
+    document.getElementById('s_buhead_name')?.textContent  = '—';
+    document.getElementById('s_buhead_email')?.textContent = '—';
   }
-  .summary-duo .info-card{
-    margin-bottom: 0 !important;     /* ไม่ให้ทิ้งช่องว่างล่างเพิ่ม */
-    height: 100%;                     /* สูงเท่ากัน (ตามเนื้อหา) */
-  }
-  /* ถ้าอยาก “สูงเท่ากันจริง ๆ” แม้เนื้อหาต่างกัน ให้เปิดบรรทัดล่าง */
-  /* .summary-duo .info-card { display:flex; flex-direction:column; } */
 }
- /* ===== BU Head Card ===== */
-.buhead-card {
-  margin-top: 12px;
-}
-
-.buhead-card .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;  /* แถวละ 2 ช่องเหมือนฝั่งผู้เบิก */
-  gap: 12px;
-}
-
-@media (max-width: 768px){
-  .buhead-card .form-grid {
-    grid-template-columns: 1fr;    /* มือถือให้เรียงแนวตั้ง */
-  }
-}   
-    
-    /* ===== ปรับกรอบข้อความของข้อมูลผู้เบิก ให้เท่ากับ BU Admin ===== */
-.emp-card .form-value {
-  display: block;
-  width: 100%;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;    /* เทาอ่อนแบบเดียวกับ BU Admin */
-  border-radius: 0.5rem;        /* มุมโค้งเท่ากัน */
-  padding: 0.5rem 0.75rem;      /* ช่องห่างในกล่อง */
-  line-height: 1.5;
-  min-height: 2.25rem;          /* ความสูงขั้นต่ำให้เท่ากัน */
-  box-sizing: border-box;
-}
-
     
   </style>
 </head>
@@ -1745,56 +1706,56 @@ body.category .back-btn{
       <div class="panel">
           <div class="panel-body">
 
-<!-- ผู้เบิก (ซ้าย) + BU Admin (ขวา) สำหรับ Desktop -->
-<div class="summary-duo">
-  <!-- ซ้าย: ผู้เบิก -->
-  <section class="info-card emp-card">
-    <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก: Employee Information</h4>
-    <div class="section-divider"></div>
+           <!-- ผู้เบิก -->
+<section class="info-card">
+  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก: Employee Information</h4>
+  <div class="section-divider"></div>
 
-    <!-- แถวที่ 1: Company / Cost Center -->
-    <div class="form-grid mb-3">
-      <div class="form-field">
-        <label class="form-label">Company</label>
-        <div id="s_company" class="form-value">-</div>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Cost Center</label>
-        <div id="s_cost" class="form-value">-</div>
-      </div>
+   <!-- แถวที่ 1: Company / Cost Center -->
+  <div class="form-grid mb-3">
+    <div class="form-field">
+      <label class="form-label">Company</label>
+      <div id="s_company" class="form-value">-</div>
     </div>
-
-    <!-- แถวที่ 2: Employee ID / Full Name -->
-    <div class="form-grid">
-      <div class="form-field">
-        <label class="form-label">Employee ID</label>
-        <div id="s_empid" class="form-value">-</div>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Full Name</label>
-        <div id="s_fullname" class="form-value">-</div>
-      </div>
+    <div class="form-field">
+      <label class="form-label">Cost Center</label>
+      <div id="s_cost" class="form-value">-</div>
     </div>
-  </section>
+  </div>
 
-  <!-- ขวา: BU Admin -->
-  <section class="info-card bu-card">
-    <h4 class="section-title">🏢 BU Admin</h4>
-    <div class="section-divider"></div>
+  <!-- แถวที่ 2: Employee ID / Full Name -->
+  <div class="form-grid">
+    <div class="form-field">
+      <label class="form-label">Employee ID</label>
+      <div id="s_empid" class="form-value">-</div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Full Name</label>
+      <div id="s_fullname" class="form-value">-</div>
+    </div>
+  </div>
+</section>
 
-    <div class="form-field mb-3">
-  <label class="form-label">BU Admin Name</label>
-  <div id="s_bu_name" class="form-value">—</div>
-</div>
-<div class="form-field">
-  <label class="form-label">BU Admin Email</label>
-  <div id="s_bu_email" class="form-value">—</div>
-</div>
-  </section>
-</div>
-            <!-- ===== BU Head (อยู่ใต้ผู้เบิกและ BU Admin) ===== -->
-<section class="info-card buhead-card">
-  <h4 class="section-title">🏢 BU Head</h4>
+<!-- ข้อมูล BU Admin -->
+<section class="info-card">
+  <h4 class="section-title">🏢 BU Admin</h4>
+  <div class="section-divider"></div>
+
+  <div class="form-grid">
+    <div class="form-field">
+      <label class="form-label">BU Admin Name</label>
+      <div id="s_bu_name" class="form-value">—</div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">BU Admin Email</label>
+      <div id="s_bu_email" class="form-value">—</div>
+    </div>
+  </div>
+</section>
+
+            <!-- BU Head -->
+<section class="info-card">
+  <h4 class="section-title">👔 BU Head</h4>
   <div class="section-divider"></div>
 
   <div class="form-grid">
@@ -1809,6 +1770,7 @@ body.category .back-btn{
   </div>
 </section>
             
+
             <!-- รายการ -->
             <div class="mb-6">
   <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
@@ -2525,24 +2487,6 @@ function showLoadingProductsModal(show = true){
   return (ok && json && json.success && json.data) ? json.data : null;
 }
 
-    async function getBudgetAndAdmin(employeeId){
-  try{
-    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return null;
-
-    const data = json.data || {};
-    return {
-      budget: Number(data.budget ?? data.k ?? data.K ?? data.budgetK ?? 0),
-      adminName:  (data.adminName  ?? data.buAdminName  ?? data.name  ?? '—').toString().trim(),
-      adminEmail: (data.adminEmail ?? data.buAdminEmail ?? data.email ?? '—').toString().trim()
-    };
-  }catch(e){
-    console.warn('getBudgetAndAdmin failed', e);
-    return null;
-  }
-}
-    
     /* ====== Layout helpers ====== */
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
@@ -2896,14 +2840,19 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
     // แสดงผลบนหน้า Summary
     document.getElementById('s_bu_name').textContent  = adminName || '—';
     document.getElementById('s_bu_email').textContent = adminEmail || '—';
-
-    await loadBUHead(emp.id || '');
-    
   }catch(e){
     console.warn('getBudgetAndAdmin failed', e);
     document.getElementById('s_bu_name').textContent  = '—';
     document.getElementById('s_bu_email').textContent = '—';
   }
+      // BU Head (ใหม่): เรียกใช้ helper ที่มีอยู่แล้ว
+try{
+  await loadBUHead(emp.id || '');
+}catch(e){
+  console.warn('loadBUHead failed', e);
+  document.getElementById('s_buhead_name')?.textContent  = '—';
+  document.getElementById('s_buhead_email')?.textContent = '—';
+}
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
   if(!wrap) return;
@@ -3117,32 +3066,6 @@ if (stepSubmit === 'blocked') {
     });
   }
 });
-    
-async function loadBUHead(employeeId){
-  try{
-    const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
-    const res = await fetch(url, { cache:'no-store' });
-    const js  = await res.json();
-
-    const nameEl  = document.getElementById('s_buhead_name');
-    const emailEl = document.getElementById('s_buhead_email');
-
-    if (!nameEl || !emailEl) return;
-
-    if (js.success && js.allowed){
-      nameEl.textContent  = js.data?.buHeadName  || '—';
-      emailEl.textContent = js.data?.buHeadEmail || '—';
-    } else {
-      nameEl.textContent  = '—';
-      emailEl.textContent = '—';
-    }
-  }catch(err){
-    console.error('loadBUHead:', err);
-    document.getElementById('s_buhead_name')?.textContent  = '—';
-    document.getElementById('s_buhead_email')?.textContent = '—';
-  }
-}
-
     
   </script>
 
