@@ -1409,6 +1409,38 @@ html.category, body.category{
     #summaryFooter .label{ color:#4b5563; }   /* = text-gray-600 ประมาณนั้น */
 #summaryFooter .val{ color:#059669; }
     
+ /* ===== Summary: section cards + divider + titled header ===== */
+body.summary .info-card{
+  background:#ffffff;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+  padding:18px 16px;
+  margin-bottom:16px;            /* ระยะห่างการ์ดต่อการ์ด */
+}
+
+@media (min-width:768px){
+  body.summary .info-card{ padding:22px 20px; }
+}
+
+/* เส้นคั่นบาง ๆ ใต้หัวข้อของแต่ละการ์ด */
+body.summary .section-divider{
+  border-bottom:1px solid #e5e7eb;
+  margin:8px 0 14px;
+}
+
+/* หัวข้อมีอีโมจิ: ช่วยโฟกัสสายตา */
+body.summary .section-title{
+  display:flex; align-items:center; gap:.5rem;
+  font-weight:800; color:#065f46;   /* emerald-800 */
+  font-size:1.125rem;               /* ~18px บนมือถือ */
+}
+@media (min-width:768px){
+  body.summary .section-title{ font-size:1.25rem; }  /* ~20px บนเดสก์ท็อป */
+}
+
+/* ปรับกริดฟิลด์ให้กระชับขึ้นเล็กน้อยใน card */
+body.summary .info-card .form-grid{ gap:12px !important; }   
     
     
   </style>
@@ -1550,16 +1582,12 @@ html.category, body.category{
           <div class="panel-body">
 
            <!-- ผู้เบิก -->
-<div class="mt-2 md:mt-3 mb-6">
-  <div class="flex items-center mb-4">
-    <span class="dot"></span>
-    <h4 class="text-xl md:text-2xl font-extrabold text-emerald-900">
-      ข้อมูลผู้เบิก / Employee Information
-    </h4>
-  </div>
+<section class="info-card">
+  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก / Employee Information</h4>
+  <div class="section-divider"></div>
 
-  <!-- แถวที่ 1: Company / Cost Center -->
-  <div class="form-grid mb-4">
+   <!-- แถวที่ 1: Company / Cost Center -->
+  <div class="form-grid mb-3">
     <div class="form-field">
       <label class="form-label">Company</label>
       <div id="s_company" class="form-value">-</div>
@@ -1581,16 +1609,12 @@ html.category, body.category{
       <div id="s_fullname" class="form-value">-</div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- ข้อมูล BU Admin -->
-<div class="mb-6">
-  <div class="flex items-center mb-4">
-    <span class="dot"></span>
-    <h4 class="text-xl md:text-2xl font-extrabold text-emerald-900">
-      ข้อมูล BU Admin
-    </h4>
-  </div>
+<section class="info-card">
+  <h4 class="section-title">🏢 ข้อมูล BU Admin</h4>
+  <div class="section-divider"></div>
 
   <div class="form-grid">
     <div class="form-field">
@@ -1602,14 +1626,12 @@ html.category, body.category{
       <div id="s_bu_email" class="form-value">—</div>
     </div>
   </div>
-</div>
+</section>
 
             <!-- รายการ -->
             <div class="mb-6">
-              <div class="flex items-center mb-3">
-                <span class="dot"></span>
-                <h4 class="text-xl md:text-2xl font-extrabold text-emerald-900">รายการที่เบิก / Items Requested</h4>
-              </div>
+  <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
+  <div class="section-divider"></div>
 
               <div id="sumItems" class="mt-3"></div>
 
