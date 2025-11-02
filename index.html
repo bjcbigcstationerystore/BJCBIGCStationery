@@ -2938,46 +2938,43 @@ async function submitRequest(){
       row[`ราคา ${n}`]    = Number(it.price) || 0;
     });
 
-    const params = new URLSearchParams();
-    params.set('action', 'submitRequest');
-    params.set('row', JSON.stringify(row));
-
-    const ctrl = new AbortController();
-    const timer = setTimeout(()=>ctrl.abort('timeout'), 30000);
+    async function submitRequest(payload){
+  const btn = document.querySelector('#submitBtn'); // ถ้ามีปุ่มส่ง id=submitBtn
+  try{
+    if (btn) { btn.disabled = true; btn.classList.add('opacity-60','pointer-events-none'); }
 
     const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: params.toString(),
-      cache: 'no-store',
-      signal: ctrl.signal
-    }).catch(err => { throw new Error(err?.message || 'network error'); });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'submitrequest',   // << ต้องเป็นชื่อเดียวกับ Apps Script
+        ...payload                 // {row:{...}} หรือ {data:{...}}
+      })
+    });
 
-    clearTimeout(timer);
+    const data = await res.json();
+    console.log('[submitrequest] =>', data);
 
-    const raw = await res.text();
-    let json = null; try { json = JSON.parse(raw); } catch(_){}
-
-    if (!res.ok) {
-      const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-      throw new Error(msg);
-    }
-    if (!json || json.success !== true) {
-      throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
+    if (data.status === 'blocked') {
+      // M=NO หรือหาไม่เจอ → โชว์หน้า "งบประมาณไม่เพียงพอ"
+      await showBlocked_(payload, data);
+      return;
     }
 
-    LAST_SUBMIT = {
-      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-      totalQty: totalQty,
-      totalAmount: totalCost
-    };
+    if (data.status === 'ok') {
+      // ผ่าน (M=YES) → โชว์หน้า Thank You
+      showThankyou_(data);
+      return;
+    }
 
-    // ✅ ส่งสำเร็จ → ล้างตะกร้า + ขอบคุณ
-    CART = [];
-    updateCartUI();
-    showSubmittingModal(false);
-    showPage('thankyou');
-    renderThankYou();
+    alert('ส่งคำขอไม่สำเร็จ: ' + (data.error || 'ไม่ทราบสาเหตุ'));
+  }catch(err){
+    console.error(err);
+    alert('เกิดข้อผิดพลาดขณะส่งคำขอ');
+  }finally{
+    if (btn) { btn.disabled = false; btn.classList.remove('opacity-60','pointer-events-none'); }
+  }
+}
 
   } catch (err) {
     console.error(err);
