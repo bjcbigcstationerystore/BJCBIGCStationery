@@ -2257,7 +2257,25 @@ async function getEmpStatusM(employeeId){
     return '';
   }
 }
+    // === อ่าน Budget + BU Admin ของพนักงานจาก Apps Script ===
+// API: ?action=getBudgetAndAdmin&employeeId=XXXX
+async function getBudgetAndAdmin(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) return null;
 
+    // รองรับชื่อคีย์หลายรูปแบบจากฝั่ง Script
+    const budget     = Number(json.budget ?? json.k ?? json.K ?? json.data?.budget ?? json.data?.k ?? json.data?.K ?? 0);
+    const adminName  = String(json.adminName  ?? json.name  ?? json.data?.adminName  ?? json.data?.name  ?? '—').trim();
+    const adminEmail = String(json.adminEmail ?? json.email ?? json.data?.adminEmail ?? json.data?.email ?? '—').trim();
+
+    return { budget, adminName, adminEmail };
+  }catch(e){
+    console.warn('getBudgetAndAdmin failed', e);
+    return null;
+  }
+}
 
 /** ตีความค่า B:
  * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
@@ -2661,27 +2679,36 @@ function showPage(which){
   }
 }
 
-    function showBlocked(){
+   async function showBlocked(empId){
+  try{
+    // ถ้าใน cache ยังไม่มีชื่อ/อีเมล → ไปดึงจาก Script ให้แน่นอน
+    const needFetch = !CURRENT_ADMIN_CONTACT?.name || CURRENT_ADMIN_CONTACT?.name === '—'
+                   || !CURRENT_ADMIN_CONTACT?.email || CURRENT_ADMIN_CONTACT?.email === '—';
+
+    if (needFetch && empId){
+      const info = await getBudgetAndAdmin(empId);
+      if (info){
+        CURRENT_BUDGET = Number.isFinite(info.budget) ? info.budget : CURRENT_BUDGET;
+        CURRENT_ADMIN_CONTACT = { name: info.adminName || '—', email: info.adminEmail || '—' };
+      }
+    }
+  }catch(e){
+    console.warn('showBlocked: fetch admin fallback failed', e);
+  }
+
   const nameEl = document.getElementById('blkName');
   const linkEl = document.getElementById('blkEmail');
-  const textEl = document.getElementById('blkEmailText'); // ← span ภายใน
+  const textEl = document.getElementById('blkEmailText');
 
   if (nameEl) nameEl.textContent = CURRENT_ADMIN_CONTACT?.name || '—';
 
   const mail = (CURRENT_ADMIN_CONTACT?.email || '—').trim();
-
-  // อัปเดตเฉพาะข้อความใน span ให้คงคำว่า "Email BU Admin:" และอิโมจิไว้
-  if (textEl) {
-    textEl.textContent = `📧 Email BU Admin: ${mail}`;
-  }
-
-  // อัปเดตลิงก์ให้เป็น mailto: เฉพาะกรณีที่เป็นอีเมลจริง
-  if (linkEl) {
-    linkEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
-  }
+  if (textEl) textEl.textContent = `📧 Email BU Admin: ${mail}`;
+  if (linkEl) linkEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
 
   showPage('blocked');
 }
+    
 function goHomeFromBlocked(){
   goHomeFromThanks(); // ใช้ flow เคลียร์ตะกร้า/รีเซ็ตเดียวกัน
 }
@@ -2831,13 +2858,12 @@ async function verifyEmployee(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    // 3) อ่านคอลัมน์ M ของพนักงานจาก Emp HO (YES/NO)
     const m = await getEmpStatusM(CURRENT_EMP.id); // 'YES' | 'NO' | ''
-    if (String(m || '').toUpperCase() === 'NO') {
-      // ถ้า M = NO ให้บล็อกทันที
-      showBlocked();
-      return;
-    }
+if (String(m || '').toUpperCase() === 'NO') {
+  // ดึง BU Admin ให้ครบก่อน แล้วค่อยขึ้นหน้า Blocked
+  await showBlocked(CURRENT_EMP.id);
+  return;
+}
 
     // 4) ไปต่อปกติ (M = YES หรือว่าง)
     await preloadCategoriesFor(CURRENT_EMP.company);
@@ -3034,7 +3060,7 @@ const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
 console.log('checkbudgetstatus (submit) step =', stepSubmit);
 if (stepSubmit === 'blocked') {
   showSubmittingModal(false);
-  showBlocked();
+  await showBlocked(CURRENT_EMP?.id || '');
   return;
 }
     // เตรียม payload
