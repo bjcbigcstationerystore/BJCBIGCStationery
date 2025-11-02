@@ -2932,7 +2932,9 @@ BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
 // 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
 if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
   const h = await getBuHead(emp.id);
-  if (h?.headName || h?.headEmail) {
+  if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
+    BU_HEAD_CHOICES = h.headList;  // ได้หลายคน → ไปโหมด dropdown
+  } else if (h?.headName || h?.headEmail) {
     headName  = h.headName  || headName;
     headEmail = h.headEmail || headEmail;
   }
@@ -3207,22 +3209,38 @@ async function submitRequest(){
     });
   }
 });
-    /** ===== getBuHead =====
- * ดึงข้อมูล BU Head ตามรหัสพนักงาน
- * เงื่อนไข:
- * - Emp_HO!O ตรงกับ User_BJC_BigC!E
- * - ดึง L (ชื่อ) และ M (อีเมล)
- */
-function getBuHead(employeeId) {
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  const empHo = ss.getSheetByName(TAB_EMP);            // Emp HO
-  const userMap = ss.getSheetByName('User_BJC_BigC');  // ตารางแม็ป
+    
+// ✅ endpoint สำรอง: ดึง BU Head แบบยืดหยุ่น (รองรับทั้ง headList และ headName/headEmail เดี่ยว)
+// **สำคัญ**: ใช้ action เป็นตัวพิมพ์เล็ก "getbuhead" เพื่อให้เข้ากับ doGet ที่ .toLowerCase() ไว้
+async function getBuHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) {
+      console.warn('getBuHead response not ok:', {ok, json, text});
+      return null;
+    }
 
-  if (!empHo || !userMap) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ success: false, message: 'ไม่พบชีตที่ต้องการ' })
-    ).setMimeType(ContentService.MimeType.JSON);
+    // โครงสร้างที่คาดหวังจากฝั่ง Apps Script
+    // แบบ A: { success:true, data:{ headList:[{name,email}, ...] } }
+    // แบบ B: { success:true, data:{ headName:"...", headEmail:"..." } }
+    const data = json.data ?? json;
+    const list = Array.isArray(data.headList) ? data.headList : [];
+
+    if (list.length > 0){
+      // คืนทั้งลิสต์ (สำหรับทำ dropdown)
+      return { headList: list };
+    }
+
+    // fallback: ชื่อเดี่ยว
+    const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
+    const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
+    return { headName, headEmail };
+  }catch(e){
+    console.warn('getBuHead failed', e);
+    return null;
   }
+}
 
   const empValues = empHo.getDataRange().getValues();
   const userValues = userMap.getDataRange().getValues();
