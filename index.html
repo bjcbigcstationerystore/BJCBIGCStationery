@@ -1075,12 +1075,17 @@ body.category .cat-item{
   text-align:center !important;
 }
 .cat-icon{
-  width:88px; height:88px;   /* ให้เท่ากับ .prod-img เพื่อความรู้สึกใกล้เคียง */
+  width:60px; 
+  height:60px;   /* ให้เท่ากับ .prod-img เพื่อความรู้สึกใกล้เคียง */
   object-fit:contain;
-  margin:0 auto 6px;
+  margin:0 auto 8px;
   border-radius:10px;
-  background:#f8fafc;
+  transition:transform .2s ease;
 }
+    .cat-item:hover img{
+  transform:scale(1.05);    /* ขยายเบา ๆ เมื่อชี้ */
+}
+    
 .cat-title{
   font-size:1rem;
   font-weight:700;
@@ -1102,10 +1107,15 @@ body.category .cat-item{
   font-weight:400;     /* ← ไม่หนา */
 }
 
-/* ย่อการ์ดหมวดหมู่ให้กะทัดรัดขึ้น */
+/* ปรับความสูงของการ์ดหมวดหมู่ให้โปร่งขึ้น */
 body.category .cat-item{
-  padding:12px !important;       /* เดิม 16px */
-  border-radius:12px !important; /* เดิม 14px */
+  padding: 28px 16px !important;   /* เดิม 12px → เพิ่มเป็น 28px แนวตั้ง */
+  border-radius: 12px !important;  /* คงไว้เหมือนเดิม */
+  min-height: 160px;               /* เพิ่มความสูงขั้นต่ำเท่ากันทุกกล่อง */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;         /* จัดให้รูปและข้อความอยู่กลางแนวตั้ง */
+  align-items: center;
 }
 
 /* การ์ดสินค้าเล็กลงนิด */
@@ -1300,10 +1310,43 @@ body.category .category-inner{
 }
 
 
-/* ✅ ลดระยะ padding ในแต่ละการ์ดอีกเล็กน้อย */
+/* ✅ ไม่ขยับตัวกรอบการ์ด */
 body.category .cat-item {
-  padding: 10px !important;
-  border-radius: 10px !important;
+  padding: 28px 16px !important;
+  border-radius: 12px !important;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* เนื้อหากึ่งกลางแนวตั้ง */
+  align-items: center;       /* กึ่งกลางแนวนอน */
+  text-align: center;
+  transition: box-shadow 0.2s ease;
+}
+
+/* ✅ ให้เฉพาะข้อความภายในการ์ดขยับตอน hover */
+body.category .cat-item > *:not(img) {
+  transform: translateY(12px);  /* ขยับลงเล็กน้อย */
+  transition: transform 0.25s ease;
+}
+
+/* ✅ Hover: ยกขึ้นเล็กน้อยเพื่อให้รู้สึก interactive */
+body.category .cat-item:hover > *:not(img) {
+  transform: translateY(10px);
+}
+
+/* ✅ เงา hover */
+body.category .cat-item:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ✅ ไอคอน — อยู่นิ่งตลอด */
+body.category .cat-item img {
+  width: 60px;
+  height: 60px;
+  margin: 0 !important;
+  object-fit: contain;
+  display: block;
+  transform: translateY(-3px); /* ยกขึ้นพอดี */
 }
 
 /* ✅ ให้กล่องทั้งหมดอยู่ตรงกลางแนวตั้งพอดี ไม่ต้อง scroll */
