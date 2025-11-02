@@ -1657,6 +1657,22 @@ body.summary .info-card.bu-admin .form-grid{
     grid-template-columns: 1fr;
   }
 }
+    /* ให้ <select> และ <input> ดูเหมือน .form-value */
+#s_head_name_sel,
+#s_head_email_inp{
+  appearance: none;        /* ให้หน้าตาเรียบ */
+  background:#fff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:0.5rem !important;
+  padding:0.65rem 0.9rem !important;
+  font-size:1rem !important;
+  font-weight:500 !important;
+  color:#111827 !important;
+  width:100%;
+}
+.hidden{ display:none !important; }
+
+    
 
   </style>
 </head>
@@ -1853,21 +1869,30 @@ body.summary .info-card.bu-admin .form-grid{
   <h4 class="section-title">👔 ข้อมูล BU Head</h4>
   <div class="section-divider"></div>
 
-  <!-- แบ่งภายในกล่องเป็น 2 ฝั่ง -->
   <div class="form-grid">
-    <!-- ฝั่งซ้าย -->
+    <!-- ฝั่งซ้าย: Name = เปลี่ยนเป็น dropdown เมื่อมีหลายคน -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
+
+      <!-- แสดงเมื่อมีแค่ 1 คน -->
       <div id="s_head_name" class="form-value input-box">—</div>
+
+      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
+      <select id="s_head_name_sel" class="form-value input-box hidden"></select>
     </div>
 
-    <!-- ฝั่งขวา -->
+    <!-- ฝั่งขวา: Email = เด้งอัตโนมัติ -->
     <div class="form-field">
       <label class="form-label">BU Head Email</label>
+
+      <!-- แสดงเมื่อมีแค่ 1 คน -->
       <div id="s_head_email" class="form-value input-box">—</div>
+
+      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
+      <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
-</section> 
+</section>
             
             <!-- รายการ -->
             <div class="mb-6">
@@ -2084,6 +2109,7 @@ let PRODUCTS = [];
 let selectedCategory = '';
 let modalItem = { name:'', price:0, detail:'', image:'' };
 let LAST_SUBMIT = null;
+let BU_HEAD_CHOICES = []; // [{name, email}, ...]
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -2888,23 +2914,88 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
     document.getElementById('s_bu_name').textContent  = adminName;
     document.getElementById('s_bu_email').textContent = adminEmail;
 
-    // ===== BU Head (พยายามใช้จาก endpoint เดิมก่อน) =====
-    let headName  = info?.headName  || info?.buHeadName  || '—';
-    let headEmail = info?.headEmail || info?.buHeadEmail || '—';
+    // ===== BU Head: รองรับหลายคน (ซ้ำ) ด้วย dropdown =====
+const nameDiv   = document.getElementById('s_head_name');
+const emailDiv  = document.getElementById('s_head_email');
+const nameSel   = document.getElementById('s_head_name_sel');
+const emailInp  = document.getElementById('s_head_email_inp');
 
-    // ถ้า endpoint เดิมไม่คืนมา ลองเรียกสำรอง
-    if ((headName === '—' && headEmail === '—') && emp.id){
-      const h = await getBuHead(emp.id);
-      headName  = h?.headName  || headName;
-      headEmail = h?.headEmail || headEmail;
-    }
+// 1) พยายามอ่านจาก endpoint หลัก
+let headName   = info?.headName  || info?.buHeadName  || '—';
+let headEmail  = info?.headEmail || info?.buHeadEmail || '—';
 
-    CURRENT_BU_HEAD = { name: headName, email: headEmail };
+// 2) ถ้ามี head list (ส่งมาจาก backend) ก็ใช้งานเลย
+//   คาดหวังรูปแบบ: info.headList = [{name:'...', email:'...'}, ...]
+BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
+                  : Array.isArray(info?.heads)   ? info.heads
+                  : [];
 
-    // อัปเดต UI
-    document.getElementById('s_head_name').textContent  = headName;
-    document.getElementById('s_head_email').textContent = headEmail;
+// 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
+if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
+  const h = await getBuHead(emp.id);
+  if (h?.headName || h?.headEmail) {
+    headName  = h.headName  || headName;
+    headEmail = h.headEmail || headEmail;
+  }
+}
 
+// 4) อัปเดต UI ตามจำนวนรายการ
+function showSingle(name, email){
+  // โหมดแสดงค่าเดียว
+  nameDiv.classList.remove('hidden');
+  emailDiv.classList.remove('hidden');
+  nameSel.classList.add('hidden');
+  emailInp.classList.add('hidden');
+
+  nameDiv.textContent  = name || '—';
+  emailDiv.textContent = email || '—';
+  CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+}
+
+function showDropdown(list){
+  // โหมด dropdown
+  nameDiv.classList.add('hidden');
+  emailDiv.classList.add('hidden');
+  nameSel.classList.remove('hidden');
+  emailInp.classList.remove('hidden');
+
+  // สร้าง option
+  nameSel.innerHTML = list.map((x, i) => {
+    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const e = (x?.email || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<option value="${i}">${n}</option>`;
+  }).join('');
+
+  // เซ็ตค่าเริ่มต้น = อันแรก หรือแม็พชื่อเดิมถ้ามี
+  let idx = 0;
+  if (headName && headName !== '—') {
+    const found = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
+    if (found >= 0) idx = found;
+  }
+  nameSel.value = String(idx);
+
+  const cur = list[idx] || {};
+  emailInp.value = cur.email || '—';
+  CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+
+  // เปลี่ยนชื่อ → อัปเดตอีเมลเด้งตาม
+  nameSel.onchange = () => {
+    const pick = list[Number(nameSel.value) || 0] || {};
+    emailInp.value = pick.email || '—';
+    CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+  };
+}
+
+// ตัดสินใจแสดงโหมดไหน
+if (BU_HEAD_CHOICES.length > 1) {
+  showDropdown(BU_HEAD_CHOICES);
+} else if (BU_HEAD_CHOICES.length === 1) {
+  const only = BU_HEAD_CHOICES[0] || {};
+  showSingle(only.name || headName, only.email || headEmail);
+} else {
+  showSingle(headName, headEmail);
+}
+   
   }catch(e){
     console.warn('getBudgetAndAdmin / getBuHead (Summary) failed', e);
     document.getElementById('s_bu_name').textContent   = '—';
