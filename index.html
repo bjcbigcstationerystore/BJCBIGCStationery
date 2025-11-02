@@ -2093,6 +2093,9 @@ let CURRENT_BU_ADMIN = { names: [], emails: [] };
     /* ===== NEW: Budget & Admin from Emp HO (K, L, M) ===== */
 let CURRENT_BUDGET = null;  // ค่าคอลัมน์ K (null/0/ตัวเลข)
 let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+    
+    /* ===== BU Head (state) ===== */
+let CURRENT_BU_HEAD = { name: '—', email: '—' };
 
 let FORCE_FRESH = false;
 let inflight = { categories: null, items: null };
@@ -2204,30 +2207,50 @@ let inflight = { categories: null, items: null };
     
 // ✅ ใช้แหล่งข้อมูล BU Admin แบบใหม่: แมตช์ Emp HO!O ↔ User_BJC_BigC!E แล้วคืน H/I
 // API (ฝั่ง Apps Script ต้องทำงานตามนี้): ?action=getBudgetAndAdmin&employeeId=XXXX
+// ✅ ดึง BU Admin และ (ถ้ามี) BU Head จาก endpoint เดิม
 async function getBudgetAndAdmin(employeeId){
   try{
     const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
     const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
     if(!ok || !json || json.success !== true) return null;
 
-    // รองรับทั้งแบบแบนและแบบ nested
     const data = json.data ?? json;
 
-    // BU Admin ชื่อ/อีเมลจาก User_BJC_BigC!H/I (หลังแมตช์ด้วย OU)
+    // BU Admin
     const adminName  = String(data.adminName  ?? data.name  ?? '—').trim() || '—';
     const adminEmail = String(data.adminEmail ?? data.email ?? '—').trim() || '—';
 
-    // budget ตอนนี้อาจไม่ใช้แล้ว ถ้ามีก็อ่านแบบ optional
+    // BU Head (ถ้า backend ใส่มาด้วย ก็รับเลย)
+    const headName   = String(data.headName   ?? data.buHeadName   ?? '—').trim() || '—';
+    const headEmail  = String(data.headEmail  ?? data.buHeadEmail  ?? '—').trim() || '—';
+
+    // budget (optional)
     const budgetRaw  = data.budget ?? data.k ?? data.K ?? data.budgetK ?? null;
     const budget     = (budgetRaw === null || budgetRaw === undefined) ? null : Number(budgetRaw);
 
-    return { budget, adminName, adminEmail };
+    return { budget, adminName, adminEmail, headName, headEmail };
   }catch(e){
     console.warn('getBudgetAndAdmin failed', e);
     return null;
   }
 }
 
+// ✅ endpoint สำรอง: เผื่อฝั่ง Script แยก action สำหรับ BU Head
+async function getBuHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBuHead&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 10000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) return null;
+
+    const data = json.data ?? json;
+    const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
+    const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
+    return { headName, headEmail };
+  }catch(e){
+    console.warn('getBuHead failed', e);
+    return null;
+  }
+}
 /** มีค่า (ไม่ว่าง) = ผ่านเกณฑ์ (นับรวม "0" ด้วยว่า "มีค่า" ตามเงื่อนไขล่าสุด) */
 function hasNonBlank(v){
   return !(v === null || v === undefined || String(v).trim() === '');
@@ -2849,28 +2872,45 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
   document.getElementById('s_fullname').textContent = emp.name || '-';    
       
-  try{
+ try{
     const info = await getBudgetAndAdmin(emp.id || '');
+
+    // ===== BU Admin =====
     const adminName  = info?.adminName  || '—';
     const adminEmail = info?.adminEmail || '—';
-
-    // cache สำหรับหน้า Blocked/ตอน submit
     CURRENT_ADMIN_CONTACT = { name: adminName, email: adminEmail };
 
-    // ถ้า Script ใหม่ไม่ได้ใช้ budget แล้ว ก็ไม่ต้องยุ่งกับ CURRENT_BUDGET
-    // แต่ถ้าฝั่งคุณยังคืน budget มาบางกรณี ก็เก็บไว้ได้แบบ optional
     if (info && info.budget != null && CURRENT_BUDGET == null){
       const b = Number(info.budget);
       if (Number.isFinite(b)) CURRENT_BUDGET = b;
     }
 
-    // แสดงผล
     document.getElementById('s_bu_name').textContent  = adminName;
     document.getElementById('s_bu_email').textContent = adminEmail;
+
+    // ===== BU Head (พยายามใช้จาก endpoint เดิมก่อน) =====
+    let headName  = info?.headName  || info?.buHeadName  || '—';
+    let headEmail = info?.headEmail || info?.buHeadEmail || '—';
+
+    // ถ้า endpoint เดิมไม่คืนมา ลองเรียกสำรอง
+    if ((headName === '—' && headEmail === '—') && emp.id){
+      const h = await getBuHead(emp.id);
+      headName  = h?.headName  || headName;
+      headEmail = h?.headEmail || headEmail;
+    }
+
+    CURRENT_BU_HEAD = { name: headName, email: headEmail };
+
+    // อัปเดต UI
+    document.getElementById('s_head_name').textContent  = headName;
+    document.getElementById('s_head_email').textContent = headEmail;
+
   }catch(e){
-    console.warn('getBudgetAndAdmin (Summary) failed', e);
-    document.getElementById('s_bu_name').textContent  = '—';
-    document.getElementById('s_bu_email').textContent = '—';
+    console.warn('getBudgetAndAdmin / getBuHead (Summary) failed', e);
+    document.getElementById('s_bu_name').textContent   = '—';
+    document.getElementById('s_bu_email').textContent  = '—';
+    document.getElementById('s_head_name').textContent = '—';
+    document.getElementById('s_head_email').textContent= '—';
   }
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
