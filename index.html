@@ -1510,37 +1510,54 @@ body.category .back-btn{
   transform: scale(.7);
   transform-origin: bottom right;
 }
-/* ====================== SUMMARY DESKTOP @75% ====================== */
+
+    /* ====================== SUMMARY DESKTOP: ย่อกรอบข้อมูลเหลือ ~75% ====================== */
 @media (min-width:1024px){
-  body.summary{ --sumSZ: .75; }
+  body.summary{ --sumBox: .75; }
 
-  /* หัวกล่องด้านบน */
-  body.summary .summary-header-box h2{
-    font-size: calc(1.25rem * var(--sumSZ)) !important;
-  }
-  body.summary .summary-header-box p{
-    font-size: calc(0.95rem * var(--sumSZ)) !important;
-  }
-
-  /* การ์ด/กรอบแต่ละส่วน */
+  /* การ์ดหลักแต่ละส่วน */
   body.summary .info-card{
-    padding: calc(18px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
-  }
-  body.summary .info-card .form-grid{
-    gap: calc(12px * var(--sumSZ)) !important;
+    padding: calc(22px * var(--sumBox)) calc(20px * var(--sumBox)) !important;
+    border-radius: calc(16px * var(--sumBox)) !important;
   }
 
-  /* ป้ายกำกับ + ค่า */
-  #summaryContent .form-label{
-    font-size: calc(.95rem * var(--sumSZ)) !important;
-  }
+  /* ช่องข้อมูล (value box) */
   #summaryContent .form-value{
-    font-size: calc(1rem * var(--sumSZ)) !important;
-    padding: calc(14px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
-    border-radius: calc(12px * var(--sumSZ)) !important;
+    font-size: calc(1rem * var(--sumBox)) !important;
+    padding: calc(14px * var(--sumBox)) calc(16px * var(--sumBox)) !important;
+    border-radius: calc(12px * var(--sumBox)) !important;
   }
 
-  /* ตารางรา*
+  /* ป้าย label */
+  #summaryContent .form-label{
+    font-size: calc(.95rem * var(--sumBox)) !important;
+    line-height: 1.4 !important;
+  }
+
+  /* ช่องกริด 2 คอลัมน์ให้เล็กลงนิด */
+  #summaryContent .form-grid{
+    gap: calc(12px * var(--sumBox)) !important;
+  }
+
+  /* หัวข้อย่อย (Employee Information / BU Admin / Items Requested) */
+  body.summary .section-title{
+    font-size: calc(1.125rem * var(--sumBox)) !important;
+    margin-bottom: calc(10px * var(--sumBox)) !important;
+  }
+
+  /* ตารางรายการ (ช่องเล็กลงด้วย) */
+  .sum-table thead th,
+  .sum-table tbody td,
+  .sum-table tfoot td{
+    font-size: calc(1rem * var(--sumBox)) !important;
+    padding: calc(14px * var(--sumBox)) calc(16px * var(--sumBox)) !important;
+  }
+
+  /* ขอบโค้ง + เงาให้นุ่มขึ้นเล็กน้อย */
+  body.summary .info-card{
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+}
 
     
   </style>
@@ -1683,7 +1700,7 @@ body.category .back-btn{
 
            <!-- ผู้เบิก -->
 <section class="info-card">
-  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก / Employee Information</h4>
+  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก: Employee Information</h4>
   <div class="section-divider"></div>
 
    <!-- แถวที่ 1: Company / Cost Center -->
@@ -1713,7 +1730,7 @@ body.category .back-btn{
 
 <!-- ข้อมูล BU Admin -->
 <section class="info-card">
-  <h4 class="section-title">🏢 ข้อมูล BU Admin</h4>
+  <h4 class="section-title">🏢 BU Admin</h4>
   <div class="section-divider"></div>
 
   <div class="form-grid">
