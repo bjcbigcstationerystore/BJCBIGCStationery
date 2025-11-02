@@ -95,9 +95,8 @@ body.summary .green-shell{
   overflow: visible !important;
 }
 
-/* ✅ ส่วนพื้นหลังขาวด้านล่างให้เต็มด้วย */
-body.category .panel,
-body.products .panel{
+/* ✅ ส่วนพื้นหลังขาวด้านล่างให้เต็มด้วย (เฉพาะ Category) */
+body.category .panel{
   width: 100dvw !important;
   max-width: 100dvw !important;
   margin: 0 !important;
@@ -157,36 +156,8 @@ body.category .panel-body{  padding:8px 12px !important; }
       transition:transform .15s, box-shadow .15s;
     }
     .back-btn:hover{transform:translateX(-2px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
-
-    /* การ์ดหมวด/สินค้า */
-    body.products .prod-card{
-  padding:10px 8px !important;
-  border-radius:12px !important;
-  background:#fff;
-  border:1px solid #e5e7eb;
-  display:grid;
-  grid-template-rows:auto 1fr auto;
-  transition:all .2s; text-align:center; cursor:pointer;
-}
-body.products .prod-card:hover{
-  border-color: var(--emerald-700) !important;
-  border-left-color: var(--emerald-700) !important;
-  background:#f0fdf4;
-  box-shadow:0 10px 22px rgba(0,0,0,.06);
-  transform:translateY(-1px);
-}
-
     
-    body.products .prod-card{
-      border-left-width: 1px !important; /* ยกเลิกขอบหนาด้านซ้าย */
-      border-left-color: #e5e7eb !important; /* ให้ซ้ายกลับมาเป็นเทาเหมือนด้านอื่น */
-    }
-    body.products .prod-card:hover{
-      border-color: var(--emerald-700) !important; /* เวลา hover ให้ขอบทั้งใบเป็นเขียวเข้ม */
-      /* ซ้ำให้แน่ใจว่าด้านซ้ายเขียวด้วย (กันเคส rule เก่ามา override) */
-      border-left-color: var(--emerald-700) !important;
-    }
-
+  
     /* Modal */
     .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9999}
     .modal{background:#fff;border-radius:18px;max-width:520px;width:92%;padding:22px 22px 20px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
@@ -400,19 +371,29 @@ body.products .prod-card:hover{
   color:#0f172a; font-weight:700;
 }
  
-    /* FORCE inner padding for Summary boxes */
-#summaryContent .form-value,
-#summaryContent .field-value{
+/* FORCE inner padding for Summary boxes – เว้น element ที่ถูก .hidden */
+#summaryContent .form-value:not(.hidden),
+#summaryContent .field-value:not(.hidden){
   background:#fff !important;
   border:1px solid #e5e7eb !important;
   border-radius:12px !important;
-  padding:14px 18px !important;   /* << เว้นขอบด้านใน */
-  display:block !important;
+  padding:14px 18px !important;
+  display:block !important;             /* แสดงเฉพาะที่ไม่ .hidden */
   box-sizing:border-box !important;
   line-height:1.5 !important;
   color:#0f172a !important;
   font-weight:800 !important;
 }
+    /* …แล้ว “หักล้าง” เฉพาะ BU Admin ให้เป็นปกติ */
+#summaryContent #buAdminCard .form-field > .form-value,
+.info-card.bu-admin .form-field > .form-value,
+#s_bu_name.form-value,
+#s_bu_email.form-value {
+  font-weight: 400 !important;
+}
+
+/* ย้ำว่า .hidden ชนะทุกกรณีใน #summaryContent */
+#summaryContent .hidden{ display:none !important; }
 
 /* ให้ layout เป็น 2 คอลัมน์ (ถ้าโดนตัวอื่นทับ) */
 #summaryContent .form-grid{
@@ -480,6 +461,11 @@ body.products .prod-card:hover{
   border: 1px solid #e5e7eb !important;
   background: #fff !important;
   box-shadow: inset 0 0 0 1px #eef2f7 !important;
+}
+    /* ปรับเฉพาะช่อง BU Admin Name / Email ให้เป็นตัวอักษรปกติ */
+#s_bu_name.form-value,
+#s_bu_email.form-value {
+  font-weight: 400 !important;
 }
 
 /* ระยะห่างระหว่างช่องในกริด */
@@ -1015,12 +1001,6 @@ body.products .item-card{
   max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
 }
 
-/* ลดช่องว่างพื้นฐานให้กระชับ */
-#categoryGrid{
-  display:grid !important;
-  gap:14px !important;               /* เดิม 18px */
-}
-
 #categoryGrid{ display:grid !important; gap:18px !important; }
 
 @media (max-width:480px){
@@ -1421,10 +1401,6 @@ body.summary .panel{
 /* ไม่ต้องใช้หัว panel เดิมแล้ว (เราย้ายไป header box) */
 body.summary .panel-head{ display:none !important; }
 
-
-
-
-
 html, body { overflow-x: hidden; overflow-y:auto; }
 
 /* กันเคสสูงคงที่จาก height:100% ในบางหน้า → ให้หน้า Category สูงตามเนื้อหา */
@@ -1510,39 +1486,192 @@ body.category .back-btn{
   transform: scale(.7);
   transform-origin: bottom right;
 }
-/* ====================== SUMMARY DESKTOP @75% ====================== */
-@media (min-width:1024px){
-  body.summary{ --sumSZ: .75; }
 
-  /* หัวกล่องด้านบน */
-  body.summary .summary-header-box h2{
-    font-size: calc(1.25rem * var(--sumSZ)) !important;
-  }
-  body.summary .summary-header-box p{
-    font-size: calc(0.95rem * var(--sumSZ)) !important;
-  }
+/* ===== BU Admin card: ให้ฟิลด์เรียงทีละบรรทัด (ชนะ global !important) ===== */
+body.summary .info-card.bu-admin .form-grid{
+  grid-template-columns: 1fr !important;
+}
 
-  /* การ์ด/กรอบแต่ละส่วน */
-  body.summary .info-card{
-    padding: calc(18px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
+/* เผื่อบางจอมี override เพิ่ม ให้บังคับทุกหน้าจอ */
+@media (min-width: 1024px){
+  body.summary .info-card.bu-admin .form-grid{
+    grid-template-columns: 1fr !important;
   }
-  body.summary .info-card .form-grid{
-    gap: calc(12px * var(--sumSZ)) !important;
-  }
+}
+/* ===== BU Admin vertical layout ===== */
+.bu-admin .form-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* ระยะห่างระหว่างฟิลด์ */
+}
 
-  /* ป้ายกำกับ + ค่า */
-  #summaryContent .form-label{
-    font-size: calc(.95rem * var(--sumSZ)) !important;
-  }
-  #summaryContent .form-value{
-    font-size: calc(1rem * var(--sumSZ)) !important;
-    padding: calc(14px * var(--sumSZ)) calc(16px * var(--sumSZ)) !important;
-    border-radius: calc(12px * var(--sumSZ)) !important;
-  }
+/* กล่องข้อมูลให้ดูเหมือน input */
+.bu-admin .input-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.25rem;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+}
+/* ===== ปรับขนาดตัวอักษรหัวข้อในกรอบ ===== */
+.section-title {
+  font-size: 1.15rem !important;   /* เดิมประมาณ 1rem → เพิ่มขึ้น */
+  font-weight: 700;
+}
 
-  /* ตารางรา*
+/* ===== ปรับขนาดข้อความในกล่องข้อมูล ===== */
+.form-value {
+  font-size: 1rem !important;      /* เดิม ~0.875rem → เพิ่มขึ้น */
+  font-weight: 500;
+  color: #111827;                  /* สีเทาเข้ม อ่านง่าย */
+}
+
+/* ===== ปรับ label ของแต่ละฟิลด์ให้ใหญ่ขึ้นเล็กน้อย ===== */
+.form-label {
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ===== ปรับขนาดกล่อง input-box (เฉพาะ BU Admin) ให้สูงขึ้นนิดหน่อย ===== */
+.input-box {
+  padding: 0.65rem 0.9rem !important; /* เดิม ~0.5rem → เพิ่มให้ดูสมดุล */
+  font-size: 1rem !important;
+}
+/* ===== ปรับขนาดตัวอักษรในกรอบข้อมูล ให้เท่ากับในตารางเบิก ===== */
+
+/* หัวข้อของแต่ละกรอบ เช่น "ข้อมูลผู้เบิก", "ข้อมูล BU Admin" */
+.section-title {
+  font-size: 1.125rem !important;   /* text-lg */
+  font-weight: 700;
+  color: #065f46;                   /* เขียวเข้มตามธีม BJC Big C */
+}
+
+/* ป้าย label เช่น "Company", "Cost Center" */
+.form-label {
+  font-size: 1rem !important;       /* text-base */
+  font-weight: 600;
+  color: #374151;                   /* เทาเข้ม อ่านง่าย */
+}
+
+.form-value,
+.form-value.input-box {
+  font-size: 1rem !important;       /* เท่าข้อความในตารางเบิก */
+  font-weight: 400;
+  color: #111827;                   /* สีเทาเข้ม */
+}
+
+/* เฉพาะกล่อง input-box (BU Admin) เพิ่ม padding ให้ดูสมดุล */
+.input-box {
+  padding: 0.65rem 0.9rem !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+    /* ===== BU Head ===== */
+.info-card.bu-head {
+  margin-top: 1.5rem; /* ระยะห่างจาก BU Admin */
+}
+
+/* ให้สองกล่องอยู่แนวนอนเหมือน Employee Info */
+.info-card.bu-head .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 กล่องแนวนอน */
+  gap: 1rem;
+}
+
+/* ปรับขนาดฟอนต์และสไตล์ให้เหมือนเดิม */
+.info-card.bu-head .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.info-card.bu-head .form-value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111827;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+}
+
+    /* ===== BU Head กล่องใหญ่ แบ่งซ้ายขวา ===== */
+.info-card.bu-head {
+  margin-top: 1.5rem; /* เว้นจาก BU Admin */
+}
+
+/* แบ่งภายในกล่องเป็น 2 คอลัมน์ (ซ้าย/ขวา) */
+.info-card.bu-head .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* label และกล่องข้อมูล */
+.info-card.bu-head .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.info-card.bu-head .input-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111827;
+  width: 100%;
+}
+
+/* สำหรับจอมือถือให้ซ้อนลงมา */
+@media (max-width: 768px) {
+  .info-card.bu-head .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+    /* ให้ <select> และ <input> ดูเหมือน .form-value */
+#s_head_name_sel,
+#s_head_email_inp{
+  appearance: none;        /* ให้หน้าตาเรียบ */
+  background:#fff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:0.5rem !important;
+  padding:0.65rem 0.9rem !important;
+  font-size:1rem !important;
+  font-weight:500 !important;
+  color:#111827 !important;
+  width:100%;
+}
+.hidden{ display:none !important; }
+    
+    /* ปรับเฉพาะ label: BU Admin Name ให้ไม่หนา */
+label[for="s_admin_name"],
+#summaryContent label[for="s_admin_name"],
+.form-field label:has(+ #s_admin_name) {
+  font-weight: 400 !important;
+}
+/* ให้ label ในกลุ่ม BU Admin ทั้งคู่เป็นตัวปกติ */
+#buAdminCard .form-label {
+  font-weight: 400 !important;
+}
+    
+/* === ทำให้หัวข้อ BU Admin หนาเท่ากับ Company / Cost Center === */
+#summaryContent #buAdminCard .form-field > label,
+.info-card.bu-admin .form-field > label,
+label[for="s_bu_name"],
+label[for="s_bu_email"] {
+  font-weight: 700 !important;  /* หนาเท่าหัวข้อ Company / Cost Center */
+}
 
     
+
   </style>
 </head>
 
@@ -1646,7 +1775,7 @@ body.category .back-btn{
 
   <div class="panel">
     <div class="panel-body">
-      <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+      <div id="productGrid" class="grid grid-cols-1 gap-5"></div>
     </div>
     <button class="back-btn" onclick="backToCategories()">
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
@@ -1681,53 +1810,88 @@ body.category .back-btn{
       <div class="panel">
           <div class="panel-body">
 
-           <!-- ผู้เบิก -->
-<section class="info-card">
-  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก / Employee Information</h4>
-  <div class="section-divider"></div>
+ <!-- ผู้เบิก + BU Admin (จัดวางข้างกันบนเดสก์ท็อป / ซ้อนบนมือถือ) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- ผู้เบิก -->
+  <section class="info-card">
+    <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก / Employee Information</h4>
+    <div class="section-divider"></div>
 
-   <!-- แถวที่ 1: Company / Cost Center -->
-  <div class="form-grid mb-3">
-    <div class="form-field">
-      <label class="form-label">Company</label>
-      <div id="s_company" class="form-value">-</div>
+    <!-- แถวที่ 1: Company / Cost Center -->
+    <div class="form-grid mb-3">
+      <div class="form-field">
+        <label class="form-label">Company</label>
+        <div id="s_company" class="form-value">-</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Cost Center</label>
+        <div id="s_cost" class="form-value">-</div>
+      </div>
     </div>
-    <div class="form-field">
-      <label class="form-label">Cost Center</label>
-      <div id="s_cost" class="form-value">-</div>
-    </div>
-  </div>
 
-  <!-- แถวที่ 2: Employee ID / Full Name -->
-  <div class="form-grid">
-    <div class="form-field">
-      <label class="form-label">Employee ID</label>
-      <div id="s_empid" class="form-value">-</div>
+    <!-- แถวที่ 2: Employee ID / Full Name -->
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="form-label">Employee ID</label>
+        <div id="s_empid" class="form-value">-</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Full Name</label>
+        <div id="s_fullname" class="form-value">-</div>
+      </div>
     </div>
-    <div class="form-field">
-      <label class="form-label">Full Name</label>
-      <div id="s_fullname" class="form-value">-</div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- ข้อมูล BU Admin -->
-<section class="info-card">
+  <!-- BU Admin (ฟิลด์เรียงทีละบรรทัด) -->
+  <section id="buAdminCard" class="info-card bu-admin">
   <h4 class="section-title">🏢 ข้อมูล BU Admin</h4>
   <div class="section-divider"></div>
 
-  <div class="form-grid">
+  <!-- วางเรียงแนวตั้ง -->
+  <div class="form-vertical">
     <div class="form-field">
       <label class="form-label">BU Admin Name</label>
-      <div id="s_bu_name" class="form-value">—</div>
+      <div id="s_bu_name" class="form-value input-box">—</div>
     </div>
+
     <div class="form-field">
       <label class="form-label">BU Admin Email</label>
-      <div id="s_bu_email" class="form-value">—</div>
+      <div id="s_bu_email" class="form-value input-box">—</div>
     </div>
   </div>
 </section>
+  </div>
+  
+<!-- BU Head (ใหม่ แบ่งซ้าย-ขวา) -->
+<section id="buHeadCard" class="info-card bu-head">
+  <h4 class="section-title">👔 ข้อมูล BU Head</h4>
+  <div class="section-divider"></div>
 
+  <div class="form-grid">
+    <!-- ฝั่งซ้าย: Name = เปลี่ยนเป็น dropdown เมื่อมีหลายคน -->
+    <div class="form-field">
+      <label class="form-label">BU Head Name</label>
+
+      <!-- แสดงเมื่อมีแค่ 1 คน -->
+      <div id="s_head_name" class="form-value input-box">—</div>
+
+      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
+      <select id="s_head_name_sel" class="form-value input-box hidden"></select>
+    </div>
+
+    <!-- ฝั่งขวา: Email = เด้งอัตโนมัติ -->
+    <div class="form-field">
+      <label class="form-label">BU Head Email</label>
+
+      <!-- แสดงเมื่อมีแค่ 1 คน -->
+      <div id="s_head_email" class="form-value input-box">—</div>
+
+      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
+      <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
+    </div>
+  </div>
+</section>
+            
             <!-- รายการ -->
             <div class="mb-6">
   <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
@@ -1759,7 +1923,7 @@ body.category .back-btn{
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <button class="py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-bold" onclick="showPage('products')">แก้ไขรายการ</button>
-              <button id="submitBtn" class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold" onclick="submitRequest()">ส่งคำขอเบิก</button>
+              <button class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold" onclick="submitRequest()">ส่งคำขอเบิก</button>
             </div>
           </div>
         </div>
@@ -1943,6 +2107,7 @@ let PRODUCTS = [];
 let selectedCategory = '';
 let modalItem = { name:'', price:0, detail:'', image:'' };
 let LAST_SUBMIT = null;
+let BU_HEAD_CHOICES = []; // [{name, email}, ...]
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -1952,6 +2117,9 @@ let CURRENT_BU_ADMIN = { names: [], emails: [] };
     /* ===== NEW: Budget & Admin from Emp HO (K, L, M) ===== */
 let CURRENT_BUDGET = null;  // ค่าคอลัมน์ K (null/0/ตัวเลข)
 let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+    
+    /* ===== BU Head (state) ===== */
+let CURRENT_BU_HEAD = { name: '—', email: '—' };
 
 let FORCE_FRESH = false;
 let inflight = { categories: null, items: null };
@@ -2061,87 +2229,55 @@ let inflight = { categories: null, items: null };
       return 'BJC';
     }
     
-// ===== Gate helper: อนุญาตเฉพาะ budget > 0 และมี BU Admin name/email =====
-function passBudget(bud){
-  if (!bud) return false;
-
-  // รองรับชื่อคีย์หลายแบบจาก Apps Script
-  const bdRaw   = bud.budget ?? bud.k ?? bud.K ?? bud.budgetK ?? null;
-  const bd      = Number(bdRaw);
-  const name    = String(bud.adminName  ?? bud.buAdminName  ?? bud.name  ?? '').trim();
-  const email   = String(bud.adminEmail ?? bud.buAdminEmail ?? bud.email ?? '').trim();
-
-  // ผ่านเฉพาะ budget เป็นตัวเลขและ > 0 และมีทั้งชื่อ+อีเมล
-  const ok = Number.isFinite(bd) && bd > 0 && !!name && !!email;
-
-  // cache ไว้ใช้ที่อื่น
-  if (ok) {
-    CURRENT_BUDGET = bd;
-    CURRENT_ADMIN_CONTACT = { name, email };
-  } else {
-    // cache ไว้เพื่อโชว์บนหน้า Blocked แม้จะไม่ผ่าน
-    CURRENT_BUDGET = Number.isFinite(bd) ? bd : CURRENT_BUDGET;
-    CURRENT_ADMIN_CONTACT = { 
-      name:  name || (CURRENT_ADMIN_CONTACT?.name  ?? '—'),
-      email: email|| (CURRENT_ADMIN_CONTACT?.email ?? '—')
-    };
-  }
-  return ok;
-}
-
-    /** ===== อ่านสถานะจากชีต "Status Check" (คอลัมน์ B) แบบ Global =====
- * Apps Script ควรทำ action=getStatusCheck แล้วคืน { success:true, data:{ flag:"Check" | "0" | "" } }
- */
-async function getGlobalStatusCheck(){
+// ✅ ใช้แหล่งข้อมูล BU Admin แบบใหม่: แมตช์ Emp HO!O ↔ User_BJC_BigC!E แล้วคืน H/I
+// API (ฝั่ง Apps Script ต้องทำงานตามนี้): ?action=getBudgetAndAdmin&employeeId=XXXX
+// ✅ ดึง BU Admin และ (ถ้ามี) BU Head จาก endpoint เดิม
+async function getBudgetAndAdmin(employeeId){
   try{
-    const url = `${API_BASE}?action=getStatusCheck`;
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
     const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return '';
-    const flag = json.data?.flag ?? json.data?.B ?? json.data?.status ?? '';
-    return String(flag ?? '').trim();
-  }catch(_){
-    return '';
-  }
-}
-    // === อ่านค่า M (YES/NO) จาก Emp HO ของพนักงาน ===
-// API: ?action=getEmpStatusM&employeeId=XXXX
-async function getEmpStatusM(employeeId){
-  try{
-    const url = `${API_BASE}?action=getEmpStatusM&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return '';            // คืนค่าว่างถ้าอ่านไม่ได้
-    return String(json.statusM || json.M || '').trim().toUpperCase(); // 'YES' | 'NO' | ''
+    if(!ok || !json || json.success !== true) return null;
+
+    const data = json.data ?? json;
+
+    // BU Admin
+    const adminName  = String(data.adminName  ?? data.name  ?? '—').trim() || '—';
+    const adminEmail = String(data.adminEmail ?? data.email ?? '—').trim() || '—';
+
+    // BU Head (ถ้า backend ใส่มาด้วย ก็รับเลย)
+    const headName   = String(data.headName   ?? data.buHeadName   ?? '—').trim() || '—';
+    const headEmail  = String(data.headEmail  ?? data.buHeadEmail  ?? '—').trim() || '—';
+
+    // budget (optional)
+    const budgetRaw  = data.budget ?? data.k ?? data.K ?? data.budgetK ?? null;
+    const budget     = (budgetRaw === null || budgetRaw === undefined) ? null : Number(budgetRaw);
+
+    return { budget, adminName, adminEmail, headName, headEmail };
   }catch(e){
-    console.warn('getEmpStatusM failed', e);
-    return '';
+    console.warn('getBudgetAndAdmin failed', e);
+    return null;
   }
 }
 
+// ✅ endpoint สำรอง: เผื่อฝั่ง Script แยก action สำหรับ BU Head
+async function getBuHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBuHead&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 10000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) return null;
 
-/** ตีความค่า B:
- * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
- * - อื่นๆ (รวม "Check") => ต้องเช็คงบ K/L
- */
-function needKLCheck(flagB){
-  const t = String(flagB || '').trim().toLowerCase();
-  return !(t === '' || t === '0'); // true = ต้องเช็ค K/L
+    const data = json.data ?? json;
+    const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
+    const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
+    return { headName, headEmail };
+  }catch(e){
+    console.warn('getBuHead failed', e);
+    return null;
+  }
 }
-
 /** มีค่า (ไม่ว่าง) = ผ่านเกณฑ์ (นับรวม "0" ด้วยว่า "มีค่า" ตามเงื่อนไขล่าสุด) */
 function hasNonBlank(v){
   return !(v === null || v === undefined || String(v).trim() === '');
-}
-
-/** ตัดสินจาก payload ของ getBudgetAndAdmin:
- * อนุโลมชื่อคีย์หลายแบบ (k/K/budget/budgetK, และ l/L/balance/budgetL)
- * เงื่อนไขใหม่: "ผ่าน" ถ้า K หรือ L มีค่าอย่างน้อยหนึ่งช่อง
- * "บล็อก" เฉพาะกรณี K และ L ว่างทั้งคู่
- */
-function allowByKL(payload){
-  if (!payload) return false; // safety
-  const k = payload.k ?? payload.K ?? payload.budget ?? payload.budgetK ?? '';
-  const l = payload.l ?? payload.L ?? payload.balance ?? payload.budgetL ?? '';
-  return hasNonBlank(k) || hasNonBlank(l);
 }
 
     // === fetch ชนิดมี timeout + รวมการโยง signal ภายนอก ===
@@ -2332,8 +2468,9 @@ async function openCategory(name){
   // ✅ หลังโหลดเสร็จ → ปิดโหมดโหลดสด (เหลือ cache รอบถัดไปได้เลย)
   FORCE_FRESH = false;
 
-  document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';    document.getElementById('prodHeaderTitle').textContent = 'รายการสินค้า';
- document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+ document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';
+document.getElementById('prodHeaderTitle').textContent = selectedCategory ? `หมวด: ${selectedCategory}` : 'รายการสินค้า';
+document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
 
   renderProducts();
   showPage('products');
@@ -2520,27 +2657,36 @@ function showPage(which){
   }
 }
 
-    function showBlocked(){
+   async function showBlocked(empId){
+  try{
+    // ถ้าใน cache ยังไม่มีชื่อ/อีเมล → ไปดึงจาก Script ให้แน่นอน
+    const needFetch = !CURRENT_ADMIN_CONTACT?.name || CURRENT_ADMIN_CONTACT?.name === '—'
+                   || !CURRENT_ADMIN_CONTACT?.email || CURRENT_ADMIN_CONTACT?.email === '—';
+
+    if (needFetch && empId){
+      const info = await getBudgetAndAdmin(empId);
+      if (info){
+        CURRENT_BUDGET = Number.isFinite(info.budget) ? info.budget : CURRENT_BUDGET;
+        CURRENT_ADMIN_CONTACT = { name: info.adminName || '—', email: info.adminEmail || '—' };
+      }
+    }
+  }catch(e){
+    console.warn('showBlocked: fetch admin fallback failed', e);
+  }
+
   const nameEl = document.getElementById('blkName');
   const linkEl = document.getElementById('blkEmail');
-  const textEl = document.getElementById('blkEmailText'); // ← span ภายใน
+  const textEl = document.getElementById('blkEmailText');
 
   if (nameEl) nameEl.textContent = CURRENT_ADMIN_CONTACT?.name || '—';
 
   const mail = (CURRENT_ADMIN_CONTACT?.email || '—').trim();
-
-  // อัปเดตเฉพาะข้อความใน span ให้คงคำว่า "Email BU Admin:" และอิโมจิไว้
-  if (textEl) {
-    textEl.textContent = `📧 Email BU Admin: ${mail}`;
-  }
-
-  // อัปเดตลิงก์ให้เป็น mailto: เฉพาะกรณีที่เป็นอีเมลจริง
-  if (linkEl) {
-    linkEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
-  }
+  if (textEl) textEl.textContent = `📧 Email BU Admin: ${mail}`;
+  if (linkEl) linkEl.href = (mail && mail.includes('@')) ? `mailto:${mail}` : '#';
 
   showPage('blocked');
 }
+    
 function goHomeFromBlocked(){
   goHomeFromThanks(); // ใช้ flow เคลียร์ตะกร้า/รีเซ็ตเดียวกัน
 }
@@ -2665,24 +2811,14 @@ function goHomeFromBlocked(){
 async function verifyEmployee(){
   const inputEl  = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
-
-  if (!rawInput) {
-    showMsg('กรุณากรอกรหัสพนักงาน', 'error');
-    return;
-  }
+  if (!rawInput) { showMsg('กรุณากรอกรหัสพนักงาน', 'error'); return; }
 
   showCheckingModal(true);
   showLoadingProductsModal(false);
-
   try{
-    // 1) ตรวจว่ามีพนักงานจริง
     const emp = await getEmployeeData(rawInput);
-    if (!emp) {
-      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
-      return;
-    }
+    if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
 
-    // 2) cache ผู้ใช้
     CURRENT_EMP = {
       id:         emp.employeeId || emp.id || rawInput,
       company:    normalizeCompanyName(emp.company || 'BJC'),
@@ -2690,15 +2826,7 @@ async function verifyEmployee(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    // 3) อ่านคอลัมน์ M ของพนักงานจาก Emp HO (YES/NO)
-    const m = await getEmpStatusM(CURRENT_EMP.id); // 'YES' | 'NO' | ''
-    if (String(m || '').toUpperCase() === 'NO') {
-      // ถ้า M = NO ให้บล็อกทันที
-      showBlocked();
-      return;
-    }
-
-    // 4) ไปต่อปกติ (M = YES หรือว่าง)
+    // ✅ ไปหน้า “หมวดหมู่” ได้เลย
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
 
@@ -2744,18 +2872,6 @@ async function verifyEmployee(){
       return d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
     }
 
-    /* ===== เรียก BU Admin จาก Apps Script (ใหม่) ===== ต้องมี action=getBUAdmin ฝั่ง Apps Script (ดูขั้นถัดไป) */
-    async function checkBudgetStatus(employeeId){
-  try{
-    const url = `${API_BASE}?action=checkbudgetstatus&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return 'blocked';
-    return String(json.step || '').trim().toLowerCase();
-  }catch(e){
-    console.error('checkBudgetStatus failed', e);
-    return 'blocked';
-  }
-}
 
       function asListHTML(arr){
   if(!arr || arr.length === 0) return '—';
@@ -2781,26 +2897,110 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
   document.getElementById('s_fullname').textContent = emp.name || '-';    
       
+ try{
+    const info = await getBudgetAndAdmin(emp.id || '');
 
-  // BU Admin (ดึงครั้งเดียวแล้ว cache)
-  try{
-    const res = await getBudgetAndAdmin(emp.id || '');
-    const adminName  = (res && res.adminName)  ? String(res.adminName).trim()  : '—';
-    const adminEmail = (res && res.adminEmail) ? String(res.adminEmail).trim() : '—';
-
-    // cache ไว้เผื่อใช้หน้า Blocked/ตอน submit
+    // ===== BU Admin =====
+    const adminName  = info?.adminName  || '—';
+    const adminEmail = info?.adminEmail || '—';
     CURRENT_ADMIN_CONTACT = { name: adminName, email: adminEmail };
-    if (res && res.budget != null && CURRENT_BUDGET == null){
-      CURRENT_BUDGET = Number(res.budget); // เก็บงบเผื่อเช็คก่อน submit
+
+    if (info && info.budget != null && CURRENT_BUDGET == null){
+      const b = Number(info.budget);
+      if (Number.isFinite(b)) CURRENT_BUDGET = b;
     }
 
-    // แสดงผลบนหน้า Summary
-    document.getElementById('s_bu_name').textContent  = adminName || '—';
-    document.getElementById('s_bu_email').textContent = adminEmail || '—';
+    document.getElementById('s_bu_name').textContent  = adminName;
+    document.getElementById('s_bu_email').textContent = adminEmail;
+
+    // ===== BU Head: รองรับหลายคน (ซ้ำ) ด้วย dropdown =====
+const nameDiv   = document.getElementById('s_head_name');
+const emailDiv  = document.getElementById('s_head_email');
+const nameSel   = document.getElementById('s_head_name_sel');
+const emailInp  = document.getElementById('s_head_email_inp');
+
+// 1) พยายามอ่านจาก endpoint หลัก
+let headName   = info?.headName  || info?.buHeadName  || '—';
+let headEmail  = info?.headEmail || info?.buHeadEmail || '—';
+
+// 2) ถ้ามี head list (ส่งมาจาก backend) ก็ใช้งานเลย
+//   คาดหวังรูปแบบ: info.headList = [{name:'...', email:'...'}, ...]
+BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
+                  : Array.isArray(info?.heads)   ? info.heads
+                  : [];
+
+// 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
+if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
+  const h = await getBuHead(emp.id);
+  if (h?.headName || h?.headEmail) {
+    headName  = h.headName  || headName;
+    headEmail = h.headEmail || headEmail;
+  }
+}
+
+// 4) อัปเดต UI ตามจำนวนรายการ
+function showSingle(name, email){
+  // โหมดแสดงค่าเดียว
+  nameDiv.classList.remove('hidden');
+  emailDiv.classList.remove('hidden');
+  nameSel.classList.add('hidden');
+  emailInp.classList.add('hidden');
+
+  nameDiv.textContent  = name || '—';
+  emailDiv.textContent = email || '—';
+  CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+}
+
+function showDropdown(list){
+  // โหมด dropdown
+  nameDiv.classList.add('hidden');
+  emailDiv.classList.add('hidden');
+  nameSel.classList.remove('hidden');
+  emailInp.classList.remove('hidden');
+
+  // สร้าง option
+  nameSel.innerHTML = list.map((x, i) => {
+    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const e = (x?.email || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<option value="${i}">${n}</option>`;
+  }).join('');
+
+  // เซ็ตค่าเริ่มต้น = อันแรก หรือแม็พชื่อเดิมถ้ามี
+  let idx = 0;
+  if (headName && headName !== '—') {
+    const found = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
+    if (found >= 0) idx = found;
+  }
+  nameSel.value = String(idx);
+
+  const cur = list[idx] || {};
+  emailInp.value = cur.email || '—';
+  CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+
+  // เปลี่ยนชื่อ → อัปเดตอีเมลเด้งตาม
+  nameSel.onchange = () => {
+    const pick = list[Number(nameSel.value) || 0] || {};
+    emailInp.value = pick.email || '—';
+    CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+  };
+}
+
+// ตัดสินใจแสดงโหมดไหน
+if (BU_HEAD_CHOICES.length > 1) {
+  showDropdown(BU_HEAD_CHOICES);
+} else if (BU_HEAD_CHOICES.length === 1) {
+  const only = BU_HEAD_CHOICES[0] || {};
+  showSingle(only.name || headName, only.email || headEmail);
+} else {
+  showSingle(headName, headEmail);
+}
+   
   }catch(e){
-    console.warn('getBudgetAndAdmin failed', e);
-    document.getElementById('s_bu_name').textContent  = '—';
-    document.getElementById('s_bu_email').textContent = '—';
+    console.warn('getBudgetAndAdmin / getBuHead (Summary) failed', e);
+    document.getElementById('s_bu_name').textContent   = '—';
+    document.getElementById('s_bu_email').textContent  = '—';
+    document.getElementById('s_head_name').textContent = '—';
+    document.getElementById('s_head_email').textContent= '—';
   }
       // ตารางรายการ
   const wrap = document.getElementById('sumItems');
@@ -2870,74 +3070,8 @@ document.getElementById('itemCount').textContent = String(cartCount());
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
 
-/* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
-let IS_SUBMITTING = false;
-
-// ฟังก์ชันยิง POST ไป Apps Script (แยกออกมาให้เรียกได้ชัดเจน)
-async function postSubmit(payload){
-  const btn = document.querySelector('#submitBtn');
-  try{
-    if (btn) { btn.disabled = true; btn.classList.add('opacity-60','pointer-events-none'); }
-
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'submitrequest', ...payload })
-    });
-
-    // รับเป็น JSON (เผื่อบางกรณี Apps Script คืน text)
-    const text = await res.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch(_){ data = { success:false, error:'Bad JSON', text }; }
-
-    console.log('[submitrequest] =>', data);
-
-    // กรณีระบบฝั่ง Apps Script บอก “งบไม่พอ/ไม่อนุญาต”
-    if (data && (data.status === 'blocked' || data.success === false && /blocked|budget/i.test(String(data.error||'')) )) {
-      // เติมข้อมูลติดต่อถ้ามีใน response
-      if (data.adminName || data.adminEmail){
-        CURRENT_ADMIN_CONTACT = {
-          name:  data.adminName  || CURRENT_ADMIN_CONTACT.name  || '—',
-          email: data.adminEmail || CURRENT_ADMIN_CONTACT.email || '—'
-        };
-      }
-      showSubmittingModal(false);
-      showBlocked();
-      return;
-    }
-
-    // ผ่านปกติ
-    if (data && (data.status === 'ok' || data.success === true)) {
-      // เก็บค่าอ้างอิง, ยอดรวม, จำนวนชิ้น เพื่อโชว์ Thank You
-      const totalQty  = CART.reduce((s,x)=>s + (Number(x.qty)||0), 0);
-      const totalCost = CART.reduce((s,x)=>s + (Number(x.qty)||0)*(Number(x.price)||0), 0);
-      LAST_SUBMIT = {
-        ref: data.ref || data.reference || data.requestNo || '-',
-        totalQty,
-        totalAmount: totalCost
-      };
-      showSubmittingModal(false);
-      showPage('thankyou');
-      renderThankYou();
-      // เคลียร์ตะกร้า
-      CART = [];
-      updateCartUI();
-      return;
-    }
-
-    // อื่นๆ ถือว่าล้มเหลว
-    alert('ส่งคำขอไม่สำเร็จ: ' + (data?.error || `HTTP ${res.status}`));
-    showSubmittingModal(false);
-  }catch(err){
-    console.error(err);
-    alert('เกิดข้อผิดพลาดขณะส่งคำขอ');
-    showSubmittingModal(false);
-  }finally{
-    if (btn) { btn.disabled = false; btn.classList.remove('opacity-60','pointer-events-none'); }
-  }
-}
-
-// ฟังก์ชันที่ปุ่มเรียกใช้: ตรวจข้อมูล + สร้าง payload + เรียก postSubmit()
+   /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
+let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
 async function submitRequest(){
   if (IS_SUBMITTING) return;
   IS_SUBMITTING = true;
@@ -2946,32 +3080,22 @@ async function submitRequest(){
   try {
     if (!CURRENT_EMP) {
       alert('กรุณายืนยันตัวตนก่อน');
-      showSubmittingModal(false);
       showPage('verify');
       return;
     }
     if (!CART || CART.length === 0) {
       alert('ยังไม่มีรายการในตะกร้า');
-      showSubmittingModal(false);
       return;
     }
 
-    // เช็คสิทธิ์ขั้นสุดท้าย (ถ้า API ฝั่ง Apps Script รองรับ)
-    const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
-    if (stepSubmit === 'blocked') {
-      showSubmittingModal(false);
-      showBlocked();
-      return;
-    }
-
-    // สร้าง payload ที่จะส่ง
+    // เตรียม payload
     const items = CART.map(it => ({
-      name:  it.name,
-      qty:   Number(it.qty)||0,
+      name: it.name,
+      qty: Number(it.qty)||0,
       price: Number(it.price)||0,
-      line:  (Number(it.qty)||0) * (Number(it.price)||0),
+      line: (Number(it.qty)||0) * (Number(it.price)||0),
       detail: it.detail || '',
-      image:  it.image || ''
+      image: it.image || ''
     }));
 
     const now = new Date();
@@ -2999,19 +3123,58 @@ async function submitRequest(){
     items.forEach((it, idx) => {
       const n = idx + 1;
       row[`รายการที่ ${n}`] = it.name;
-      row[`จำนวน ${n}`]     = it.qty;
-      row[`ราคา ${n}`]      = it.price;
+      row[`จำนวน ${n}`]   = Number(it.qty) || 0;
+      row[`ราคา ${n}`]    = Number(it.price) || 0;
     });
 
-    // 🔔 เรียกยิงจริง
-    await postSubmit({ row, items });
+    const params = new URLSearchParams();
+    params.set('action', 'submitRequest');
+    params.set('row', JSON.stringify(row));
+
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort('timeout'), 30000);
+
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: params.toString(),
+      cache: 'no-store',
+      signal: ctrl.signal
+    }).catch(err => { throw new Error(err?.message || 'network error'); });
+
+    clearTimeout(timer);
+
+    const raw = await res.text();
+    let json = null;
+    try { json = JSON.parse(raw); } catch(_) {}
+
+    if (!res.ok) {
+      const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    if (!json || json.success !== true) {
+      throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
+    }
+
+    LAST_SUBMIT = {
+      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+      totalQty: totalQty,
+      totalAmount: totalCost
+    };
+
+    // เคลียร์ตะกร้า + ไป Thank You
+    CART = [];
+    updateCartUI();
+    showSubmittingModal(false);
+    showPage('thankyou');
+    renderThankYou();
 
   } catch (err) {
     console.error(err);
-    alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
     showSubmittingModal(false);
+    alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   } finally {
-    IS_SUBMITTING = false;
+    IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
   }
 }
 
@@ -3044,6 +3207,56 @@ async function submitRequest(){
     });
   }
 });
+    /** ===== getBuHead =====
+ * ดึงข้อมูล BU Head ตามรหัสพนักงาน
+ * เงื่อนไข:
+ * - Emp_HO!O ตรงกับ User_BJC_BigC!E
+ * - ดึง L (ชื่อ) และ M (อีเมล)
+ */
+function getBuHead(employeeId) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const empHo = ss.getSheetByName(TAB_EMP);            // Emp HO
+  const userMap = ss.getSheetByName('User_BJC_BigC');  // ตารางแม็ป
+
+  if (!empHo || !userMap) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: false, message: 'ไม่พบชีตที่ต้องการ' })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const empValues = empHo.getDataRange().getValues();
+  const userValues = userMap.getDataRange().getValues();
+
+  const empHeader = empValues[0];
+  const empRows = empValues.slice(1);
+  const userRows = userValues.slice(1);
+
+  // หา BU (คอลัมน์ O) ของพนักงาน
+  const emp = empRows.find(r => String(r[0]).trim() === String(employeeId).trim());
+  if (!emp) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: false, message: 'ไม่พบพนักงาน' })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const empBU = String(emp[14] || '').trim(); // O = index 14 (0-based)
+
+  // เทียบกับ User_BJC_BigC!E
+  const matched = userRows.filter(r => String(r[4]).trim() === empBU);
+
+  const heads = matched.map(r => ({
+    name: String(r[11] || '').trim(),  // L = index 11
+    email: String(r[12] || '').trim()  // M = index 12
+  })).filter(h => h.name && h.email);
+
+  return ContentService.createTextOutput(
+    JSON.stringify({
+      success: true,
+      data: { headList: heads }
+    })
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
     
   </script>
 
