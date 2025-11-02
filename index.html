@@ -1473,7 +1473,44 @@ body.summary .form-label {
   color: #000000 !important;     /* ทำให้เป็นสีดำ */
   font-weight: 700 !important;   /* หนากว่าปกติ */
 }   
-    
+
+    /* ================== CATEGORY PAGE ONLY (80% SCALE) ================== */
+/* ลดขนาดเฉพาะหน้าหมวดหมู่เท่านั้น */
+body.category .category-header-box,
+body.category .panel-body{
+  font-size: 0.8em !important;
+  line-height: 1.45 !important;
+}
+
+/* กล่องหมวดหมู่ */
+body.category .cat-item{
+  padding: 19px 13px !important;     /* เดิม ~24px 16px */
+  min-height: 126px !important;      /* เดิม 158px */
+}
+
+/* ไอคอนหมวดหมู่ */
+body.category .cat-item img.cat-icon,
+body.category .cat-icon{
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* ชื่อหมวดและจำนวนรายการ */
+body.category .cat-title{
+  font-size: 0.84rem !important;     /* เดิม ~1.05rem */
+  font-weight: 700 !important;
+}
+body.category .cat-count{
+  font-size: 0.7rem !important;      /* เดิม ~0.875rem */
+  font-weight: 400 !important;
+}
+
+/* ปุ่ม "กลับ" เล็กลงตาม */
+body.category .back-btn{
+  transform: scale(.8);
+  transform-origin: bottom right;
+}
+
     
   </style>
 </head>
