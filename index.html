@@ -2244,31 +2244,25 @@ async function getGlobalStatusCheck(){
     return '';
   }
 }
-    // === อ่านค่า M (YES/NO) จาก Emp HO ของพนักงาน ===
-// API: ?action=getEmpStatusM&employeeId=XXXX
-async function getEmpStatusM(employeeId){
-  try{
-    const url = `${API_BASE}?action=getEmpStatusM&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return '';            // คืนค่าว่างถ้าอ่านไม่ได้
-    return String(json.statusM || json.M || '').trim().toUpperCase(); // 'YES' | 'NO' | ''
-  }catch(e){
-    console.warn('getEmpStatusM failed', e);
-    return '';
-  }
-}
-    // === อ่าน Budget + BU Admin ของพนักงานจาก Apps Script ===
-// API: ?action=getBudgetAndAdmin&employeeId=XXXX
+    
+// ✅ ใช้แหล่งข้อมูล BU Admin แบบใหม่: แมตช์ Emp HO!O ↔ User_BJC_BigC!E แล้วคืน H/I
+// API (ฝั่ง Apps Script ต้องทำงานตามนี้): ?action=getBudgetAndAdmin&employeeId=XXXX
 async function getBudgetAndAdmin(employeeId){
   try{
     const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
     const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
     if(!ok || !json || json.success !== true) return null;
 
-    // รองรับชื่อคีย์หลายรูปแบบจากฝั่ง Script
-    const budget     = Number(json.budget ?? json.k ?? json.K ?? json.data?.budget ?? json.data?.k ?? json.data?.K ?? 0);
-    const adminName  = String(json.adminName  ?? json.name  ?? json.data?.adminName  ?? json.data?.name  ?? '—').trim();
-    const adminEmail = String(json.adminEmail ?? json.email ?? json.data?.adminEmail ?? json.data?.email ?? '—').trim();
+    // รองรับทั้งแบบแบนและแบบ nested
+    const data = json.data ?? json;
+
+    // BU Admin ชื่อ/อีเมลจาก User_BJC_BigC!H/I (หลังแมตช์ด้วย OU)
+    const adminName  = String(data.adminName  ?? data.name  ?? '—').trim() || '—';
+    const adminEmail = String(data.adminEmail ?? data.email ?? '—').trim() || '—';
+
+    // budget ตอนนี้อาจไม่ใช้แล้ว ถ้ามีก็อ่านแบบ optional
+    const budgetRaw  = data.budget ?? data.k ?? data.K ?? data.budgetK ?? null;
+    const budget     = (budgetRaw === null || budgetRaw === undefined) ? null : Number(budgetRaw);
 
     return { budget, adminName, adminEmail };
   }catch(e){
@@ -2276,7 +2270,7 @@ async function getBudgetAndAdmin(employeeId){
     return null;
   }
 }
-
+    
 /** ตีความค่า B:
  * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
  * - อื่นๆ (รวม "Check") => ต้องเช็คงบ K/L
@@ -2858,9 +2852,9 @@ async function verifyEmployee(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-    const m = await getEmpStatusM(CURRENT_EMP.id); // 'YES' | 'NO' | ''
-if (String(m || '').toUpperCase() === 'NO') {
-  // ดึง BU Admin ให้ครบก่อน แล้วค่อยขึ้นหน้า Blocked
+// ✅ ใช้ตัวเดียวกับตอน submit เพื่อให้เกณฑ์เดียวกัน
+const step = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
+if (step === 'blocked') {
   await showBlocked(CURRENT_EMP.id);
   return;
 }
@@ -2948,24 +2942,26 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
   document.getElementById('s_fullname').textContent = emp.name || '-';    
       
-
-  // BU Admin (ดึงครั้งเดียวแล้ว cache)
   try{
-    const res = await getBudgetAndAdmin(emp.id || '');
-    const adminName  = (res && res.adminName)  ? String(res.adminName).trim()  : '—';
-    const adminEmail = (res && res.adminEmail) ? String(res.adminEmail).trim() : '—';
+    const info = await getBudgetAndAdmin(emp.id || '');
+    const adminName  = info?.adminName  || '—';
+    const adminEmail = info?.adminEmail || '—';
 
-    // cache ไว้เผื่อใช้หน้า Blocked/ตอน submit
+    // cache สำหรับหน้า Blocked/ตอน submit
     CURRENT_ADMIN_CONTACT = { name: adminName, email: adminEmail };
-    if (res && res.budget != null && CURRENT_BUDGET == null){
-      CURRENT_BUDGET = Number(res.budget); // เก็บงบเผื่อเช็คก่อน submit
+
+    // ถ้า Script ใหม่ไม่ได้ใช้ budget แล้ว ก็ไม่ต้องยุ่งกับ CURRENT_BUDGET
+    // แต่ถ้าฝั่งคุณยังคืน budget มาบางกรณี ก็เก็บไว้ได้แบบ optional
+    if (info && info.budget != null && CURRENT_BUDGET == null){
+      const b = Number(info.budget);
+      if (Number.isFinite(b)) CURRENT_BUDGET = b;
     }
 
-    // แสดงผลบนหน้า Summary
-    document.getElementById('s_bu_name').textContent  = adminName || '—';
-    document.getElementById('s_bu_email').textContent = adminEmail || '—';
+    // แสดงผล
+    document.getElementById('s_bu_name').textContent  = adminName;
+    document.getElementById('s_bu_email').textContent = adminEmail;
   }catch(e){
-    console.warn('getBudgetAndAdmin failed', e);
+    console.warn('getBudgetAndAdmin (Summary) failed', e);
     document.getElementById('s_bu_name').textContent  = '—';
     document.getElementById('s_bu_email').textContent = '—';
   }
