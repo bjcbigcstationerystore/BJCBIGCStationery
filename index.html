@@ -3036,6 +3036,129 @@ if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 
     headEmail = h.headEmail || headEmail;
   }
 }
+
+/* Popup Loading */
+function showLoading(msg='กำลังสรุปรายการเบิก...'){
+  let el = document.getElementById('pageLoadingMask');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'pageLoadingMask';
+    el.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:99999';
+    el.innerHTML = '<div style="background:#fff;border-radius:14px;padding:16px 14px;min-width:260px;text-align:center;font-weight:700;color:#065f46">กำลังสรุปรายการเบิก...</div>';
+    document.body.appendChild(el);
+  }else{
+    el.querySelector('div').textContent = msg;
+    el.style.display = 'flex';
+  }
+}
+function hideLoading(){ const el = document.getElementById('pageLoadingMask'); if(el) el.style.display='none'; }
+
+/* ===== ตัวอย่าง State (map ให้ตรงของจริง) ===== */
+let CART = window.CART || []; // [{name, qty, price, line, detail, image}]
+let CURRENT_EMP = window.CURRENT_EMP || { company:'', costCenter:'', id:'', name:'' };
+let CURRENT_BU_ADMIN = window.CURRENT_BU_ADMIN || { names:[], emails:[] };
+let CURRENT_BU_HEAD  = window.CURRENT_BU_HEAD  || { name:'', email:'' };
+
+/* แปลงเป็น row flat ให้ Apps Script */
+function buildFlatRow(){
+  const totalQty = CART.reduce((s,it)=> s + (+it.qty||0), 0);
+  const totalAmt = CART.reduce((s,it)=> s + (Number(it.line ?? ((+it.qty||0)*(+it.price||0)))||0), 0);
+
+  const row = {
+    'Request number':'',
+    'บริษัท':           (CURRENT_EMP.company||'').trim(),
+    'Cost Center':      (CURRENT_EMP.costCenter||'').trim(),
+    'รหัสพนักงาน':       (CURRENT_EMP.id||'').trim(),
+    'ชื่อ-นามสกุล':       (CURRENT_EMP.name||'').trim(),
+    'Name BU admin':    (CURRENT_BU_ADMIN?.names?.[0]  || '').trim(),
+    'Email BU Admin':   (CURRENT_BU_ADMIN?.emails?.[0] || '').trim(),
+    'Name BU Head':     (CURRENT_BU_HEAD?.name  || '').trim(),
+    'Email BU Head':    (CURRENT_BU_HEAD?.email || '').trim(),
+    'รายการเบิก (ชิ้น)':  totalQty,
+    'ยอดเบิก (บาท)':     totalAmt
+  };
+  CART.forEach((it,idx)=>{
+    const i = idx+1;
+    row[`รายการที่ ${i}`] = (it.name||'').trim();
+    row[`จำนวน ${i}`]    = +it.qty||0;
+    row[`ราคา ${i}`]     = +it.price||0;
+  });
+  return row;
+}
+
+/* โชว์/ซ่อนเนื้อหาในหน้าเดียว */
+function showThank(payload){
+  document.getElementById('thankyouContent')?.classList.remove('hidden');
+  document.getElementById('blockedContent')?.classList.add('hidden');
+  // เติมข้อมูลแสดงผล
+  if(payload){
+    const ref = payload['Request number'] || '';
+    const qty = payload['รายการเบิก (ชิ้น)'] || 0;
+    const sum = payload['ยอดเบิก (บาท)'] || 0;
+    const d   = payload['วันที่'] || '';
+    if(document.getElementById('tyRef'))   document.getElementById('tyRef').textContent = ref || '—';
+    if(document.getElementById('tyDate'))  document.getElementById('tyDate').textContent = d || '—';
+    if(document.getElementById('tyQty'))   document.getElementById('tyQty').textContent  = `${qty} รายการ`;
+    if(document.getElementById('tyTotal')) document.getElementById('tyTotal').textContent= `฿${Number(sum||0).toLocaleString('th-TH',{minimumFractionDigits:2})}`;
+  }
+}
+function showBlocked(payload){
+  document.getElementById('blockedContent')?.classList.remove('hidden');
+  document.getElementById('thankyouContent')?.classList.add('hidden');
+  // เติมข้อมูลติดต่อ BU Admin
+  if(payload){
+    const name  = payload['Name BU admin']  || '—';
+    const email = payload['Email BU Admin'] || '';
+    if(document.getElementById('blkName')) document.getElementById('blkName').textContent = name;
+    const a = document.getElementById('blkEmail');
+    const t = document.getElementById('blkEmailText');
+    if(a){
+      if(email){ a.href = `mailto:${email}`; }
+      if(t){ t.textContent = `📧 Email BU Admin: ${email || '—'}`; }
+    }
+  }
+}
+
+/* กดส่งคำขอ */
+async function submitRequest(){
+  showLoading();
+  try{
+    const row = buildFlatRow();
+    const res = await fetch(API_BASE, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ row })  // <<=== โหมด flat ตาม Apps Script
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();  // {success, nextPage, ref, payload, ...}
+
+    if(data?.success){
+      // ถ้าใช้หลายหน้า ให้เปลี่ยนเป็น window.location.href = 'thankyou.html' / 'blocked.html'
+      if(data.nextPage === 'blocked'){
+        showBlocked(data.payload);
+        // window.location.href = `blocked.html?ref=${encodeURIComponent(data.ref||'')}`;
+      }else{
+        showThank(data.payload);
+        // window.location.href = `thankyou.html?ref=${encodeURIComponent(data.ref||'')}`;
+      }
+    }else{
+      alert('ส่งคำขอไม่สำเร็จ กรุณาลองใหม่');
+      console.error(data);
+    }
+  }catch(err){
+    alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+    console.error(err);
+  }finally{
+    hideLoading();
+  }
+}
+
+document.getElementById('btnSubmit')?.addEventListener('click', submitRequest);
+
+/* ปุ่มกลับหน้าหลัก (ตามที่คุณมีอยู่) */
+function goHomeFromThanks(){ location.href = './index.html'; }
+function goHomeFromBlocked(){ location.href = './index.html'; }
+
    // ✅ endpoint สำรอง: ดึง BU Admin จาก Emp HO (P/Q)
 async function getBuAdmin(employeeId){
   try{
