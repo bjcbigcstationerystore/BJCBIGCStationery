@@ -3400,10 +3400,13 @@ async function submitRequest(){
       'ยอดเบิก (บาท)': totalCost
     };
     
-    await fetch(API_BASE, {
+    const form = new URLSearchParams();
+form.append('row', JSON.stringify(row));   // ส่ง row เป็นสตริง
+
+const res = await fetch(API_BASE, {
   method: 'POST',
-  headers: { 'Content-Type':'application/json' },
-  body: JSON.stringify({ action:'submit', row })
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+  body: form.toString()
 });
     
     items.forEach((it, idx) => {
