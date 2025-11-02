@@ -1876,33 +1876,27 @@ label[for="s_bu_email"] {
 </section>
   </div>
   
-<!-- BU Head (ใหม่ แบ่งซ้าย-ขวา) -->
 <section id="buHeadCard" class="info-card bu-head">
   <h4 class="section-title">👔 ข้อมูล BU Head</h4>
   <div class="section-divider"></div>
 
-  <div class="form-grid">
-    <!-- ฝั่งซ้าย: Name = เปลี่ยนเป็น dropdown เมื่อมีหลายคน -->
+  <div class="form-vertical">
+    <!-- โหมดค่าเดียว -->
     <div class="form-field">
-  <label class="form-label">BU Head Name</label>
+      <label class="form-label">BU Head Name</label>
+      <div id="s_head_name" class="form-value input-box">—</div>
 
-  <!-- โหมดค่าเดียว -->
-  <div id="s_head_name" class="form-value input-box">—</div>
+      <!-- โหมดหลายคน -->
+      <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
+        <option value="">— เลือก BU Head —</option>
+      </select>
+    </div>
 
-  <!-- โหมดหลายคน (dropdown) -->
-  <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
-    <option value="">— เลือก BU Head —</option>
-  </select>
-</div>
-
-    <!-- ฝั่งขวา: Email = เด้งอัตโนมัติ -->
     <div class="form-field">
-      <label class="form-label" for="s_head_email_inp">BU Head Email</label>
-
-      <!-- แสดงเมื่อมีแค่ 1 คน -->
+      <label class="form-label">BU Head Email</label>
       <div id="s_head_email" class="form-value input-box">—</div>
 
-      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
+      <!-- โหมดหลายคน (email auto) -->
       <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
@@ -3035,6 +3029,26 @@ if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 
     headEmail = h.headEmail || headEmail;
   }
 }
+   // ✅ endpoint สำรอง: ดึง BU Admin จาก Emp HO (P/Q)
+async function getBuAdmin(employeeId){
+  try{
+    const url = `${API_BASE}?action=getbuadmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) {
+      console.warn('getBuAdmin response not ok:', {ok, json, text});
+      return null;
+    }
+    const data = json.data ?? json;
+
+    const adminName  = String(data.adminName  ?? data.name  ?? '—').trim() || '—';
+    const adminEmail = String(data.adminEmail ?? data.email ?? '—').trim() || '—';
+    return { adminName, adminEmail };
+  }catch(e){
+    console.warn('getBuAdmin failed', e);
+    return null;
+  }
+}
+
 
 // 4) อัปเดต UI ตามจำนวนรายการ
 function showSingle(name, email){
