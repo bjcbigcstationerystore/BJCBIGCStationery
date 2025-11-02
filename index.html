@@ -1849,14 +1849,28 @@ label[for="s_bu_email"] {
 
   <!-- วางเรียงแนวตั้ง -->
   <div class="form-vertical">
+    <!-- Name: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Name</label>
+
+      <!-- โหมดค่าเดียว -->
       <div id="s_bu_name" class="form-value input-box">—</div>
+
+      <!-- โหมดหลายคน (dropdown) -->
+      <select id="s_bu_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Admin">
+        <option value="">— เลือก BU Admin —</option>
+      </select>
     </div>
 
+    <!-- Email: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Email</label>
+
+      <!-- โหมดค่าเดียว -->
       <div id="s_bu_email" class="form-value input-box">—</div>
+
+      <!-- โหมดหลายคน (input readonly เด้งตาม name) -->
+      <input id="s_bu_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
 </section>
@@ -2923,6 +2937,77 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
 
     document.getElementById('s_bu_name').textContent  = adminName;
     document.getElementById('s_bu_email').textContent = adminEmail;
+
+   // ===== BU Admin: รองรับหลายคน (dropdown) =====
+const buNameDiv  = document.getElementById('s_bu_name');
+const buEmailDiv = document.getElementById('s_bu_email');
+const buNameSel  = document.getElementById('s_bu_name_sel');
+const buEmailInp = document.getElementById('s_bu_email_inp');
+
+// รับลิสต์จาก backend ถ้ามี (คาดหวัง [{name,email}, ...])
+let ADMIN_CHOICES =
+  Array.isArray(info?.adminList) ? info.adminList :
+  Array.isArray(info?.admins)    ? info.admins    : [];
+
+// ฟังก์ชันแสดงโหมดเดียว
+function showAdminSingle(name, email){
+  buNameDiv.classList.remove('hidden');
+  buEmailDiv.classList.remove('hidden');
+  buNameSel.classList.add('hidden');
+  buEmailInp.classList.add('hidden');
+
+  buNameDiv.textContent  = name  || '—';
+  buEmailDiv.textContent = email || '—';
+
+  // เก็บไว้ใน state เดิมที่คุณมีอยู่
+  CURRENT_ADMIN_CONTACT = { name: buNameDiv.textContent, email: buEmailDiv.textContent };
+}
+
+// ฟังก์ชันแสดงโหมดหลายคน (dropdown)
+function showAdminDropdown(list){
+  buNameDiv.classList.add('hidden');
+  buEmailDiv.classList.add('hidden');
+  buNameSel.classList.remove('hidden');
+  buEmailInp.classList.remove('hidden');
+
+  // render options
+  buNameSel.innerHTML = list.map((x,i)=>{
+    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<option value="${i}">${n}</option>`;
+  }).join('');
+
+  // default: ถ้า backend ส่ง adminName/adminEmail มาก่อน ให้เลือกตามนั้น
+  let idx = 0;
+  if (adminName && adminName !== '—') {
+    const found = list.findIndex(x => String(x.name||'').trim() === String(adminName).trim());
+    if (found >= 0) idx = found;
+  }
+  buNameSel.value = String(idx);
+
+  const pick = list[idx] || {};
+  buEmailInp.value = pick.email || '—';
+
+  // sync state
+  CURRENT_ADMIN_CONTACT = { name: pick.name || '—', email: pick.email || '—' };
+
+  // เมื่อเปลี่ยนชื่อ → email เด้งตาม
+  buNameSel.onchange = ()=>{
+    const cur = list[Number(buNameSel.value) || 0] || {};
+    buEmailInp.value = cur.email || '—';
+    CURRENT_ADMIN_CONTACT = { name: cur.name || '—', email: cur.email || '—' };
+  };
+}
+
+// ตัดสินใจว่าจะใช้โหมดไหน
+if (ADMIN_CHOICES.length > 1){
+  showAdminDropdown(ADMIN_CHOICES);
+} else if (ADMIN_CHOICES.length === 1){
+  const only = ADMIN_CHOICES[0] || {};
+  showAdminSingle(only.name || adminName, only.email || adminEmail);
+} else {
+  showAdminSingle(adminName, adminEmail);
+}
+
 
     // ===== BU Head: รองรับหลายคน (ซ้ำ) ด้วย dropdown =====
 const nameDiv   = document.getElementById('s_head_name');
