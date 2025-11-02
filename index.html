@@ -371,19 +371,22 @@ body.category .panel-body{  padding:8px 12px !important; }
   color:#0f172a; font-weight:700;
 }
  
-    /* FORCE inner padding for Summary boxes */
-#summaryContent .form-value,
-#summaryContent .field-value{
+/* FORCE inner padding for Summary boxes – เว้น element ที่ถูก .hidden */
+#summaryContent .form-value:not(.hidden),
+#summaryContent .field-value:not(.hidden){
   background:#fff !important;
   border:1px solid #e5e7eb !important;
   border-radius:12px !important;
-  padding:14px 18px !important;   /* << เว้นขอบด้านใน */
-  display:block !important;
+  padding:14px 18px !important;
+  display:block !important;             /* แสดงเฉพาะที่ไม่ .hidden */
   box-sizing:border-box !important;
   line-height:1.5 !important;
   color:#0f172a !important;
   font-weight:800 !important;
 }
+
+/* ย้ำว่า .hidden ชนะทุกกรณีใน #summaryContent */
+#summaryContent .hidden{ display:none !important; }
 
 /* ให้ layout เป็น 2 คอลัมน์ (ถ้าโดนตัวอื่นทับ) */
 #summaryContent .form-grid{
