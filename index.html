@@ -1021,14 +1021,35 @@ body.products .item-card{
 @media (max-width:480px){
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
 }
-
+    
+#productGrid{
+  padding: 0 12px !important;
+}
 @media (min-width: 481px){
   #productGrid{
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
-    gap:18px !important;  /* เพิ่มช่องว่างนิดนึง */
+    gap:18px !important;
+    padding: 0 !important;          /* ✅ ให้กริดไม่สร้างกั้นขอบเอง */
+    box-sizing: border-box;
+    justify-content: center;         /* แถวสุดท้ายจะอยู่กลาง */
   }
 }
 
+    /* เว้นขอบซ้าย-ขวาให้เท่ากันทุกจอ */
+body.products .panel-body{
+  padding: 12px clamp(14px, 2.4vw, 28px) !important;  /* ⬅️ ซ้าย=ขวา เท่ากัน */
+}
+
+/* กัน padding ซ้ำชั้นจาก .products-inner */
+body.products .products-inner{
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+    
+    #productGrid{
+  margin: 0 auto !important;   /* กึ่งกลางภายใน panel-body */
+  box-sizing: border-box;
+}
 /* ✅ Desktop: จำกัดให้เหลือ 3 คอลัมน์พอดี */
 @media (min-width:1024px){
   #categoryGrid{
@@ -1150,8 +1171,8 @@ body.products .prod-card{
 }
 
 body.products .panel-body{
-  background:#f3f4f6 !important;   /* กันเคสมีตัวอื่น override */
-  padding:12px 10px !important;     /* เว้นขอบพอดีตา */
+  background:#f3f4f6 !important;
+  padding:12px clamp(16px, 2vw, 28px) !important;
 }
 
 
@@ -1242,14 +1263,7 @@ body.products .hero{
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
-    /* ✅ ระยะขอบด้านข้างของเนื้อหา */
-body.category .category-inner,
-body.products .products-inner,
-body.summary  .products-inner{
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  box-sizing: border-box !important;
-}
+
 body.category .category-inner{
   max-width:100% !important;
   width:100% !important;
