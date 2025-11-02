@@ -1870,16 +1870,16 @@ label[for="s_bu_email"] {
   <div class="form-grid">
     <!-- ฝั่งซ้าย: Name = เปลี่ยนเป็น dropdown เมื่อมีหลายคน -->
     <div class="form-field">
-      <label class="form-label" for="s_head_name_sel">BU Head Name</label>
+  <label class="form-label">BU Head Name</label>
 
-      <!-- แสดงเมื่อมีแค่ 1 คน -->
-      <div id="s_head_name" class="form-value input-box">—</div>
+  <!-- โหมดค่าเดียว -->
+  <div id="s_head_name" class="form-value input-box">—</div>
 
-      <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
-      <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
-        <option value="" disabled selected>— เลือก BU Head —</option>
-      </select>
-    </div>
+  <!-- โหมดหลายคน (dropdown) -->
+  <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
+    <option value="">— เลือก BU Head —</option>
+  </select>
+</div>
 
     <!-- ฝั่งขวา: Email = เด้งอัตโนมัติ -->
     <div class="form-field">
