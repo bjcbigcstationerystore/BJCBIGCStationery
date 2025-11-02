@@ -384,6 +384,13 @@ body.category .panel-body{  padding:8px 12px !important; }
   color:#0f172a !important;
   font-weight:800 !important;
 }
+    /* …แล้ว “หักล้าง” เฉพาะ BU Admin ให้เป็นปกติ */
+#summaryContent #buAdminCard .form-field > .form-value,
+.info-card.bu-admin .form-field > .form-value,
+#s_bu_name.form-value,
+#s_bu_email.form-value {
+  font-weight: 400 !important;
+}
 
 /* ย้ำว่า .hidden ชนะทุกกรณีใน #summaryContent */
 #summaryContent .hidden{ display:none !important; }
@@ -454,6 +461,11 @@ body.category .panel-body{  padding:8px 12px !important; }
   border: 1px solid #e5e7eb !important;
   background: #fff !important;
   box-shadow: inset 0 0 0 1px #eef2f7 !important;
+}
+    /* ปรับเฉพาะช่อง BU Admin Name / Email ให้เป็นตัวอักษรปกติ */
+#s_bu_name.form-value,
+#s_bu_email.form-value {
+  font-weight: 400 !important;
 }
 
 /* ระยะห่างระหว่างช่องในกริด */
