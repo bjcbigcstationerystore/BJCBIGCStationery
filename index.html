@@ -2888,6 +2888,9 @@ async function submitRequest(){
       return;
     }
 
+    if (data.status === 'ok')      showThankyouPage(data);
+else if (data.status === 'blocked') showBlockedPage(data);
+
    // ⛔ Gate ใหม่: เช็คคอลัมน์ M ก่อนส่งทุกครั้ง
 const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
 console.log('checkbudgetstatus (submit) step =', stepSubmit);
