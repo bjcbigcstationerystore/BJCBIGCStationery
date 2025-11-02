@@ -1542,31 +1542,56 @@ body.category .back-btn{
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 }
-
-    async function loadBUHead(employeeId){
-  try{
-    const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
-    const res = await fetch(url, { cache:'no-store' });
-    const js  = await res.json();
-
-    const nameEl  = document.getElementById('s_buhead_name');
-    const emailEl = document.getElementById('s_buhead_email');
-
-    if (!nameEl || !emailEl) return;
-
-    if (js.success && js.allowed){
-      nameEl.textContent  = js.data?.buHeadName  || '—';
-      emailEl.textContent = js.data?.buHeadEmail || '—';
-    } else {
-      nameEl.textContent  = '—';
-      emailEl.textContent = '—';
-    }
-  }catch(err){
-    console.error('loadBUHead:', err);
-    document.getElementById('s_buhead_name')?.textContent  = '—';
-    document.getElementById('s_buhead_email')?.textContent = '—';
-  }
+/* ===== Summary: จัดผู้เบิก & BU Admin ข้างกันเฉพาะ Desktop ===== */
+.summary-duo{
+  display:block;                 /* มือถือ/แท็บเล็ต: เรียงบน-ล่างตามเดิม */
+  gap: 12px;
 }
+
+@media (min-width:1024px){
+  .summary-duo{
+    display:grid;
+    grid-template-columns: 1fr 1fr;  /* ซ้าย 50% : ขวา 50% */
+    gap: 12px;                       /* ระยะห่างระหว่างการ์ด */
+    align-items: start;
+  }
+  .summary-duo .info-card{
+    margin-bottom: 0 !important;     /* ไม่ให้ทิ้งช่องว่างล่างเพิ่ม */
+    height: 100%;                     /* สูงเท่ากัน (ตามเนื้อหา) */
+  }
+  /* ถ้าอยาก “สูงเท่ากันจริง ๆ” แม้เนื้อหาต่างกัน ให้เปิดบรรทัดล่าง */
+  /* .summary-duo .info-card { display:flex; flex-direction:column; } */
+}
+ /* ===== BU Head Card ===== */
+.buhead-card {
+  margin-top: 12px;
+}
+
+.buhead-card .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* แถวละ 2 ช่องเหมือนฝั่งผู้เบิก */
+  gap: 12px;
+}
+
+@media (max-width: 768px){
+  .buhead-card .form-grid {
+    grid-template-columns: 1fr;    /* มือถือให้เรียงแนวตั้ง */
+  }
+}   
+    
+    /* ===== ปรับกรอบข้อความของข้อมูลผู้เบิก ให้เท่ากับ BU Admin ===== */
+.emp-card .form-value {
+  display: block;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;    /* เทาอ่อนแบบเดียวกับ BU Admin */
+  border-radius: 0.5rem;        /* มุมโค้งเท่ากัน */
+  padding: 0.5rem 0.75rem;      /* ช่องห่างในกล่อง */
+  line-height: 1.5;
+  min-height: 2.25rem;          /* ความสูงขั้นต่ำให้เท่ากัน */
+  box-sizing: border-box;
+}
+
     
   </style>
 </head>
@@ -1706,53 +1731,70 @@ body.category .back-btn{
       <div class="panel">
           <div class="panel-body">
 
-           <!-- ผู้เบิก -->
-<section class="info-card">
-  <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก: Employee Information</h4>
+<!-- ผู้เบิก (ซ้าย) + BU Admin (ขวา) สำหรับ Desktop -->
+<div class="summary-duo">
+  <!-- ซ้าย: ผู้เบิก -->
+  <section class="info-card emp-card">
+    <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก: Employee Information</h4>
+    <div class="section-divider"></div>
+
+    <!-- แถวที่ 1: Company / Cost Center -->
+    <div class="form-grid mb-3">
+      <div class="form-field">
+        <label class="form-label">Company</label>
+        <div id="s_company" class="form-value">-</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Cost Center</label>
+        <div id="s_cost" class="form-value">-</div>
+      </div>
+    </div>
+
+    <!-- แถวที่ 2: Employee ID / Full Name -->
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="form-label">Employee ID</label>
+        <div id="s_empid" class="form-value">-</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Full Name</label>
+        <div id="s_fullname" class="form-value">-</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ขวา: BU Admin -->
+  <section class="info-card bu-card">
+    <h4 class="section-title">🏢 BU Admin</h4>
+    <div class="section-divider"></div>
+
+    <div class="form-field mb-3">
+  <label class="form-label">BU Admin Name</label>
+  <div id="s_bu_name" class="form-value">—</div>
+</div>
+<div class="form-field">
+  <label class="form-label">BU Admin Email</label>
+  <div id="s_bu_email" class="form-value">—</div>
+</div>
+  </section>
+</div>
+            <!-- ===== BU Head (อยู่ใต้ผู้เบิกและ BU Admin) ===== -->
+<section class="info-card buhead-card">
+  <h4 class="section-title">🏢 BU Head</h4>
   <div class="section-divider"></div>
 
-   <!-- แถวที่ 1: Company / Cost Center -->
-  <div class="form-grid mb-3">
-    <div class="form-field">
-      <label class="form-label">Company</label>
-      <div id="s_company" class="form-value">-</div>
-    </div>
-    <div class="form-field">
-      <label class="form-label">Cost Center</label>
-      <div id="s_cost" class="form-value">-</div>
-    </div>
-  </div>
-
-  <!-- แถวที่ 2: Employee ID / Full Name -->
   <div class="form-grid">
     <div class="form-field">
-      <label class="form-label">Employee ID</label>
-      <div id="s_empid" class="form-value">-</div>
+      <label class="form-label">BU Head Name</label>
+      <div id="s_buhead_name" class="form-value">—</div>
     </div>
     <div class="form-field">
-      <label class="form-label">Full Name</label>
-      <div id="s_fullname" class="form-value">-</div>
+      <label class="form-label">BU Head Email</label>
+      <div id="s_buhead_email" class="form-value">—</div>
     </div>
   </div>
 </section>
-
-<!-- ข้อมูล BU Admin -->
-<section class="info-card">
-  <h4 class="section-title">🏢 BU Admin</h4>
-  <div class="section-divider"></div>
-
-  <div class="form-grid">
-    <div class="form-field">
-      <label class="form-label">BU Admin Name</label>
-      <div id="s_bu_name" class="form-value">—</div>
-    </div>
-    <div class="form-field">
-      <label class="form-label">BU Admin Email</label>
-      <div id="s_bu_email" class="form-value">—</div>
-    </div>
-  </div>
-</section>
-
+            
             <!-- รายการ -->
             <div class="mb-6">
   <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
@@ -3040,6 +3082,33 @@ if (stepSubmit === 'blocked') {
     });
   }
 });
+    <script>
+async function loadBUHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
+    const res = await fetch(url, { cache:'no-store' });
+    const js  = await res.json();
+
+    const nameEl  = document.getElementById('s_buhead_name');
+    const emailEl = document.getElementById('s_buhead_email');
+
+    if (!nameEl || !emailEl) return;
+
+    if (js.success && js.allowed){
+      nameEl.textContent  = js.data?.buHeadName  || '—';
+      emailEl.textContent = js.data?.buHeadEmail || '—';
+    } else {
+      nameEl.textContent  = '—';
+      emailEl.textContent = '—';
+    }
+  }catch(err){
+    console.error('loadBUHead:', err);
+    document.getElementById('s_buhead_name')?.textContent  = '—';
+    document.getElementById('s_buhead_email')?.textContent = '—';
+  }
+}
+</script>
+
     
   </script>
 
