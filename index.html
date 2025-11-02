@@ -1021,19 +1021,18 @@ body.products .item-card{
   gap:14px !important;               /* เดิม 18px */
 }
 
-/* มือถือ: 2 คอลัมน์ เหมือนเดิม */
+#categoryGrid{ display:grid !important; gap:18px !important; }
+
 @media (max-width:480px){
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
 }
 
-/* เดสก์ท็อป: 4 คอลัมน์ แต่ให้การ์ดแคบลงเล็กน้อย */
 @media (min-width:1024px){
   #categoryGrid{
-    grid-template-columns: repeat(4, minmax(220px, 1fr)) !important; /* เดิม 240px */
-    gap:16px !important;                                             /* เดิม 20px */
+    grid-template-columns: repeat(4, minmax(240px, 1fr)) !important;
+    gap:20px !important;
     justify-content:center !important;
-    max-width:1320px;                                                /* เดิม 1400px */
-    margin:0 auto;
+    max-width:1400px; margin:0 auto;
   }
 }
     
@@ -1078,7 +1077,7 @@ body.products .products-inner{
 
 /* ย่อชื่อหมวดให้พอดีทุกจอ */
 .cat-title{
-  font-size: clamp(.9rem, 1.6vw, 1rem);
+  font-size:1.05rem;
   font-weight:700;
   color:#0f172a;
   line-height:1.25;
@@ -1286,16 +1285,19 @@ body.category .category-inner{
 
 
 /* ย่อกล่องให้กระชับขึ้น */
-body.category .cat-item{
+body.category .cat-item {
   background:#fff !important;
   border:1px solid #e5e7eb !important;
   border-radius:12px !important;
-
-  /* เดิม padding:28px 16px; min-height:170px; */
-  padding: 18px 12px !important;
-  min-height: 130px;
-
-  display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+  
+  padding: 28px 16px !important;
+  border-radius: 12px !important;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
@@ -1321,13 +1323,13 @@ body.category .cat-item:focus {
 }
 
 /* ✅ ไอคอน — อยู่นิ่งตลอด */
-body.category .cat-item img{
-  width: clamp(50px, 6.5vw, 64px);
-  height: clamp(50px, 6.5vw, 64px);
-  margin:0 !important;
-  object-fit:contain;
-  display:block;
-  transform: translateY(-2px);
+body.category .cat-item img {
+  width: 60px;
+  height: 60px;
+  margin: 0 !important;
+  object-fit: contain;
+  display: block;
+  transform: translateY(-4px);
 }
     
 /* ✅ ให้กล่องทั้งหมดอยู่ตรงกลางแนวตั้งพอดี ไม่ต้อง scroll */
