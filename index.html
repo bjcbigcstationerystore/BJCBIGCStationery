@@ -3059,10 +3059,32 @@ let CURRENT_EMP = window.CURRENT_EMP || { company:'', costCenter:'', id:'', name
 let CURRENT_BU_ADMIN = window.CURRENT_BU_ADMIN || { names:[], emails:[] };
 let CURRENT_BU_HEAD  = window.CURRENT_BU_HEAD  || { name:'', email:'' };
 
+   /* ===== Helper: อ่านค่า BU Head แบบปลอดภัย =====
+   จะพยายามอ่านจาก:
+   1) กล่อง input ในหน้า (ถ้ามี id ตรงนี้)
+   2) ตัวแปรกลาง CURRENT_BU_HEAD
+*/
+function readBUHeadSafe() {
+  const nameFromDom  = document.getElementById('buHeadName')?.value
+                    || document.getElementById('inputBuHeadName')?.value
+                    || document.querySelector('[name="buHeadName"]')?.value;
+
+  const emailFromDom = document.getElementById('buHeadEmail')?.value
+                    || document.getElementById('inputBuHeadEmail')?.value
+                    || document.querySelector('[name="buHeadEmail"]')?.value;
+
+  const name  = (nameFromDom  ?? (window.CURRENT_BU_HEAD?.name  ?? '')).toString().trim();
+  const email = (emailFromDom ?? (window.CURRENT_BU_HEAD?.email ?? '')).toString().trim();
+  return { name, email };
+}
+
 /* แปลงเป็น row flat ให้ Apps Script */
-function buildFlatRow(){
+function buildFlatRow() {
   const totalQty = CART.reduce((s,it)=> s + (+it.qty||0), 0);
   const totalAmt = CART.reduce((s,it)=> s + (Number(it.line ?? ((+it.qty||0)*(+it.price||0)))||0), 0);
+
+  // ✅ ดึง BU Head แบบปลอดภัย
+  const { name: buHeadName, email: buHeadEmail } = readBUHeadSafe();
 
   const row = {
     'Request number':'',
@@ -3072,17 +3094,22 @@ function buildFlatRow(){
     'ชื่อ-นามสกุล':       (CURRENT_EMP.name||'').trim(),
     'Name BU admin':    (CURRENT_BU_ADMIN?.names?.[0]  || '').trim(),
     'Email BU Admin':   (CURRENT_BU_ADMIN?.emails?.[0] || '').trim(),
-    'Name BU Head':     (CURRENT_BU_HEAD?.name  || '').trim(),
-    'Email BU Head':    (CURRENT_BU_HEAD?.email || '').trim(),
+
+    // ✅ ใช้ค่าที่อ่านได้จริง ไม่อ้างตัวแปรลอย ๆ
+    'Name BU Head':     buHeadName,
+    'Email BU Head':    buHeadEmail,
+
     'รายการเบิก (ชิ้น)':  totalQty,
     'ยอดเบิก (บาท)':     totalAmt
   };
-  CART.forEach((it,idx)=>{
-    const i = idx+1;
+
+  CART.forEach((it, idx) => {
+    const i = idx + 1;
     row[`รายการที่ ${i}`] = (it.name||'').trim();
-    row[`จำนวน ${i}`]    = +it.qty||0;
-    row[`ราคา ${i}`]     = +it.price||0;
+    row[`จำนวน ${i}`]     = +it.qty||0;
+    row[`ราคา ${i}`]      = +it.price||0;
   });
+
   return row;
 }
 
@@ -3369,8 +3396,6 @@ async function submitRequest(){
       'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
       'Name BU admin': (CURRENT_ADMIN_CONTACT?.name || '—'),
       'Email BU Admin': (CURRENT_ADMIN_CONTACT?.email || '—'),
-      "Name BU Head":  selectedHeadName, 
-      "Email BU Head": selectedHeadEmail, 
       'รายการเบิก (ชิ้น)': totalQty,
       'ยอดเบิก (บาท)': totalCost
     };
