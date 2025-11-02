@@ -354,19 +354,50 @@ body.category .cat-item:focus{
   border:1px solid #e5e7eb; border-radius:14px; background:#fff;
 }
 .sum-table thead th{
-  background:#f8fafc; color:#111827; font-weight:800; text-align:left;
-  padding:14px 16px; border-bottom:1px solid #e5e7eb;
+  background:#f8fafc;
+  color:#111827;
+  font-weight:800;
+  padding:14px 16px;
+  border-bottom:1px solid #e5e7eb;
 }
+
+/* จัดแนวให้ตรงกับข้อมูลในแต่ละคอลัมน์ */
+.sum-col-idx     { width:68px;  text-align:center; }
+.sum-table th.sum-col-idx { text-align:center; }
+
+.sum-table th:nth-child(2) { text-align:left; }   /* รายการ */
+
+.sum-col-qty     { width:100px; text-align:center; }
+.sum-table th.sum-col-qty { text-align:center; }
+
+.sum-col-unit    { width:140px; text-align:right; white-space:nowrap; }
+.sum-table th.sum-col-unit { text-align:right; }
+
+.sum-col-line    { width:160px; text-align:right; white-space:nowrap; }
+.sum-table th.sum-col-line { text-align:right; }
 .sum-table tbody td{
   padding:14px 16px; border-bottom:1px solid #e5e7eb; vertical-align:middle;
 }
 .sum-table tfoot td{
   padding:14px 16px; background:#ecfdf5; font-weight:900; color:#065f46;
 }
-.sum-col-idx{ width:68px; text-align:center; }
-.sum-col-qty{ width:100px; text-align:center; }
-.sum-col-unit{ width:140px; text-align:right; white-space:nowrap; }
-.sum-col-line{ width:160px; text-align:right; white-space:nowrap; }
+/* ฐาน: มือถือ/แท็บเล็ต ใช้ px ใกล้เคียงของเดิม */
+.sum-col-idx{ width:60px; text-align:center; }
+.sum-col-qty{ width:90px;  text-align:center; }
+.sum-col-unit{ width:120px; text-align:right; white-space:nowrap; }
+.sum-col-line{ width:130px; text-align:right; white-space:nowrap; }
+
+/* เดสก์ท็อป: ชิดระยะคอลัมน์ "จำนวน" ให้ใกล้ "รายการ" มากขึ้น */
+@media (min-width:1024px){
+  /* บังคับ "รายการ" ไม่ให้กินที่มากเกินไป */
+  .sum-table thead th:nth-child(2),
+  .sum-table tbody td:nth-child(2){ width:46%; }   /* ถ้ายังห่าง ลดเป็น 44% ได้ */
+
+  /* ขยายสัดส่วนคอลัมน์ตัวเลขเล็กน้อยให้เลื่อนเข้ามา */
+  .sum-col-qty { width:12%; }   /* ถ้าอยากชิดอีก → 13–14% */
+  .sum-col-unit{ width:18%; }
+  .sum-col-line{ width:18%; }
+}
 .sum-itembox{ display:flex; gap:10px; align-items:flex-start; }
 .sum-thumb{
   width:34px; height:34px; border-radius:8px; background:#f1f5f9;
@@ -1583,14 +1614,25 @@ html.category, body.category{
               <div id="sumItems" class="mt-3"></div>
 
                 
- <!-- ✅ Summary footer: น้ำหนัก/ขนาดเดียวกันทั้งหมด -->
-<div id="summaryFooter" class="mt-4 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xl font-extrabold">
-  <span class="label">รายการทั้งหมด:</span>
-  <span id="itemCount" class="val">0</span>
-  <span class="label">รายการ</span>
+<!-- ✅ Summary footer: จัดกลางหน้าจอ -->
+<div id="summaryFooter"
+     class="mt-6 flex flex-wrap items-baseline justify-center gap-x-6 md:gap-x-10 gap-y-1 text-xl font-extrabold text-center">
 
-  <span class="label">รวมทั้งหมด:</span>
-  <span id="sumTotal" class="val">฿0</span>
+  <!-- กลุ่มที่ 1: รายการทั้งหมด -->
+  <div class="flex items-baseline gap-2">
+    <span class="text-gray-600">รายการทั้งหมด:</span>
+    <span id="itemCount" class="text-emerald-600">0</span>
+    <span class="text-gray-600">รายการ</span>
+  </div>
+
+  <!-- ตัวคั่น (เฉพาะ desktop) -->
+  <span class="hidden md:inline-block mx-1 text-gray-300 select-none">•</span>
+
+  <!-- กลุ่มที่ 2: รวมทั้งหมด -->
+  <div class="flex items-baseline gap-2">
+    <span class="text-gray-600">รวมทั้งหมด:</span>
+    <span id="sumTotal" class="text-emerald-600">฿0</span>
+  </div>
 </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
