@@ -1442,6 +1442,12 @@ body.summary .section-title{
 /* ปรับกริดฟิลด์ให้กระชับขึ้นเล็กน้อยใน card */
 body.summary .info-card .form-grid{ gap:12px !important; }   
     
+ /* ===== Form Labels: ให้หัวข้อเข้มขึ้น ===== */
+body.summary .form-label {
+  color: #000000 !important;     /* ทำให้เป็นสีดำ */
+  font-weight: 700 !important;   /* หนากว่าปกติ */
+}   
+    
     
   </style>
 </head>
@@ -1593,7 +1599,7 @@ body.summary .info-card .form-grid{ gap:12px !important; }
       <div id="s_company" class="form-value">-</div>
     </div>
     <div class="form-field">
-      <label class="form-label">Cost Center *</label>
+      <label class="form-label">Cost Center</label>
       <div id="s_cost" class="form-value">-</div>
     </div>
   </div>
@@ -1601,11 +1607,11 @@ body.summary .info-card .form-grid{ gap:12px !important; }
   <!-- แถวที่ 2: Employee ID / Full Name -->
   <div class="form-grid">
     <div class="form-field">
-      <label class="form-label">Employee ID *</label>
+      <label class="form-label">Employee ID</label>
       <div id="s_empid" class="form-value">-</div>
     </div>
     <div class="form-field">
-      <label class="form-label">Full Name *</label>
+      <label class="form-label">Full Name</label>
       <div id="s_fullname" class="form-value">-</div>
     </div>
   </div>
@@ -1622,7 +1628,7 @@ body.summary .info-card .form-grid{ gap:12px !important; }
       <div id="s_bu_name" class="form-value">—</div>
     </div>
     <div class="form-field">
-      <label class="form-label">BU Admin Email *</label>
+      <label class="form-label">BU Admin Email</label>
       <div id="s_bu_email" class="form-value">—</div>
     </div>
   </div>
@@ -2567,7 +2573,7 @@ async function verifyEmployee(){
   const rawInput = (inputEl?.value || '').trim();
 
   if (!rawInput) {
-    showMsg('กรุณากรอกรหัสพนักงานก่อน', 'error');
+    showMsg('กรุณากรอกรหัสพนักงาน', 'error');
     return;
   }
 
