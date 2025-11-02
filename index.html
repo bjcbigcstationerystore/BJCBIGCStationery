@@ -2201,10 +2201,6 @@ let inflight = { categories: null, items: null };
       if (t.includes('big c') || t.includes('bigc')) return 'Big C';
       return 'BJC';
     }
-    
-// ===== Gate helper: อนุญาตเฉพาะ budget > 0 และมี BU Admin name/email =====
-function passBudget(bud){
-  if (!bud) return false;
 
   // รองรับชื่อคีย์หลายแบบจาก Apps Script
   const bdRaw   = bud.budget ?? bud.k ?? bud.K ?? bud.budgetK ?? null;
@@ -2230,20 +2226,6 @@ function passBudget(bud){
   return ok;
 }
 
-    /** ===== อ่านสถานะจากชีต "Status Check" (คอลัมน์ B) แบบ Global =====
- * Apps Script ควรทำ action=getStatusCheck แล้วคืน { success:true, data:{ flag:"Check" | "0" | "" } }
- */
-async function getGlobalStatusCheck(){
-  try{
-    const url = `${API_BASE}?action=getStatusCheck`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return '';
-    const flag = json.data?.flag ?? json.data?.B ?? json.data?.status ?? '';
-    return String(flag ?? '').trim();
-  }catch(_){
-    return '';
-  }
-}
     
 // ✅ ใช้แหล่งข้อมูล BU Admin แบบใหม่: แมตช์ Emp HO!O ↔ User_BJC_BigC!E แล้วคืน H/I
 // API (ฝั่ง Apps Script ต้องทำงานตามนี้): ?action=getBudgetAndAdmin&employeeId=XXXX
@@ -2270,31 +2252,10 @@ async function getBudgetAndAdmin(employeeId){
     return null;
   }
 }
-    
-/** ตีความค่า B:
- * - ว่าง หรือ "0"  => ข้ามการเช็คงบ (ไปหน้าเบิกได้เลย)
- * - อื่นๆ (รวม "Check") => ต้องเช็คงบ K/L
- */
-function needKLCheck(flagB){
-  const t = String(flagB || '').trim().toLowerCase();
-  return !(t === '' || t === '0'); // true = ต้องเช็ค K/L
-}
 
 /** มีค่า (ไม่ว่าง) = ผ่านเกณฑ์ (นับรวม "0" ด้วยว่า "มีค่า" ตามเงื่อนไขล่าสุด) */
 function hasNonBlank(v){
   return !(v === null || v === undefined || String(v).trim() === '');
-}
-
-/** ตัดสินจาก payload ของ getBudgetAndAdmin:
- * อนุโลมชื่อคีย์หลายแบบ (k/K/budget/budgetK, และ l/L/balance/budgetL)
- * เงื่อนไขใหม่: "ผ่าน" ถ้า K หรือ L มีค่าอย่างน้อยหนึ่งช่อง
- * "บล็อก" เฉพาะกรณี K และ L ว่างทั้งคู่
- */
-function allowByKL(payload){
-  if (!payload) return false; // safety
-  const k = payload.k ?? payload.K ?? payload.budget ?? payload.budgetK ?? '';
-  const l = payload.l ?? payload.L ?? payload.balance ?? payload.budgetL ?? '';
-  return hasNonBlank(k) || hasNonBlank(l);
 }
 
     // === fetch ชนิดมี timeout + รวมการโยง signal ภายนอก ===
@@ -2827,24 +2788,14 @@ function goHomeFromBlocked(){
 async function verifyEmployee(){
   const inputEl  = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
-
-  if (!rawInput) {
-    showMsg('กรุณากรอกรหัสพนักงาน', 'error');
-    return;
-  }
+  if (!rawInput) { showMsg('กรุณากรอกรหัสพนักงาน', 'error'); return; }
 
   showCheckingModal(true);
   showLoadingProductsModal(false);
-
   try{
-    // 1) ตรวจว่ามีพนักงานจริง
     const emp = await getEmployeeData(rawInput);
-    if (!emp) {
-      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error');
-      return;
-    }
+    if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
 
-    // 2) cache ผู้ใช้
     CURRENT_EMP = {
       id:         emp.employeeId || emp.id || rawInput,
       company:    normalizeCompanyName(emp.company || 'BJC'),
@@ -2852,14 +2803,7 @@ async function verifyEmployee(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
 
-// ✅ ใช้ตัวเดียวกับตอน submit เพื่อให้เกณฑ์เดียวกัน
-const step = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
-if (step === 'blocked') {
-  await showBlocked(CURRENT_EMP.id);
-  return;
-}
-
-    // 4) ไปต่อปกติ (M = YES หรือว่าง)
+    // ✅ ไปหน้า “หมวดหมู่” ได้เลย
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
 
@@ -2905,18 +2849,6 @@ if (step === 'blocked') {
       return d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
     }
 
-    /* ===== เรียก BU Admin จาก Apps Script (ใหม่) ===== ต้องมี action=getBUAdmin ฝั่ง Apps Script (ดูขั้นถัดไป) */
-    async function checkBudgetStatus(employeeId){
-  try{
-    const url = `${API_BASE}?action=checkbudgetstatus&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || !json.success) return 'blocked';
-    return String(json.step || '').trim().toLowerCase();
-  }catch(e){
-    console.error('checkBudgetStatus failed', e);
-    return 'blocked';
-  }
-}
 
       function asListHTML(arr){
   if(!arr || arr.length === 0) return '—';
@@ -3051,14 +2983,6 @@ async function submitRequest(){
       return;
     }
 
-   // ⛔ Gate ใหม่: เช็คคอลัมน์ M ก่อนส่งทุกครั้ง
-const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
-console.log('checkbudgetstatus (submit) step =', stepSubmit);
-if (stepSubmit === 'blocked') {
-  showSubmittingModal(false);
-  await showBlocked(CURRENT_EMP?.id || '');
-  return;
-}
     // เตรียม payload
     const items = CART.map(it => ({
       name: it.name,
