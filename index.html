@@ -95,9 +95,8 @@ body.summary .green-shell{
   overflow: visible !important;
 }
 
-/* ✅ ส่วนพื้นหลังขาวด้านล่างให้เต็มด้วย */
-body.category .panel,
-body.products .panel{
+/* ✅ ส่วนพื้นหลังขาวด้านล่างให้เต็มด้วย (เฉพาะ Category) */
+body.category .panel{
   width: 100dvw !important;
   max-width: 100dvw !important;
   margin: 0 !important;
@@ -157,36 +156,8 @@ body.category .panel-body{  padding:8px 12px !important; }
       transition:transform .15s, box-shadow .15s;
     }
     .back-btn:hover{transform:translateX(-2px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
-
-    /* การ์ดหมวด/สินค้า */
-    body.products .prod-card{
-  padding:10px 8px !important;
-  border-radius:12px !important;
-  background:#fff;
-  border:1px solid #e5e7eb;
-  display:grid;
-  grid-template-rows:auto 1fr auto;
-  transition:all .2s; text-align:center; cursor:pointer;
-}
-body.products .prod-card:hover{
-  border-color: var(--emerald-700) !important;
-  border-left-color: var(--emerald-700) !important;
-  background:#f0fdf4;
-  box-shadow:0 10px 22px rgba(0,0,0,.06);
-  transform:translateY(-1px);
-}
-
     
-    body.products .prod-card{
-      border-left-width: 1px !important; /* ยกเลิกขอบหนาด้านซ้าย */
-      border-left-color: #e5e7eb !important; /* ให้ซ้ายกลับมาเป็นเทาเหมือนด้านอื่น */
-    }
-    body.products .prod-card:hover{
-      border-color: var(--emerald-700) !important; /* เวลา hover ให้ขอบทั้งใบเป็นเขียวเข้ม */
-      /* ซ้ำให้แน่ใจว่าด้านซ้ายเขียวด้วย (กันเคส rule เก่ามา override) */
-      border-left-color: var(--emerald-700) !important;
-    }
-
+  
     /* Modal */
     .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9999}
     .modal{background:#fff;border-radius:18px;max-width:520px;width:92%;padding:22px 22px 20px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
@@ -1013,12 +984,6 @@ body.products .item-card{
   margin: 1rem auto !important;
   width: 100% !important;   /* ไม่บีบเกินจำเป็น */
   max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
-}
-
-/* ลดช่องว่างพื้นฐานให้กระชับ */
-#categoryGrid{
-  display:grid !important;
-  gap:14px !important;               /* เดิม 18px */
 }
 
 #categoryGrid{ display:grid !important; gap:18px !important; }
@@ -2470,8 +2435,9 @@ async function openCategory(name){
   // ✅ หลังโหลดเสร็จ → ปิดโหมดโหลดสด (เหลือ cache รอบถัดไปได้เลย)
   FORCE_FRESH = false;
 
-  document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';    document.getElementById('prodHeaderTitle').textContent = 'รายการสินค้า';
- document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+ document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';
+document.getElementById('prodHeaderTitle').textContent = selectedCategory ? `หมวด: ${selectedCategory}` : 'รายการสินค้า';
+document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
 
   renderProducts();
   showPage('products');
