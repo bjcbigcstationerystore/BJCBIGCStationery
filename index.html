@@ -80,14 +80,6 @@ body.category .category-inner{
   margin:0 auto !important;
 }
 
-/* การ์ดหมวดหมู่ให้กว้างเต็มแถว ดูโปร่งขึ้น */
-body.category .cat-item{
-  width:100%;
-  text-align:center;           /* จะปรับเป็นซ้ายก็ได้ */
-  border-left-width:1px !important;   /* ลดเส้นหนาซ้าย */
-  border-radius:14px !important;
-  padding:16px !important;
-}
 /* ✅ กรอบสีเขียวกินเต็ม viewport ซ้าย-ขวา */
 body.category .green-shell,
 body.products .green-shell,
@@ -184,23 +176,6 @@ body.products .prod-card:hover{
   transform:translateY(-1px);
 }
 
-/* การ์ดหมวด – ทำให้เหมือน prod-card */
-body.category .cat-item{
-  padding:10px 8px !important;
-  border-radius:12px !important;
-  background:#fff !important;
-  border:1px solid #e5e7eb !important;
-  display:grid;               /* ไว้จัดวางชื่อ/ไอคอนให้บาลานซ์ */
-  grid-template-rows:auto 1fr;
-  transition:all .2s; text-align:center; cursor:pointer;
-}
-body.category .cat-item:hover,
-body.category .cat-item:focus{
-  border-color: var(--emerald-700) !important;
-  background:#f0fdf4;
-  box-shadow:0 10px 22px rgba(0,0,0,.06);
-  transform:translateY(-1px);
-}
     
     body.products .prod-card{
       border-left-width: 1px !important; /* ยกเลิกขอบหนาด้านซ้าย */
@@ -1064,16 +1039,6 @@ body.products .item-card{
   }
 }
 
-
- /* จัดภายในการ์ดหมวดให้โปร่งแบบการ์ดสินค้า */
-body.category .cat-item{
-  display:grid !important;
-  grid-template-rows:auto 1fr !important;
-  align-items:start !important;
-  justify-items:center !important;
-  gap:8px !important;
-  text-align:center !important;
-}
 .cat-icon{
   width:60px; 
   height:60px;   /* ให้เท่ากับ .prod-img เพื่อความรู้สึกใกล้เคียง */
@@ -1081,9 +1046,6 @@ body.category .cat-item{
   margin:0 auto 8px;
   border-radius:10px;
   transition:transform .2s ease;
-}
-    .cat-item:hover img{
-  transform:scale(1.05);    /* ขยายเบา ๆ เมื่อชี้ */
 }
     
 .cat-title{
@@ -1107,16 +1069,6 @@ body.category .cat-item{
   font-weight:400;     /* ← ไม่หนา */
 }
 
-/* ปรับความสูงของการ์ดหมวดหมู่ให้โปร่งขึ้น */
-body.category .cat-item{
-  padding: 28px 16px !important;   /* เดิม 12px → เพิ่มเป็น 28px แนวตั้ง */
-  border-radius: 12px !important;  /* คงไว้เหมือนเดิม */
-  min-height: 160px;               /* เพิ่มความสูงขั้นต่ำเท่ากันทุกกล่อง */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;         /* จัดให้รูปและข้อความอยู่กลางแนวตั้ง */
-  align-items: center;
-}
 
 /* การ์ดสินค้าเล็กลงนิด */
 body.products .prod-card{
@@ -1312,6 +1264,10 @@ body.category .category-inner{
 
 /* ✅ ไม่ขยับตัวกรอบการ์ด */
 body.category .cat-item {
+  background:#fff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:12px !important;
+  
   padding: 28px 16px !important;
   border-radius: 12px !important;
   min-height: 170px;
@@ -1320,7 +1276,7 @@ body.category .cat-item {
   justify-content: center;   /* เนื้อหากึ่งกลางแนวตั้ง */
   align-items: center;       /* กึ่งกลางแนวนอน */
   text-align: center;
-  transition: box-shadow 0.2s ease;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
 /* ✅ ให้เฉพาะข้อความภายในการ์ดขยับตอน hover */
@@ -1335,8 +1291,12 @@ body.category .cat-item:hover > *:not(img) {
 }
 
 /* ✅ เงา hover */
-body.category .cat-item:hover {
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+body.category .cat-item:hover,
+body.category .cat-item:focus {
+  background:#f0fdf4;                                /* พื้นเขียวอ่อน */
+  border-color:var(--emerald-700) !important;         /* ขอบเขียวเข้ม */
+  box-shadow:0 10px 22px rgba(0,0,0,.06);             /* เงาเดียวกับ prod-card */
+  transform:translateY(-1px);                         /* ยกขึ้นนิดเดียว */
 }
 
 /* ✅ ไอคอน — อยู่นิ่งตลอด */
@@ -1346,9 +1306,9 @@ body.category .cat-item img {
   margin: 0 !important;
   object-fit: contain;
   display: block;
-  transform: translateY(-3px); /* ยกขึ้นพอดี */
+  transform: translateY(-4px); /* ยกขึ้นพอดี */
 }
-
+    
 /* ✅ ให้กล่องทั้งหมดอยู่ตรงกลางแนวตั้งพอดี ไม่ต้อง scroll */
 body.category .green-shell {
   display: flex;
