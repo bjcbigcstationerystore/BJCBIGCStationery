@@ -2511,6 +2511,24 @@ function showLoadingProductsModal(show = true){
   return (ok && json && json.success && json.data) ? json.data : null;
 }
 
+    async function getBudgetAndAdmin(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || !json.success) return null;
+
+    const data = json.data || {};
+    return {
+      budget: Number(data.budget ?? data.k ?? data.K ?? data.budgetK ?? 0),
+      adminName:  (data.adminName  ?? data.buAdminName  ?? data.name  ?? '—').toString().trim(),
+      adminEmail: (data.adminEmail ?? data.buAdminEmail ?? data.email ?? '—').toString().trim()
+    };
+  }catch(e){
+    console.warn('getBudgetAndAdmin failed', e);
+    return null;
+  }
+}
+    
     /* ====== Layout helpers ====== */
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
@@ -2864,6 +2882,9 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
     // แสดงผลบนหน้า Summary
     document.getElementById('s_bu_name').textContent  = adminName || '—';
     document.getElementById('s_bu_email').textContent = adminEmail || '—';
+
+    await loadBUHead(emp.id || '');
+    
   }catch(e){
     console.warn('getBudgetAndAdmin failed', e);
     document.getElementById('s_bu_name').textContent  = '—';
@@ -3082,7 +3103,7 @@ if (stepSubmit === 'blocked') {
     });
   }
 });
-    <script>
+    
 async function loadBUHead(employeeId){
   try{
     const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
@@ -3107,7 +3128,6 @@ async function loadBUHead(employeeId){
     document.getElementById('s_buhead_email')?.textContent = '—';
   }
 }
-</script>
 
     
   </script>
