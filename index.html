@@ -1015,11 +1015,26 @@ body.products .item-card{
   max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
 }
 
-/* กริดหมวด = เท่ากับกริดสินค้า */
-#categoryGrid{ display:grid !important; gap:18px !important; }
+/* ลดช่องว่างพื้นฐานให้กระชับ */
+#categoryGrid{
+  display:grid !important;
+  gap:14px !important;               /* เดิม 18px */
+}
 
+/* มือถือ: 2 คอลัมน์ เหมือนเดิม */
 @media (max-width:480px){
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* เดสก์ท็อป: 4 คอลัมน์ แต่ให้การ์ดแคบลงเล็กน้อย */
+@media (min-width:1024px){
+  #categoryGrid{
+    grid-template-columns: repeat(4, minmax(220px, 1fr)) !important; /* เดิม 240px */
+    gap:16px !important;                                             /* เดิม 20px */
+    justify-content:center !important;
+    max-width:1320px;                                                /* เดิม 1400px */
+    margin:0 auto;
+  }
 }
     
 #productGrid{
@@ -1050,15 +1065,7 @@ body.products .products-inner{
   margin: 0 auto !important;   /* กึ่งกลางภายใน panel-body */
   box-sizing: border-box;
 }
-/* ✅ Desktop: จำกัดให้เหลือ 3 คอลัมน์พอดี */
-@media (min-width:1024px){
-  #categoryGrid{
-    grid-template-columns: repeat(4, minmax(240px, 1fr)) !important; /* 4 คอลัมน์บน Desktop */
-    gap:20px !important;
-    justify-content:center !important;
-    max-width:1400px; margin:0 auto; /* เผื่อความกว้างให้รองรับ 4 ใบสบายๆ */
-  }
-}
+
 
 .cat-icon{
   width:60px; 
@@ -1068,19 +1075,21 @@ body.products .products-inner{
   border-radius:10px;
   transition:transform .2s ease;
 }
-    
+
+/* ย่อชื่อหมวดให้พอดีทุกจอ */
 .cat-title{
-  font-size:1rem;
+  font-size: clamp(.9rem, 1.6vw, 1rem);
   font-weight:700;
   color:#0f172a;
   line-height:1.25;
 }
 
-.cat-title{
-  font-size:1.05rem;
-  font-weight:700;
-  color:#0f172a;
-  line-height:1.25;
+/* “x รายการ” ให้เล็กลงและห่างน้อยลง */
+.cat-count{
+  margin-top:1px;
+  color:#059669;
+  font-weight:400;
+  font-size: .875rem;  /* เพิ่มขนาดแบบคงที่เพื่อความอ่านง่าย */
 }
 
 /* “x รายการ” = ตัวปกติ ไม่หนา */
@@ -1276,33 +1285,31 @@ body.category .category-inner{
 }
 
 
-/* ✅ ไม่ขยับตัวกรอบการ์ด */
-body.category .cat-item {
+/* ย่อกล่องให้กระชับขึ้น */
+body.category .cat-item{
   background:#fff !important;
   border:1px solid #e5e7eb !important;
   border-radius:12px !important;
-  
-  padding: 28px 16px !important;
-  border-radius: 12px !important;
-  min-height: 170px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;   /* เนื้อหากึ่งกลางแนวตั้ง */
-  align-items: center;       /* กึ่งกลางแนวนอน */
-  text-align: center;
+
+  /* เดิม padding:28px 16px; min-height:170px; */
+  padding: 22px 14px !important;
+  min-height: 150px;
+
+  display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
   transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
-/* ✅ ให้เฉพาะข้อความภายในการ์ดขยับตอน hover */
-body.category .cat-item > *:not(img) {
-  transform: translateY(12px);  /* ขยับลงเล็กน้อย */
-  transition: transform 0.25s ease;
+/* จอ >= 768px ยก padding ขึ้นเล็กน้อยให้ดูสมส่วน */
+@media (min-width:768px){
+  body.category .cat-item{
+    padding: 24px 16px !important;
+    min-height: 158px;
+  }
 }
-
-/* ✅ Hover: ยกขึ้นเล็กน้อยเพื่อให้รู้สึก interactive */
-body.category .cat-item:hover > *:not(img) {
-  transform: translateY(10px);
-}
+    
+/* ลด offset ลงเพื่อภาพรวมดูเตี้ยและโปร่งขึ้น */
+body.category .cat-item > *:not(img){ transform: translateY(8px); transition: transform .25s ease; }
+body.category .cat-item:hover > *:not(img){ transform: translateY(6px); }
 
 /* ✅ เงา hover */
 body.category .cat-item:hover,
@@ -1314,13 +1321,13 @@ body.category .cat-item:focus {
 }
 
 /* ✅ ไอคอน — อยู่นิ่งตลอด */
-body.category .cat-item img {
-  width: 60px;
-  height: 60px;
-  margin: 0 !important;
-  object-fit: contain;
-  display: block;
-  transform: translateY(-4px); /* ยกขึ้นพอดี */
+body.category .cat-item img{
+  width: clamp(44px, 6vw, 56px);
+  height: clamp(44px, 6vw, 56px);
+  margin:0 !important;
+  object-fit:contain;
+  display:block;
+  transform: translateY(-2px);
 }
     
 /* ✅ ให้กล่องทั้งหมดอยู่ตรงกลางแนวตั้งพอดี ไม่ต้อง scroll */
