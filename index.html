@@ -2870,7 +2870,7 @@ document.getElementById('itemCount').textContent = String(cartCount());
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
 
-   /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
+ /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
 let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
 async function submitRequest(){
   if (IS_SUBMITTING) return;
@@ -2880,25 +2880,25 @@ async function submitRequest(){
   try {
     if (!CURRENT_EMP) {
       alert('กรุณายืนยันตัวตนก่อน');
+      showSubmittingModal(false);
       showPage('verify');
       return;
     }
     if (!CART || CART.length === 0) {
       alert('ยังไม่มีรายการในตะกร้า');
+      showSubmittingModal(false);
       return;
     }
 
-    if (data.status === 'ok')      showThankyouPage(data);
-else if (data.status === 'blocked') showBlockedPage(data);
+    // ✅ เช็คสิทธิ์ก่อนส่ง (ใช้ API checkbudgetstatus ที่มีอยู่แล้ว)
+    const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
+    console.log('checkbudgetstatus (submit) step =', stepSubmit);
+    if (stepSubmit === 'blocked') {
+      showSubmittingModal(false);
+      showBlocked();       // ไปหน้าบล็อก พร้อมโชว์ข้อมูลติดต่อ BU Admin
+      return;
+    }
 
-   // ⛔ Gate ใหม่: เช็คคอลัมน์ M ก่อนส่งทุกครั้ง
-const stepSubmit = await checkBudgetStatus((CURRENT_EMP.id || '').trim());
-console.log('checkbudgetstatus (submit) step =', stepSubmit);
-if (stepSubmit === 'blocked') {
-  showSubmittingModal(false);
-  showBlocked();
-  return;
-}
     // เตรียม payload
     const items = CART.map(it => ({
       name: it.name,
@@ -2956,8 +2956,7 @@ if (stepSubmit === 'blocked') {
     clearTimeout(timer);
 
     const raw = await res.text();
-    let json = null;
-    try { json = JSON.parse(raw); } catch(_) {}
+    let json = null; try { json = JSON.parse(raw); } catch(_){}
 
     if (!res.ok) {
       const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
@@ -2973,7 +2972,7 @@ if (stepSubmit === 'blocked') {
       totalAmount: totalCost
     };
 
-    // เคลียร์ตะกร้า + ไป Thank You
+    // ✅ ส่งสำเร็จ → ล้างตะกร้า + ขอบคุณ
     CART = [];
     updateCartUI();
     showSubmittingModal(false);
