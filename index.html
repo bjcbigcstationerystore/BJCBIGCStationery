@@ -2259,14 +2259,23 @@ async function getBudgetAndAdmin(employeeId){
   }
 }
 
-// ✅ endpoint สำรอง: เผื่อฝั่ง Script แยก action สำหรับ BU Head
+// ✅ endpoint สำรอง: ดึง BU Head แบบยืดหยุ่น (รองรับทั้ง headList และ headName/headEmail เดี่ยว)
+// **สำคัญ**: ใช้ action เป็นตัวพิมพ์เล็ก "getbuhead" เพื่อให้เข้ากับ doGet ที่ .toLowerCase() ไว้
 async function getBuHead(employeeId){
   try{
-    const url = `${API_BASE}?action=getBuHead&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 10000 }).catch(()=>({ok:false}));
-    if(!ok || !json || json.success !== true) return null;
-
+    const url = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) {
+      console.warn('getBuHead response not ok:', {ok, json, text});
+      return null;
+    }
     const data = json.data ?? json;
+    const list = Array.isArray(data.headList) ? data.headList : [];
+
+    if (list.length > 0){
+      return { headList: list };
+    }
+
     const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
     const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
     return { headName, headEmail };
@@ -3240,39 +3249,6 @@ async function getBuHead(employeeId){
     console.warn('getBuHead failed', e);
     return null;
   }
-}
-
-  const empValues = empHo.getDataRange().getValues();
-  const userValues = userMap.getDataRange().getValues();
-
-  const empHeader = empValues[0];
-  const empRows = empValues.slice(1);
-  const userRows = userValues.slice(1);
-
-  // หา BU (คอลัมน์ O) ของพนักงาน
-  const emp = empRows.find(r => String(r[0]).trim() === String(employeeId).trim());
-  if (!emp) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ success: false, message: 'ไม่พบพนักงาน' })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  const empBU = String(emp[14] || '').trim(); // O = index 14 (0-based)
-
-  // เทียบกับ User_BJC_BigC!E
-  const matched = userRows.filter(r => String(r[4]).trim() === empBU);
-
-  const heads = matched.map(r => ({
-    name: String(r[11] || '').trim(),  // L = index 11
-    email: String(r[12] || '').trim()  // M = index 12
-  })).filter(h => h.name && h.email);
-
-  return ContentService.createTextOutput(
-    JSON.stringify({
-      success: true,
-      data: { headList: heads }
-    })
-  ).setMimeType(ContentService.MimeType.JSON);
 }
 
     
