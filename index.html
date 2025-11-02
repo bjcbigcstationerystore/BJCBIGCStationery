@@ -1884,28 +1884,27 @@ label[for="s_bu_email"] {
 </section>
   </div>
   
+<!-- BU Head (ฟิลด์ซ้าย-ขวา สลับตำแหน่งกัน) -->
 <section id="buHeadCard" class="info-card bu-head">
   <h4 class="section-title">👔 ข้อมูล BU Head</h4>
   <div class="section-divider"></div>
 
-  <div class="form-vertical">
-    <!-- โหมดค่าเดียว -->
+  <!-- ปรับเป็น grid 2 คอลัมน์ -->
+  <div class="form-grid">
+    <!-- ฝั่งซ้าย: BU Head Email -->
+    <div class="form-field">
+      <label class="form-label">BU Head Email</label>
+      <div id="s_head_email" class="form-value input-box text-base font-medium text-slate-800">—</div>
+      <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
+    </div>
+
+    <!-- ฝั่งขวา: BU Head Name -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
-      <div id="s_head_name" class="form-value input-box">—</div>
-
-      <!-- โหมดหลายคน -->
+      <div id="s_head_name" class="form-value input-box text-base font-medium text-slate-800">—</div>
       <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
         <option value="">— เลือก BU Head —</option>
       </select>
-    </div>
-
-    <div class="form-field">
-      <label class="form-label">BU Head Email</label>
-      <div id="s_head_email" class="form-value input-box">—</div>
-
-      <!-- โหมดหลายคน (email auto) -->
-      <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
 </section>
