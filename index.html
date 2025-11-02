@@ -3153,8 +3153,19 @@ async function submitRequest(){
       throw new Error(msg);
     }
     if (!json || json.success !== true) {
-      throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
-    }
+  // ✅ รองรับเคสฝั่ง Script บล็อกด้วยคอลัมน์ M
+  if (json?.errorCode === 'M_NO') {
+    CURRENT_ADMIN_CONTACT = {
+      name:  json?.adminName  || '—',
+      email: json?.adminEmail || '—'
+    };
+    showSubmittingModal(false);
+    await showBlocked(CURRENT_EMP.id);
+    IS_SUBMITTING = false;
+    return; // ❌ ไม่ไป Thank You
+  }
+  throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
+}
 
     LAST_SUBMIT = {
       ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
@@ -3207,37 +3218,6 @@ async function submitRequest(){
     });
   }
 });
-    /** ===== getBuHead =====
- * ดึงข้อมูล BU Head ตามรหัสพนักงาน
- * เงื่อนไข:
- * - Emp_HO!O ตรงกับ User_BJC_BigC!E
- * - ดึง L (ชื่อ) และ M (อีเมล)
- */
-function getBuHead(employeeId) {
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  const empHo = ss.getSheetByName(TAB_EMP);            // Emp HO
-  const userMap = ss.getSheetByName('User_BJC_BigC');  // ตารางแม็ป
-
-  if (!empHo || !userMap) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ success: false, message: 'ไม่พบชีตที่ต้องการ' })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  const empValues = empHo.getDataRange().getValues();
-  const userValues = userMap.getDataRange().getValues();
-
-  const empHeader = empValues[0];
-  const empRows = empValues.slice(1);
-  const userRows = userValues.slice(1);
-
-  // หา BU (คอลัมน์ O) ของพนักงาน
-  const emp = empRows.find(r => String(r[0]).trim() === String(employeeId).trim());
-  if (!emp) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ success: false, message: 'ไม่พบพนักงาน' })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
 
   const empBU = String(emp[14] || '').trim(); // O = index 14 (0-based)
 
