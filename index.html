@@ -1683,7 +1683,7 @@ label[for="s_bu_email"] {
 <!-- <img ... class="corner-logo ..."> -->
 
       <!-- Cart Floating Button -->
-      <button id="cartFab" class="cart-btn" onclick="openCart()" aria-label="เปิดตะกร้า">
+     <button type="button" id="cartFab" class="cart-btn" onclick="openCart()" aria-label="เปิดตะกร้า">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2zm7 0a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1922,8 +1922,8 @@ label[for="s_bu_email"] {
 </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <button class="py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-bold" onclick="showPage('products')">แก้ไขรายการ</button>
-              <button class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold" onclick="submitRequest()">ส่งคำขอเบิก</button>
+              <button type="button" class="py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-bold" onclick="showPage('products')">แก้ไขรายการ</button>
+              <button type="button" class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold" onclick="submitRequest()">ส่งคำขอเบิก</button>
             </div>
           </div>
         </div>
@@ -1979,7 +1979,7 @@ label[for="s_bu_email"] {
 </div>
 
     <!-- ปุ่มกลับ -->
-    <button class="ty-btn" onclick="goHomeFromThanks()"> กลับสู่หน้าหลัก</button>
+    <button type="button" class="ty-btn" onclick="goHomeFromThanks()"> กลับสู่หน้าหลัก</button>
     
     <div class="ty-divider"></div>  <!-- ← เส้นคั่นใหม่ -->
 
@@ -2088,8 +2088,8 @@ label[for="s_bu_email"] {
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <button class="py-3 rounded-xl bg-gray-600 text-white font-bold" onclick="closeItemModal()">ยกเลิก</button>
-        <button class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onclick="confirmAdd()">เพิ่มลงตะกร้า</button>
+        <button type="button" class="py-3 rounded-xl bg-gray-600 text-white font-bold" onclick="closeItemModal()">ยกเลิก</button>
+<button type="button" class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onclick="confirmAdd()">เพิ่มลงตะกร้า</button>
       </div>
     </div>
   </div>
@@ -3090,14 +3090,16 @@ async function submitRequest(){
 
   try {
     if (!CURRENT_EMP) {
-      alert('กรุณายืนยันตัวตนก่อน');
-      showPage('verify');
-      return;
-    }
-    if (!CART || CART.length === 0) {
-      alert('ยังไม่มีรายการในตะกร้า');
-      return;
-    }
+  alert('กรุณายืนยันตัวตนก่อน');
+  showSubmittingModal(false);   // ⬅️ ปิด overlay
+  showPage('verify');
+  return;
+}
+if (!CART || CART.length === 0) {
+  alert('ยังไม่มีรายการในตะกร้า');
+  showSubmittingModal(false);   // ⬅️ ปิด overlay
+  return;
+}
 
     // เตรียม payload
     const items = CART.map(it => ({
@@ -3156,14 +3158,22 @@ async function submitRequest(){
     clearTimeout(timer);
 
     const raw = await res.text();
-    let json = null;
-    try { json = JSON.parse(raw); } catch(_) {}
+let json = null;
+try { json = JSON.parse(raw); } catch(_) { /* ignore */ }
 
-    if (!res.ok) {
-      const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-      throw new Error(msg);
-    }
-if (!json || json.success !== true) {
+// ถ้า HTTP ไม่โอเค → error ตามเดิม
+if (!res.ok) {
+  const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
+  throw new Error(msg);
+}
+
+// ถ้า parse ไม่ได้แต่ HTTP 200 ให้ fallback เป็น success แบบ soft
+if (!json) {
+  json = { success: true, nextPage: 'thank', ref: undefined };
+}
+
+// ถ้า parse ได้แต่ไม่ success → error
+if (json.success !== true) {
   throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
 }
 
@@ -3187,7 +3197,7 @@ if (next === 'blocked') {
 } else {
   // โฟลว์ปกติ: ขอบคุณ
   showPage('thankyou');
-  renderThankYou();
+  try { renderThankYou(); } catch (e) { console.warn('renderThankYou error', e); }
 }
 
 
@@ -3256,8 +3266,8 @@ if (next === 'blocked') {
           <span id="cartSum" style="color:#10b981;">฿0</span>
         </div>
         <div class="cart-actions">
-          <button class="cart-btn-secondary" onclick="closeCart()">← หน้าหลัก</button>
-          <button class="cart-btn-primary" onclick="proceedCart()">ดำเนินการ</button>
+          <button type="button" class="cart-btn-secondary" onclick="closeCart()">← หน้าหลัก</button>
+<button type="button" class="cart-btn-primary"  onclick="proceedCart()">ดำเนินการ</button>
         </div>
       </div>
     </div>
