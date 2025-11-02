@@ -3247,9 +3247,18 @@ async function submitRequest(){
       'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
       'Name BU admin': (CURRENT_ADMIN_CONTACT?.name || '—'),
       'Email BU Admin': (CURRENT_ADMIN_CONTACT?.email || '—'),
+      "Name BU Head":  selectedHeadName, 
+      "Email BU Head": selectedHeadEmail, 
       'รายการเบิก (ชิ้น)': totalQty,
       'ยอดเบิก (บาท)': totalCost
     };
+    
+    await fetch(API_BASE, {
+  method: 'POST',
+  headers: { 'Content-Type':'application/json' },
+  body: JSON.stringify({ action:'submit', row })
+});
+    
     items.forEach((it, idx) => {
       const n = idx + 1;
       row[`รายการที่ ${n}`] = it.name;
