@@ -1015,13 +1015,28 @@ body.products .item-card{
   max-width: 420px;         /* เพดานขนาดของกล่องให้เล็กลง */
 }
 
-/* ลดช่องว่างพื้นฐานให้กระชับ */
+    /* Category grid – base */
 #categoryGrid{
   display:grid !important;
-  gap:14px !important;               /* เดิม 18px */
+  gap:18px !important;
+  grid-template-columns: repeat(2, 1fr) !important; /* base = 2 คอลัมน์สำหรับมือถือกว้าง */
 }
 
-#categoryGrid{ display:grid !important; gap:18px !important; }
+/* มือถือจอเล็กมาก */
+@media (max-width:480px){
+  #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* เดสก์ท็อป 4 กล่องต่อแถว */
+@media (min-width:1024px){
+  #categoryGrid{
+    grid-template-columns: repeat(4, minmax(240px, 1fr)) !important;
+    gap:20px !important;
+    justify-content:center !important;
+    max-width:1400px; margin:0 auto;
+  }
+}
+
 
 @media (max-width:480px){
   #categoryGrid{ grid-template-columns: repeat(2, 1fr) !important; }
@@ -1254,10 +1269,10 @@ body.products .products-inner {
 }
     /* ✅ Category hero full-bleed */
 body.category .hero{
-  width: 100dvw !important;
-  max-width: 100dvw !important;
-  margin-left: calc(50% - 50dvw) !important;
-  margin-right: calc(50% - 50dvw) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
@@ -1476,9 +1491,8 @@ body.summary .form-label {
 
 /* ================== CATEGORY PAGE ONLY (70% SCALE) ================== */
 /* ลดขนาดเฉพาะหน้าหมวดหมู่เท่านั้น */
-body.category .category-header-box,
-body.category .panel-body{
-  font-size: 0.7em !important;
+body.category .cat-item{
+  font-size: 0.9em !important;
   line-height: 1.4 !important;
 }
 
