@@ -1870,18 +1870,20 @@ label[for="s_bu_email"] {
   <div class="form-grid">
     <!-- ฝั่งซ้าย: Name = เปลี่ยนเป็น dropdown เมื่อมีหลายคน -->
     <div class="form-field">
-      <label class="form-label">BU Head Name</label>
+      <label class="form-label" for="s_head_name_sel">BU Head Name</label>
 
       <!-- แสดงเมื่อมีแค่ 1 คน -->
       <div id="s_head_name" class="form-value input-box">—</div>
 
       <!-- แสดงเมื่อมีหลายคน (ซ่อนอยู่ก่อน) -->
-      <select id="s_head_name_sel" class="form-value input-box hidden"></select>
+      <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
+        <option value="" disabled selected>— เลือก BU Head —</option>
+      </select>
     </div>
 
     <!-- ฝั่งขวา: Email = เด้งอัตโนมัติ -->
     <div class="form-field">
-      <label class="form-label">BU Head Email</label>
+      <label class="form-label" for="s_head_email_inp">BU Head Email</label>
 
       <!-- แสดงเมื่อมีแค่ 1 คน -->
       <div id="s_head_email" class="form-value input-box">—</div>
@@ -2951,7 +2953,7 @@ if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 
 
 // 4) อัปเดต UI ตามจำนวนรายการ
 function showSingle(name, email){
-  // โหมดแสดงค่าเดียว
+  // โหมดแสดงค่าเดียว (ไม่มี dropdown)
   nameDiv.classList.remove('hidden');
   emailDiv.classList.remove('hidden');
   nameSel.classList.add('hidden');
@@ -2963,36 +2965,46 @@ function showSingle(name, email){
 }
 
 function showDropdown(list){
-  // โหมด dropdown
+  // โหมด dropdown (มีหลายคนให้เลือก)
   nameDiv.classList.add('hidden');
   emailDiv.classList.add('hidden');
   nameSel.classList.remove('hidden');
   emailInp.classList.remove('hidden');
 
-  // สร้าง option
-  nameSel.innerHTML = list.map((x, i) => {
-    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const e = (x?.email || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<option value="${i}">${n}</option>`;
-  }).join('');
+  // ใส่ placeholder + options จริง
+  const opts = [
+    `<option value="" disabled selected>— เลือก BU Head —</option>`,
+    ...list.map((x, i) => {
+      const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `<option value="${i}">${n}</option>`;
+    })
+  ];
+  nameSel.innerHTML = opts.join('');
 
-  // เซ็ตค่าเริ่มต้น = อันแรก หรือแม็พชื่อเดิมถ้ามี
-  let idx = 0;
+  // ถ้ามี headName จาก backend ให้พยายาม preselect ตัวที่ตรงชื่อ
+  let chosenIdx = -1;
   if (headName && headName !== '—') {
-    const found = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
-    if (found >= 0) idx = found;
+    chosenIdx = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
   }
-  nameSel.value = String(idx);
-
-  const cur = list[idx] || {};
-  emailInp.value = cur.email || '—';
-  CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+  if (chosenIdx >= 0){
+    nameSel.value = String(chosenIdx);
+    const pick = list[chosenIdx] || {};
+    emailInp.value = pick.email || '—';
+    CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+  }else{
+    // ยังไม่เลือก (คงไว้ที่ placeholder)
+    emailInp.value = '—';
+    CURRENT_BU_HEAD = { name: '—', email: '—' };
+  }
 
   // เปลี่ยนชื่อ → อัปเดตอีเมลเด้งตาม
   nameSel.onchange = () => {
-    const pick = list[Number(nameSel.value) || 0] || {};
-    emailInp.value = pick.email || '—';
-    CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+    const i = Number(nameSel.value);
+    if (Number.isFinite(i) && i >= 0){
+      const pick = list[i] || {};
+      emailInp.value = pick.email || '—';
+      CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+    }
   };
 }
 
