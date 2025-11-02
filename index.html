@@ -1590,9 +1590,74 @@ body.summary .info-card.bu-admin .form-grid{
   border-radius: 0.5rem;
   background: #fff;
 }
+    /* ===== BU Head ===== */
+.info-card.bu-head {
+  margin-top: 1.5rem; /* ระยะห่างจาก BU Admin */
+}
 
-  
-    
+/* ให้สองกล่องอยู่แนวนอนเหมือน Employee Info */
+.info-card.bu-head .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 กล่องแนวนอน */
+  gap: 1rem;
+}
+
+/* ปรับขนาดฟอนต์และสไตล์ให้เหมือนเดิม */
+.info-card.bu-head .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.info-card.bu-head .form-value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111827;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+}
+
+    /* ===== BU Head กล่องใหญ่ แบ่งซ้ายขวา ===== */
+.info-card.bu-head {
+  margin-top: 1.5rem; /* เว้นจาก BU Admin */
+}
+
+/* แบ่งภายในกล่องเป็น 2 คอลัมน์ (ซ้าย/ขวา) */
+.info-card.bu-head .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* label และกล่องข้อมูล */
+.info-card.bu-head .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.info-card.bu-head .input-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111827;
+  width: 100%;
+}
+
+/* สำหรับจอมือถือให้ซ้อนลงมา */
+@media (max-width: 768px) {
+  .info-card.bu-head .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -1781,7 +1846,29 @@ body.summary .info-card.bu-admin .form-grid{
     </div>
   </div>
 </section>
-</div> 
+  </div>
+  
+<!-- BU Head (ใหม่ แบ่งซ้าย-ขวา) -->
+<section id="buHeadCard" class="info-card bu-head">
+  <h4 class="section-title">👔 ข้อมูล BU Head</h4>
+  <div class="section-divider"></div>
+
+  <!-- แบ่งภายในกล่องเป็น 2 ฝั่ง -->
+  <div class="form-grid">
+    <!-- ฝั่งซ้าย -->
+    <div class="form-field">
+      <label class="form-label">BU Head Name</label>
+      <div id="s_head_name" class="form-value input-box">—</div>
+    </div>
+
+    <!-- ฝั่งขวา -->
+    <div class="form-field">
+      <label class="form-label">BU Head Email</label>
+      <div id="s_head_email" class="form-value input-box">—</div>
+    </div>
+  </div>
+</section> 
+            
             <!-- รายการ -->
             <div class="mb-6">
   <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
