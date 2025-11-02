@@ -1474,40 +1474,40 @@ body.summary .form-label {
   font-weight: 700 !important;   /* หนากว่าปกติ */
 }   
 
-    /* ================== CATEGORY PAGE ONLY (80% SCALE) ================== */
+/* ================== CATEGORY PAGE ONLY (70% SCALE) ================== */
 /* ลดขนาดเฉพาะหน้าหมวดหมู่เท่านั้น */
 body.category .category-header-box,
 body.category .panel-body{
-  font-size: 0.8em !important;
-  line-height: 1.45 !important;
+  font-size: 0.7em !important;
+  line-height: 1.4 !important;
 }
 
 /* กล่องหมวดหมู่ */
 body.category .cat-item{
-  padding: 19px 13px !important;     /* เดิม ~24px 16px */
-  min-height: 126px !important;      /* เดิม 158px */
+  padding: 14px 10px !important;     /* เดิม ~24px 16px → ลดลงเหลือ ~70% */
+  min-height: 110px !important;      /* เดิม 158px → 70% */
 }
 
 /* ไอคอนหมวดหมู่ */
 body.category .cat-item img.cat-icon,
 body.category .cat-icon{
-  width: 48px !important;
-  height: 48px !important;
+  width: 42px !important;            /* เดิม 60px → 70% */
+  height: 42px !important;
 }
 
 /* ชื่อหมวดและจำนวนรายการ */
 body.category .cat-title{
-  font-size: 0.84rem !important;     /* เดิม ~1.05rem */
+  font-size: 0.75rem !important;     /* เดิม ~1.05rem → ~70% */
   font-weight: 700 !important;
 }
 body.category .cat-count{
-  font-size: 0.7rem !important;      /* เดิม ~0.875rem */
+  font-size: 0.62rem !important;     /* เดิม .875rem → ~70% */
   font-weight: 400 !important;
 }
 
-/* ปุ่ม "กลับ" เล็กลงตาม */
+/* ปุ่ม "กลับ" ให้เล็กลงตาม */
 body.category .back-btn{
-  transform: scale(.8);
+  transform: scale(.7);
   transform-origin: bottom right;
 }
 
