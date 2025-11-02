@@ -3163,22 +3163,33 @@ async function submitRequest(){
       const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
       throw new Error(msg);
     }
-    if (!json || json.success !== true) {
-      throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
-    }
+if (!json || json.success !== true) {
+  throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
+}
 
-    LAST_SUBMIT = {
-      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-      totalQty: totalQty,
-      totalAmount: totalCost
-    };
+// เก็บค่า ref และยอดไว้ (เหมือนเดิม)
+LAST_SUBMIT = {
+  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+  totalQty: totalQty,
+  totalAmount: totalCost
+};
 
-    // เคลียร์ตะกร้า + ไป Thank You
-    CART = [];
-    updateCartUI();
-    showSubmittingModal(false);
-    showPage('thankyou');
-    renderThankYou();
+// เคลียร์ตะกร้าก่อน แล้วปิด modal
+CART = [];
+updateCartUI();
+showSubmittingModal(false);
+
+// ✅ ตัดสินใจหน้าไปต่อจากฝั่งเซิร์ฟเวอร์
+const next = String(json.nextPage || 'thank').toLowerCase();
+if (next === 'blocked') {
+  // แสดงหน้าบล็อก + เติม BU Admin ให้ชัวร์
+  await showBlocked(CURRENT_EMP?.id);
+} else {
+  // โฟลว์ปกติ: ขอบคุณ
+  showPage('thankyou');
+  renderThankYou();
+}
+
 
   } catch (err) {
     console.error(err);
@@ -3188,6 +3199,7 @@ async function submitRequest(){
     IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
   }
 }
+    
 
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
@@ -3219,38 +3231,6 @@ async function submitRequest(){
   }
 });
     
-// ✅ endpoint สำรอง: ดึง BU Head แบบยืดหยุ่น (รองรับทั้ง headList และ headName/headEmail เดี่ยว)
-// **สำคัญ**: ใช้ action เป็นตัวพิมพ์เล็ก "getbuhead" เพื่อให้เข้ากับ doGet ที่ .toLowerCase() ไว้
-async function getBuHead(employeeId){
-  try{
-    const url = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
-    if(!ok || !json || json.success !== true) {
-      console.warn('getBuHead response not ok:', {ok, json, text});
-      return null;
-    }
-
-    // โครงสร้างที่คาดหวังจากฝั่ง Apps Script
-    // แบบ A: { success:true, data:{ headList:[{name,email}, ...] } }
-    // แบบ B: { success:true, data:{ headName:"...", headEmail:"..." } }
-    const data = json.data ?? json;
-    const list = Array.isArray(data.headList) ? data.headList : [];
-
-    if (list.length > 0){
-      // คืนทั้งลิสต์ (สำหรับทำ dropdown)
-      return { headList: list };
-    }
-
-    // fallback: ชื่อเดี่ยว
-    const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
-    const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
-    return { headName, headEmail };
-  }catch(e){
-    console.warn('getBuHead failed', e);
-    return null;
-  }
-}
-
     
   </script>
 
