@@ -1639,6 +1639,14 @@ body.summary .info-card.bu-admin .form-grid{
   width:100%;
 }
 .hidden{ display:none !important; }
+    
+    /* ปรับเฉพาะ label: BU Admin Name ให้ไม่หนา */
+label[for="s_admin_name"],
+#summaryContent label[for="s_admin_name"],
+.form-field label:has(+ #s_admin_name) {
+  font-weight: 400 !important;
+}
+
 
     
 
