@@ -2259,14 +2259,23 @@ async function getBudgetAndAdmin(employeeId){
   }
 }
 
-// ✅ endpoint สำรอง: เผื่อฝั่ง Script แยก action สำหรับ BU Head
+// ✅ endpoint สำรอง: ดึง BU Head แบบยืดหยุ่น (รองรับทั้ง headList และ headName/headEmail เดี่ยว)
+// **สำคัญ**: ใช้ action เป็นตัวพิมพ์เล็ก "getbuhead" เพื่อให้เข้ากับ doGet ที่ .toLowerCase() ไว้
 async function getBuHead(employeeId){
   try{
-    const url = `${API_BASE}?action=getBuHead&employeeId=${encodeURIComponent(employeeId)}`;
-    const { ok, json } = await fetchJSON(url, { timeout: 10000 }).catch(()=>({ok:false}));
-    if(!ok || !json || json.success !== true) return null;
-
+    const url = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true) {
+      console.warn('getBuHead response not ok:', {ok, json, text});
+      return null;
+    }
     const data = json.data ?? json;
+    const list = Array.isArray(data.headList) ? data.headList : [];
+
+    if (list.length > 0){
+      return { headList: list };
+    }
+
     const headName  = String(data.headName  ?? data.name  ?? '—').trim() || '—';
     const headEmail = String(data.headEmail ?? data.email ?? '—').trim() || '—';
     return { headName, headEmail };
@@ -2932,7 +2941,9 @@ BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
 // 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
 if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
   const h = await getBuHead(emp.id);
-  if (h?.headName || h?.headEmail) {
+  if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
+    BU_HEAD_CHOICES = h.headList;  // ได้หลายคน → ไปโหมด dropdown
+  } else if (h?.headName || h?.headEmail) {
     headName  = h.headName  || headName;
     headEmail = h.headEmail || headEmail;
   }
@@ -3152,33 +3163,33 @@ async function submitRequest(){
       const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
       throw new Error(msg);
     }
-    if (!json || json.success !== true) {
-  // ✅ รองรับเคสฝั่ง Script บล็อกด้วยคอลัมน์ M
-  if (json?.errorCode === 'M_NO') {
-    CURRENT_ADMIN_CONTACT = {
-      name:  json?.adminName  || '—',
-      email: json?.adminEmail || '—'
-    };
-    showSubmittingModal(false);
-    await showBlocked(CURRENT_EMP.id);
-    IS_SUBMITTING = false;
-    return; // ❌ ไม่ไป Thank You
-  }
+if (!json || json.success !== true) {
   throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
 }
 
-    LAST_SUBMIT = {
-      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-      totalQty: totalQty,
-      totalAmount: totalCost
-    };
+// เก็บค่า ref และยอดไว้ (เหมือนเดิม)
+LAST_SUBMIT = {
+  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+  totalQty: totalQty,
+  totalAmount: totalCost
+};
 
-    // เคลียร์ตะกร้า + ไป Thank You
-    CART = [];
-    updateCartUI();
-    showSubmittingModal(false);
-    showPage('thankyou');
-    renderThankYou();
+// เคลียร์ตะกร้าก่อน แล้วปิด modal
+CART = [];
+updateCartUI();
+showSubmittingModal(false);
+
+// ✅ ตัดสินใจหน้าไปต่อจากฝั่งเซิร์ฟเวอร์
+const next = String(json.nextPage || 'thank').toLowerCase();
+if (next === 'blocked') {
+  // แสดงหน้าบล็อก + เติม BU Admin ให้ชัวร์
+  await showBlocked(CURRENT_EMP?.id);
+} else {
+  // โฟลว์ปกติ: ขอบคุณ
+  showPage('thankyou');
+  renderThankYou();
+}
+
 
   } catch (err) {
     console.error(err);
@@ -3188,6 +3199,7 @@ async function submitRequest(){
     IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
   }
 }
+    
 
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
@@ -3218,7 +3230,7 @@ async function submitRequest(){
     });
   }
 });
-
+    
     
   </script>
 
