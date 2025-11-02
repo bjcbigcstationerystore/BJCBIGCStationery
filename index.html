@@ -1511,54 +1511,62 @@ body.category .back-btn{
   transform-origin: bottom right;
 }
 
-    /* ====================== SUMMARY DESKTOP: ย่อกรอบข้อมูลเหลือ ~75% ====================== */
+/* ====================== SUMMARY DESKTOP: ลดขนาดกรอบแต่ไม่ลดฟอนต์ ====================== */
 @media (min-width:1024px){
-  body.summary{ --sumBox: .75; }
-
   /* การ์ดหลักแต่ละส่วน */
   body.summary .info-card{
-    padding: calc(22px * var(--sumBox)) calc(20px * var(--sumBox)) !important;
-    border-radius: calc(16px * var(--sumBox)) !important;
+    padding: 18px 16px !important;       /* เดิม 24–28px */
+    border-radius: 10px !important;      /* เดิม 14–16px */
   }
 
-  /* ช่องข้อมูล (value box) */
+  /* ช่องข้อมูล (form-value) */
   #summaryContent .form-value{
-    font-size: calc(1rem * var(--sumBox)) !important;
-    padding: calc(14px * var(--sumBox)) calc(16px * var(--sumBox)) !important;
-    border-radius: calc(12px * var(--sumBox)) !important;
+    padding: 10px 12px !important;       /* เดิม 14–16px */
+    border-radius: 8px !important;       /* เดิม 12px */
   }
 
-  /* ป้าย label */
-  #summaryContent .form-label{
-    font-size: calc(.95rem * var(--sumBox)) !important;
-    line-height: 1.4 !important;
-  }
-
-  /* ช่องกริด 2 คอลัมน์ให้เล็กลงนิด */
+  /* ช่องกริด 2 คอลัมน์ให้แคบลง */
   #summaryContent .form-grid{
-    gap: calc(12px * var(--sumBox)) !important;
+    gap: 10px !important;                /* เดิม 16px */
   }
 
-  /* หัวข้อย่อย (Employee Information / BU Admin / Items Requested) */
-  body.summary .section-title{
-    font-size: calc(1.125rem * var(--sumBox)) !important;
-    margin-bottom: calc(10px * var(--sumBox)) !important;
-  }
-
-  /* ตารางรายการ (ช่องเล็กลงด้วย) */
+  /* ตารางรายการ: ลด padding แต่ไม่ลดฟอนต์ */
   .sum-table thead th,
   .sum-table tbody td,
   .sum-table tfoot td{
-    font-size: calc(1rem * var(--sumBox)) !important;
-    padding: calc(14px * var(--sumBox)) calc(16px * var(--sumBox)) !important;
+    padding: 10px 12px !important;       /* เดิม 14–16px */
   }
 
-  /* ขอบโค้ง + เงาให้นุ่มขึ้นเล็กน้อย */
+  /* เงาให้นุ่มขึ้นเล็กน้อย */
   body.summary .info-card{
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 }
 
+    async function loadBUHead(employeeId){
+  try{
+    const url = `${API_BASE}?action=getBUHead&employeeId=${encodeURIComponent(employeeId)}`;
+    const res = await fetch(url, { cache:'no-store' });
+    const js  = await res.json();
+
+    const nameEl  = document.getElementById('s_buhead_name');
+    const emailEl = document.getElementById('s_buhead_email');
+
+    if (!nameEl || !emailEl) return;
+
+    if (js.success && js.allowed){
+      nameEl.textContent  = js.data?.buHeadName  || '—';
+      emailEl.textContent = js.data?.buHeadEmail || '—';
+    } else {
+      nameEl.textContent  = '—';
+      emailEl.textContent = '—';
+    }
+  }catch(err){
+    console.error('loadBUHead:', err);
+    document.getElementById('s_buhead_name')?.textContent  = '—';
+    document.getElementById('s_buhead_email')?.textContent = '—';
+  }
+}
     
   </style>
 </head>
