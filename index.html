@@ -2139,7 +2139,7 @@ window.addEventListener('unhandledrejection', (e) => {
     // ======== PAGE SWITCH HELPER ========
 function showSection(targetId){
   const ids = [
-    'verifyContent','categoryContent','productContent',
+    'verifyContent','categoryContent','productsContent',
     'summaryContent','thankyouContent','blockedContent'
   ];
   ids.forEach(id=>{
@@ -2148,54 +2148,6 @@ function showSection(targetId){
     if(id === targetId){ el.classList.remove('hidden'); }
     else               { el.classList.add('hidden'); }
   });
-}
-
-    // ======== THANK YOU RENDERER ========
-function renderThankYou(res){
-  // res: response จาก Apps Script (json) ของ doPost
-  // ค่าที่ต้องใช้
-  const ref   = String(res?.ref || res?.payload?.['Request number'] || '').trim();
-  const qty   = Number(res?.payload?.['รายการเบิก (ชิ้น)'] ?? 0);
-  const total = Number(res?.payload?.['ยอดเบิก (บาท)'] ?? 0);
-  const date  = String(res?.payload?.['วันที่'] || '').trim();
-
-  // เติมลง DOM
-  const elRef   = document.getElementById('tyRef');
-  const elQty   = document.getElementById('tyQty');
-  const elTotal = document.getElementById('tyTotal');
-  const elDate  = document.getElementById('tyDate');
-
-  if(elRef)   elRef.textContent   = ref ? `#${ref}` : '—';
-  if(elQty)   elQty.textContent   = `${qty.toLocaleString('th-TH')} รายการ`;
-  if(elTotal) elTotal.textContent = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-  if(elDate)  elDate.textContent  = date || new Date().toLocaleDateString('th-TH', {
-    year:'numeric', month:'long', day:'numeric'
-  });
-
-  function renderBlocked(res){
-  // ตั้งชื่อ/อีเมล BU Admin ถ้ามี
-  const name = String(res?.payload?.['Name BU admin'] || '—').trim();
-  const email= String(res?.payload?.['Email BU Admin'] || '').trim();
-
-  const elName = document.getElementById('blkName');
-  const elMail = document.getElementById('blkEmail');
-  const elMailText = document.getElementById('blkEmailText');
-
-  if(elName) elName.textContent = name || '—';
-  if(elMail){
-    if(email){
-      elMail.href = `mailto:${email}`;
-      if(elMailText) elMailText.textContent = `📧 Email BU Admin: ${email}`;
-    }else{
-      elMail.removeAttribute('href');
-      if(elMailText) elMailText.textContent = '📧 Email BU Admin: —';
-    }
-  }
-  showSection('blockedContent');
-}
-
-  // สลับหน้า
-  showSection('thankyouContent');
 }
 
 
@@ -2845,7 +2797,6 @@ function goHomeFromBlocked(){
 
    document.addEventListener('DOMContentLoaded', ()=>{
   const empInput = document.getElementById('employeeId');
-
   if (empInput){
     empInput.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter' && stage === 'verify'){
@@ -2854,25 +2805,23 @@ function goHomeFromBlocked(){
       }
     });
   }
-     function ensurePagesExist(){
-  const need = [
-    'verifyContent',
-    'categoryContent',
-    'productsContent',
-    'summaryContent',
-    'thankyouContent',
-    'blockedContent'
-  ];
-  const missing = need.filter(id => !document.getElementById(id));
-  if (missing.length){
-    console.error('[PageSanity] Missing page containers:', missing);
-    alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
-  }
-}
 
-document.addEventListener('DOMContentLoaded', ()=>{
+  function ensurePagesExist(){
+    const need = ['verifyContent','categoryContent','productsContent','summaryContent','thankyouContent','blockedContent'];
+    const missing = need.filter(id => !document.getElementById(id));
+    if (missing.length){
+      console.error('[PageSanity] Missing page containers:', missing);
+      alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
+    }
+  }
   ensurePagesExist();
-  // ที่เหลือของคุณ...
+
+  // หน้าแรก + เคลียร์โหลดค้าง
+  try { resetVerifyButton(); } catch(_) {}
+  showCheckingModal(false);
+  showLoadingProductsModal(false);
+  showPage('verify');
+  updateCartUI();
 });
 
 
@@ -3343,25 +3292,29 @@ if (
   }
 }
   
-    function renderThankYou(){
-  const d = LAST_SUBMIT || {};
+    function renderThankYou(payload){
+  // 1) ดึงข้อมูลจาก payload (ถ้ามี) หรือจาก LAST_SUBMIT (fallback)
+  const ref   = String(payload?.ref || LAST_SUBMIT?.ref || '').trim();
+  const qty   = Number(payload?.totalQty ?? LAST_SUBMIT?.totalQty ?? 0);
+  const total = Number(payload?.totalAmount ?? LAST_SUBMIT?.totalAmount ?? 0);
 
-  // วันที่ไทย (ใช้เวลาปัจจุบันฝั่ง client)
+  // 2) วันที่ไทย (ใช้เวลาปัจจุบันฝั่ง client)
   const now    = new Date();
   const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
 
-  // ดึง element แบบปลอดภัย (กัน null)
+  // 3) อัปเดต DOM แบบปลอดภัย
   const elRef   = document.getElementById('tyRef');
   const elQty   = document.getElementById('tyQty');
   const elTotal = document.getElementById('tyTotal');
   const elDate  = document.getElementById('tyDate');
 
-  // เติมค่า (มี fallback ทุกตัว)
-  if (elRef)   elRef.textContent   = d.ref ? `#${d.ref}` : '—';
-  if (elQty)   elQty.textContent   = `${Number(d.totalQty||0).toLocaleString('th-TH')} รายการ`;
-  if (elTotal) elTotal.textContent = Number(d.totalAmount||0)
-                                      .toLocaleString('th-TH', { style:'currency', currency:'THB', minimumFractionDigits:2, maximumFractionDigits:2 });
+  if (elRef)   elRef.textContent   = ref ? `#${ref}` : '—';
+  if (elQty)   elQty.textContent   = `${qty.toLocaleString('th-TH')} รายการ`;
+  if (elTotal) elTotal.textContent = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
   if (elDate)  elDate.textContent  = dateTH;
+
+  // 4) เปิดหน้า Thank You
+  showPage('thankyou');
 }
     
     
