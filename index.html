@@ -2796,33 +2796,25 @@ function goHomeFromBlocked(){
 }
 
    document.addEventListener('DOMContentLoaded', ()=>{
-  const empInput = document.getElementById('employeeId');
-  if (empInput){
-    empInput.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' && stage === 'verify'){
-        e.preventDefault();
-        verifyEmployee();
-      }
-    });
-  }
-
-  function ensurePagesExist(){
-    const need = ['verifyContent','categoryContent','productsContent','summaryContent','thankyouContent','blockedContent'];
-    const missing = need.filter(id => !document.getElementById(id));
-    if (missing.length){
-      console.error('[PageSanity] Missing page containers:', missing);
-      alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
+    const empInput = document.getElementById('employeeId');
+    if (empInput){
+      empInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' && stage === 'verify'){
+          e.preventDefault();
+          verifyEmployee();
+        }
+      });
     }
-  }
-  ensurePagesExist();
 
-  // หน้าแรก + เคลียร์โหลดค้าง
-  try { resetVerifyButton(); } catch(_) {}
-  showCheckingModal(false);
-  showLoadingProductsModal(false);
-  showPage('verify');
-  updateCartUI();
-});
+    function ensurePagesExist(){
+      const need = ['verifyContent','categoryContent','productsContent','summaryContent','thankyouContent','blockedContent'];
+      const missing = need.filter(id => !document.getElementById(id));
+      if (missing.length){
+        console.error('[PageSanity] Missing page containers:', missing);
+        alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
+      }
+    }
+    ensurePagesExist();
 
 
   // หน้าแรก = ยืนยันตัวตน
