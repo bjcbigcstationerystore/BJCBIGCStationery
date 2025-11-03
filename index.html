@@ -2135,6 +2135,68 @@ window.addEventListener('unhandledrejection', (e) => {
   console.error('[UnhandledRejection]', e.reason);
   alert('เกิดข้อผิดพลาดจากการส่งคำขอ: ' + (e.reason?.message || 'ไม่ทราบสาเหตุ'));
 });
+    
+    // ======== PAGE SWITCH HELPER ========
+function showSection(targetId){
+  const ids = [
+    'verifyContent','categoryContent','productContent',
+    'summaryContent','thankyouContent','blockedContent'
+  ];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(id === targetId){ el.classList.remove('hidden'); }
+    else               { el.classList.add('hidden'); }
+  });
+}
+
+    // ======== THANK YOU RENDERER ========
+function renderThankYou(res){
+  // res: response จาก Apps Script (json) ของ doPost
+  // ค่าที่ต้องใช้
+  const ref   = String(res?.ref || res?.payload?.['Request number'] || '').trim();
+  const qty   = Number(res?.payload?.['รายการเบิก (ชิ้น)'] ?? 0);
+  const total = Number(res?.payload?.['ยอดเบิก (บาท)'] ?? 0);
+  const date  = String(res?.payload?.['วันที่'] || '').trim();
+
+  // เติมลง DOM
+  const elRef   = document.getElementById('tyRef');
+  const elQty   = document.getElementById('tyQty');
+  const elTotal = document.getElementById('tyTotal');
+  const elDate  = document.getElementById('tyDate');
+
+  if(elRef)   elRef.textContent   = ref ? `#${ref}` : '—';
+  if(elQty)   elQty.textContent   = `${qty.toLocaleString('th-TH')} รายการ`;
+  if(elTotal) elTotal.textContent = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+  if(elDate)  elDate.textContent  = date || new Date().toLocaleDateString('th-TH', {
+    year:'numeric', month:'long', day:'numeric'
+  });
+
+  function renderBlocked(res){
+  // ตั้งชื่อ/อีเมล BU Admin ถ้ามี
+  const name = String(res?.payload?.['Name BU admin'] || '—').trim();
+  const email= String(res?.payload?.['Email BU Admin'] || '').trim();
+
+  const elName = document.getElementById('blkName');
+  const elMail = document.getElementById('blkEmail');
+  const elMailText = document.getElementById('blkEmailText');
+
+  if(elName) elName.textContent = name || '—';
+  if(elMail){
+    if(email){
+      elMail.href = `mailto:${email}`;
+      if(elMailText) elMailText.textContent = `📧 Email BU Admin: ${email}`;
+    }else{
+      elMail.removeAttribute('href');
+      if(elMailText) elMailText.textContent = '📧 Email BU Admin: —';
+    }
+  }
+  showSection('blockedContent');
+}
+
+  // สลับหน้า
+  showSection('thankyouContent');
+}
 
 
 /* ===== CART STATE ===== */
@@ -2623,7 +2685,6 @@ function showLoadingProductsModal(show = true){
     function setTop(){ container.classList.remove('centered'); container.classList.add('top'); }
 
 function showPage(which){
-  // บังคับทุกการขอ "home" ให้ไปหน้า verify
   if (which === 'home') which = 'verify';
 
   const verify  = document.getElementById('verifyContent');
@@ -2633,28 +2694,19 @@ function showPage(which){
   const thx     = document.getElementById('thankyouContent');
   const blocked = document.getElementById('blockedContent');
 
-  // ซ่อนทุกหน้าเสมอก่อน แล้วค่อยเปิดหน้าที่ต้องการ
-  if (verify)  verify.classList.add('hidden');
-  if (cate)    cate.classList.add('hidden');
-  if (prod)    prod.classList.add('hidden');
-  if (sum)     sum.classList.add('hidden');
-  if (thx)     thx.classList.add('hidden');
-  if (blocked) blocked.classList.add('hidden');
+  // ซ่อนทุกหน้าแบบปลอดภัย
+  [verify,cate,prod,sum,thx,blocked].forEach(el => el && el.classList.add('hidden'));
+  document.body.className = '';
 
-  // เคลียร์ body/html class ที่อาจค้างจากหน้าก่อน
-  document.body.classList.remove('category','products','summary','not-home','thankyou','blocked','verify');
-  document.documentElement.classList.remove('thankyou'); // อย่าเติม class นี้กลับเข้าไป
-
-  // เปิดหน้าตามที่ต้องการ
   if (which === 'verify'){
-    if (verify) verify.classList.remove('hidden');
+    verify?.classList.remove('hidden');
     document.body.classList.add('not-home','verify');
     setCentered();
     stage = 'verify';
     resetVerifyButton();
 
   } else if (which === 'category'){
-    if (cate) cate.classList.remove('hidden');
+    cate?.classList.remove('hidden');
     document.body.classList.add('not-home','category');
     setTop();
     if (!CATEGORIES || CATEGORIES.length === 0){
@@ -2664,32 +2716,28 @@ function showPage(which){
     }
 
   } else if (which === 'products'){
-    if (prod) prod.classList.remove('hidden');
+    prod?.classList.remove('hidden');
     document.body.classList.add('not-home','products');
     setTop();
 
   } else if (which === 'summary'){
-    if (sum) sum.classList.remove('hidden');
+    sum?.classList.remove('hidden');
     document.body.classList.add('not-home','summary');
     setTop();
 
   } else if (which === 'thankyou'){
-    if (!thx) { console.error('ไม่พบ #thankyouContent ใน DOM'); return; }
-    thx.classList.remove('hidden');
+    thx?.classList.remove('hidden');
     document.body.classList.add('not-home','thankyou');
     setTop();
 
   } else if (which === 'blocked'){
-    if (!blocked) { console.error('ไม่พบ #blockedContent ใน DOM'); return; }
-    blocked.classList.remove('hidden');
+    blocked?.classList.remove('hidden');
     document.body.classList.add('not-home','blocked');
     setCentered();
   }
 
-  // กัน overlay โหลดค้าง
+  // safety
   showLoadingProductsModal(false);
-
-  // รีเซ็ต scroll + ซ่อนปุ่มตะกร้าใน summary/thankyou
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
   if (which === 'summary' || which === 'thankyou'){
@@ -2806,6 +2854,27 @@ function goHomeFromBlocked(){
       }
     });
   }
+     function ensurePagesExist(){
+  const need = [
+    'verifyContent',
+    'categoryContent',
+    'productsContent',
+    'summaryContent',
+    'thankyouContent',
+    'blockedContent'
+  ];
+  const missing = need.filter(id => !document.getElementById(id));
+  if (missing.length){
+    console.error('[PageSanity] Missing page containers:', missing);
+    alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  ensurePagesExist();
+  // ที่เหลือของคุณ...
+});
+
 
   // หน้าแรก = ยืนยันตัวตน
   try { resetVerifyButton(); } catch(_) {}
@@ -3204,11 +3273,11 @@ async function submitRequest(){
 
     clearTimeout(timer);
 
-    const raw = await res.text();
+   const raw = await res.text();
 let json = null;
 try { json = JSON.parse(raw); } catch(err) {
   console.warn('[submitRequest] JSON parse failed, raw =', raw);
-  // ให้ fallback เด้งหน้า Thank You แทนการตายเงียบ
+  // fallback ให้สำเร็จและไป thankyou แทนการปล่อยพัง
   json = { success: true, nextPage: 'thank', ref: null };
 }
 
@@ -3222,30 +3291,38 @@ if (!json || json.success !== true) {
   throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
 }
 
-// เก็บค่า ref (กัน null)
+// เก็บค่าอ้างอิง
 LAST_SUBMIT = {
   ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
   totalQty: totalQty,
   totalAmount: totalCost
 };
 
-// เคลียร์ตะกร้า แล้วปิด modal ก่อน
+// เคลียร์ตะกร้า/ปิด modal ก่อน
 CART = [];
 updateCartUI();
 showSubmittingModal(false);
 
-// ====== ตัดสินใจหน้าไปต่อ (มี fallback เสมอ) ======
+// ====== นำทางอย่าง “ต้องไปได้” เสมอ ======
 let next = 'thank';
 try { next = String(json.nextPage || 'thank').toLowerCase(); } catch(_) {}
+
 if (next === 'blocked') {
-  // เซิร์ฟเวอร์สั่งบล็อก → ไปหน้า Blocked (แบบ SPA)
   await showBlocked(CURRENT_EMP?.id);
 } else {
-  // ทุกกรณีอื่น → Thank You
   showPage('thankyou');
   renderThankYou();
 }
 
+// safety สุดท้าย: ถ้ายังไม่ได้เปิดอะไรเลย ให้บังคับไป thankyou
+const thxHidden = document.getElementById('thankyouContent')?.classList.contains('hidden');
+const blkHidden = document.getElementById('blockedContent')?.classList.contains('hidden');
+if (thxHidden && blkHidden){
+  console.warn('[submitRequest] fallback to Thank You (safety)');
+  showPage('thankyou');
+  renderThankYou();
+}
+    
 // กัน “ไม่เปิดอะไรเลย” (เผื่อข้างบน throw)
 if (
   document.getElementById('thankyouContent')?.classList.contains('hidden') &&
@@ -3265,37 +3342,27 @@ if (
     IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
   }
 }
-    
-
+  
     function renderThankYou(){
   const d = LAST_SUBMIT || {};
-  // วันที่/เวลาไทย
-  const now = new Date();
+
+  // วันที่ไทย (ใช้เวลาปัจจุบันฝั่ง client)
+  const now    = new Date();
   const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
 
-  document.getElementById('tyRef').textContent   = d.ref || '—';
-  document.getElementById('tyQty').textContent   = (d.totalQty ?? 0) + ' รายการ';
-  document.getElementById('tyTotal').textContent = '฿' + Number(d.totalAmount||0).toLocaleString('th-TH', {minimumFractionDigits:2});
-  document.getElementById('tyDate').textContent  = dateTH;
+  // ดึง element แบบปลอดภัย (กัน null)
+  const elRef   = document.getElementById('tyRef');
+  const elQty   = document.getElementById('tyQty');
+  const elTotal = document.getElementById('tyTotal');
+  const elDate  = document.getElementById('tyDate');
+
+  // เติมค่า (มี fallback ทุกตัว)
+  if (elRef)   elRef.textContent   = d.ref ? `#${d.ref}` : '—';
+  if (elQty)   elQty.textContent   = `${Number(d.totalQty||0).toLocaleString('th-TH')} รายการ`;
+  if (elTotal) elTotal.textContent = Number(d.totalAmount||0)
+                                      .toLocaleString('th-TH', { style:'currency', currency:'THB', minimumFractionDigits:2, maximumFractionDigits:2 });
+  if (elDate)  elDate.textContent  = dateTH;
 }
-    document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    // ปิด modal สินค้า
-    const modal = document.getElementById('itemModal');
-    if (modal && modal.style.display === 'flex') closeItemModal();
-
-    // ปิดตะกร้า
-    const mask = document.getElementById('cartMask');
-    if (mask && mask.classList.contains('show')) closeCart();
-
-    // ปิด loading/submitting modal ถ้าเปิดอยู่ (กันค้าง)
-    ['checkingModal','loadingProductsModal','submittingModal'].forEach(id=>{
-      const m = document.getElementById(id);
-      if (m && m.classList.contains('flex')) m.classList.add('hidden');
-      if (m) m.classList.remove('flex');
-    });
-  }
-});
     
     
   </script>
