@@ -1851,20 +1851,15 @@ label[for="s_bu_email"] {
   </section>
 
   <!-- BU Admin (ฟิลด์เรียงทีละบรรทัด) -->
-  <section id="buAdminCard" class="info-card bu-admin">
+<div class="info-card bu-admin" id="buAdminCard">
   <h4 class="section-title">🏢 ข้อมูล BU Admin</h4>
   <div class="section-divider"></div>
 
-  <!-- วางเรียงแนวตั้ง -->
   <div class="form-vertical">
     <!-- Name: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Name</label>
-
-      <!-- โหมดค่าเดียว -->
       <div id="s_bu_name" class="form-value input-box">—</div>
-
-      <!-- โหมดหลายคน (dropdown) -->
       <select id="s_bu_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Admin">
         <option value="">— เลือก BU Admin —</option>
       </select>
@@ -1873,16 +1868,11 @@ label[for="s_bu_email"] {
     <!-- Email: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Email</label>
-
-      <!-- โหมดค่าเดียว -->
       <div id="s_bu_email" class="form-value input-box">—</div>
-
-      <!-- โหมดหลายคน (input readonly เด้งตาม name) -->
       <input id="s_bu_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
-</section>
-  </div>
+</div>
   
 <!-- BU Head (ฟิลด์ซ้าย-ขวา สลับตำแหน่งกัน) -->
 <section id="buHeadCard" class="info-card bu-head">
@@ -3110,7 +3100,23 @@ if (ADMIN_CHOICES.length > 1){
 } else {
   showAdminSingle(adminName, adminEmail);
 }
+   
+// ===== BU HEAD HOOKS & DEFAULTS (เพิ่มใหม่) =====
+const nameDiv  = document.getElementById('s_head_name');
+const emailDiv = document.getElementById('s_head_email');
+const nameSel  = document.getElementById('s_head_name_sel');
+const emailInp = document.getElementById('s_head_email_inp');
 
+// ค่าเริ่มต้นจาก info ที่ได้จาก getBudgetAndAdmin
+let headName  = String(info?.headName  ?? info?.buHeadName  ?? '—').trim() || '—';
+let headEmail = String(info?.headEmail ?? info?.buHeadEmail ?? '—').trim() || '—';
+
+// list เริ่มต้น (ถ้า backend ส่งมาอยู่แล้ว)
+BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
+                 : Array.isArray(info?.heads)    ? info.heads
+                 : [];
+
+   
 
     // ===== ฟังก์ชันแสดง BU Head (dropdown / single) =====
 function showHeadDropdown(list){
