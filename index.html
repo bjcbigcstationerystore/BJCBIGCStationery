@@ -3112,21 +3112,63 @@ if (ADMIN_CHOICES.length > 1){
 }
 
 
-    // ===== BU Head: รองรับหลายคน (ซ้ำ) ด้วย dropdown =====
-const nameDiv   = document.getElementById('s_head_name');
-const emailDiv  = document.getElementById('s_head_email');
-const nameSel   = document.getElementById('s_head_name_sel');
-const emailInp  = document.getElementById('s_head_email_inp');
+    // ===== ฟังก์ชันแสดง BU Head (dropdown / single) =====
+function showHeadDropdown(list){
+  // ซ่อนแบบเดี่ยว
+  if (nameDiv) nameDiv.classList.add('hidden');
+  if (emailDiv) emailDiv.classList.add('hidden');
+  // เปิด select / input
+  if (nameSel) nameSel.classList.remove('hidden');
+  if (emailInp) emailInp.classList.remove('hidden');
 
-// 1) พยายามอ่านจาก endpoint หลัก
-let headName   = info?.headName  || info?.buHeadName  || '—';
-let headEmail  = info?.headEmail || info?.buHeadEmail || '—';
+  // render options
+  nameSel.innerHTML = list.map((x,i)=>{
+    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<option value="${i}">${n}</option>`;
+  }).join('');
 
-// 2) ถ้ามี head list (ส่งมาจาก backend) ก็ใช้งานเลย
-//   คาดหวังรูปแบบ: info.headList = [{name:'...', email:'...'}, ...]
-BU_HEAD_CHOICES = Array.isArray(info?.headList) ? info.headList
-                  : Array.isArray(info?.heads)   ? info.heads
-                  : [];
+  // default: ถ้า backend ส่ง headName/headEmail มาก่อน ให้เลือกตามนั้น
+  let idx = 0;
+  if (headName && headName !== '—') {
+    const found = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
+    if (found >= 0) idx = found;
+  }
+  nameSel.value = String(idx);
+
+  const pick = list[idx] || {};
+  emailInp.value = pick.email || '—';
+
+  // sync state (ให้ส่วนอื่นใช้ได้)
+  CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+
+  // เมื่อเปลี่ยนชื่อ → email เด้งตาม
+  nameSel.onchange = ()=>{
+    const cur = list[Number(nameSel.value) || 0] || {};
+    emailInp.value = cur.email || '—';
+    CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+  };
+}
+
+function showHeadSingle(name, email){
+  // แสดงแบบข้อความเดียว (ไม่เป็น select)
+  if (nameSel) nameSel.classList.add('hidden');
+  if (emailInp) emailInp.classList.add('hidden');
+  if (nameDiv) { nameDiv.classList.remove('hidden'); nameDiv.textContent = name || '—'; }
+  if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email ? `📧 ${email}` : '📧 —'; }
+
+  CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+}
+
+// === ตอนตัดสินใจแสดง (วางหลังที่ set BU_HEAD_CHOICES แล้ว) ===
+if (BU_HEAD_CHOICES.length > 1){
+  showHeadDropdown(BU_HEAD_CHOICES);
+} else if (BU_HEAD_CHOICES.length === 1){
+  const only = BU_HEAD_CHOICES[0] || {};
+  showHeadSingle(only.name || headName, only.email || headEmail);
+} else {
+  // ไม่มี list → ใช้ค่าที่ backend ส่ง (single)
+  showHeadSingle(headName, headEmail);
+}
 
 // 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
 if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
