@@ -2125,6 +2125,9 @@ let selectedCategory = '';
 let modalItem = { name:'', price:0, detail:'', image:'' };
 let LAST_SUBMIT = null;
 let BU_HEAD_CHOICES = []; // [{name, email}, ...]
+let CURRENT_EMP_ID = null;
+let CURRENT_BUDGET_K = null;
+let CURRENT_BUDGET_L = null;
     
     // ===== Global guards (ช่วยจับ error ที่ทำให้จอขาว) =====
 window.addEventListener('error', (e) => {
@@ -2150,6 +2153,71 @@ function showSection(targetId){
   });
 }
 
+    /* ============ FETCH BUDGET FUNCTION ============ */
+async function getBudgetFromEmpHO(empId) {
+  try {
+    const url = `${API_BASE}?action=getBudgetAndAdmin&employeeId=${encodeURIComponent(empId)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !data.success) return null;
+
+    const d = data.data || {};
+    return {
+      k: Number(d.k || d.K || d.budgetK || 0),
+      l: Number(d.l || d.L || d.budgetL || 0),
+      adminName: d.adminName || '—',
+      adminEmail: d.adminEmail || '—',
+    };
+  } catch (e) {
+    console.error('getBudgetFromEmpHO error', e);
+    return null;
+  }
+}
+
+/* ============ UI SWITCH ============ */
+function hideAllPages() {
+  const ids = ['verifyContent','categoryContent','productsContent','summaryContent','thankyouContent','blockedContent'];
+  ids.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+}
+
+function showThankYou(info) {
+  hideAllPages();
+  const el = document.getElementById('thankyouContent');
+  if (!el) return;
+
+  // 🟢 แสดงข้อมูลจำลอง (คุณอาจเชื่อมกับข้อมูลจริง)
+  document.getElementById('tyRef').textContent = '#REQ-' + new Date().getTime();
+  document.getElementById('tyDate').textContent = new Date().toLocaleDateString('th-TH');
+  document.getElementById('tyQty').textContent = '5 รายการ';
+  document.getElementById('tyTotal').textContent = '฿2,450.00';
+
+  el.classList.remove('hidden');
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
+}
+
+function showBlocked(info) {
+  hideAllPages();
+  const el = document.getElementById('blockedContent');
+  if (!el) {
+    alert('งบประมาณไม่เพียงพอ');
+    return;
+  }
+
+  // แสดงชื่อ / อีเมล BU Admin
+  const nameEl = document.getElementById('blkName');
+  const mailEl = document.getElementById('blkEmailText');
+  if (nameEl) nameEl.textContent = info.adminName || '—';
+  if (mailEl) mailEl.textContent = `📧 Email BU Admin: ${info.adminEmail || '—'}`;
+
+  el.classList.remove('hidden');
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
+}
+
+/* ============ RETURN HOME ============ */
+function goHomeFromThanks() {
+  hideAllPages();
+  document.getElementById('verifyContent')?.classList.remove('hidden');
+}
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -2653,49 +2721,59 @@ function showPage(which){
   if (which === 'verify'){
     verify?.classList.remove('hidden');
     document.body.classList.add('not-home','verify');
-    setCentered();
+    setCentered?.();
     stage = 'verify';
-    resetVerifyButton();
+    resetVerifyButton?.();
 
   } else if (which === 'category'){
     cate?.classList.remove('hidden');
     document.body.classList.add('not-home','category');
-    setTop();
+    setTop?.();
+    stage = 'category';
     if (!CATEGORIES || CATEGORIES.length === 0){
-      preloadCategoriesFor(currentCompany || 'BJC');
-    } else {
-      renderCategories();
+      preloadCategoriesFor?.(currentCompany || 'BJC');
     }
 
   } else if (which === 'products'){
     prod?.classList.remove('hidden');
     document.body.classList.add('not-home','products');
-    setTop();
+    setTop?.();
+    stage = 'products';
 
   } else if (which === 'summary'){
     sum?.classList.remove('hidden');
     document.body.classList.add('not-home','summary');
-    setTop();
+    setTop?.();
+    stage = 'summary';
+    renderSummary?.();
 
+  // 🆕 เพิ่มสองเคสที่หายไป
   } else if (which === 'thankyou'){
     thx?.classList.remove('hidden');
     document.body.classList.add('not-home','thankyou');
-    setTop();
+    setTop?.();
+    stage = 'thankyou';
+    renderThankYou?.();          // ให้เรียกเติมข้อมูล
 
   } else if (which === 'blocked'){
     blocked?.classList.remove('hidden');
     document.body.classList.add('not-home','blocked');
-    setCentered();
+    setTop?.();
+    stage = 'blocked';
+    renderBlocked?.();           // ให้เรียกเติมข้อมูล
+
+  } else {
+    // fallback
+    verify?.classList.remove('hidden');
+    document.body.classList.add('not-home','verify');
+    setCentered?.();
+    stage = 'verify';
   }
 
-  // safety
-  showLoadingProductsModal(false);
-  window.scrollTo({ top: 0, behavior: 'auto' });
-  updateCartUI();
-  if (which === 'summary' || which === 'thankyou'){
-    document.getElementById('cartFab')?.classList.remove('show');
-  }
+  // เลื่อนขึ้นบนสุดทุกครั้งกันผู้ใช้เลื่อนลงไปค้าง
+  try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e){}
 }
+    
 
    async function showBlocked(empId){
   try{
@@ -3139,7 +3217,7 @@ document.getElementById('itemCount').textContent = String(cartCount());
 }
 
    /* ===== ส่งคำขอเบิก (บันทึกลงชีต Response) ===== */
-let IS_SUBMITTING = false;   // ✅ กันกดซ้ำ
+let IS_SUBMITTING = false;
 async function submitRequest(){
   if (IS_SUBMITTING) return;
   IS_SUBMITTING = true;
@@ -3156,7 +3234,7 @@ async function submitRequest(){
       return;
     }
 
-    // เตรียม payload
+    // เตรียม payload flat แบบเดิม
     const items = CART.map(it => ({
       name: it.name,
       qty: Number(it.qty)||0,
@@ -3188,126 +3266,96 @@ async function submitRequest(){
       'รายการเบิก (ชิ้น)': totalQty,
       'ยอดเบิก (บาท)': totalCost
     };
-    
-    
     items.forEach((it, idx) => {
       const n = idx + 1;
       row[`รายการที่ ${n}`] = it.name;
-      row[`จำนวน ${n}`]   = Number(it.qty) || 0;
-      row[`ราคา ${n}`]    = Number(it.price) || 0;
+      row[`จำนวน ${n}`]     = Number(it.qty) || 0;
+      row[`ราคา ${n}`]      = Number(it.price) || 0;
     });
 
-    const params = new URLSearchParams();
-    params.set('action', 'submitRequest');
-    params.set('row', JSON.stringify(row));
+    // ✅ เปลี่ยนมาใช้ GET: action=submitrequestflat&row=<json>
+    const url = `${API_BASE}?action=submitrequestflat&row=${encodeURIComponent(JSON.stringify(row))}`;
+    const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+    const text = await res.text();
+    let json = null; try { json = JSON.parse(text); } catch(_){}
 
-    const ctrl = new AbortController();
-    const timer = setTimeout(()=>ctrl.abort('timeout'), 30000);
+    if (!res.ok || !json || json.success !== true) {
+      throw new Error((json && (json.message || json.error)) || `HTTP ${res.status}`);
+    }
 
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: params.toString(),
-      cache: 'no-store',
-      signal: ctrl.signal
-    }).catch(err => { throw new Error(err?.message || 'network error'); });
+    // เก็บผลไว้โชว์บน Thank You
+    LAST_SUBMIT = {
+      ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
+      totalQty: totalQty,
+      totalAmount: totalCost
+    };
 
-    clearTimeout(timer);
+    // เคลียร์ตะกร้า / ปิด modal
+    CART = [];
+    updateCartUI();
+    showSubmittingModal(false);
 
-   const raw = await res.text();
-let json = null;
-try { json = JSON.parse(raw); } catch(err) {
-  console.warn('[submitRequest] JSON parse failed, raw =', raw);
-  // fallback ให้สำเร็จและไป thankyou แทนการปล่อยพัง
-  json = { success: true, nextPage: 'thank', ref: null };
-}
+    // นำทางตาม nextPage (ค่าเป็น 'thankyou' หรือ 'blocked')
+    const next = String(json.nextPage || 'thankyou').toLowerCase();
+    if (next === 'blocked') {
+      await showBlocked(CURRENT_EMP?.id);
+    } else {
+      showPage('thankyou');
+      renderThankYou();
+    }
 
-console.log('[submitRequest] response json =', json);
-
-if (!res.ok) {
-  const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-  throw new Error(msg);
-}
-if (!json || json.success !== true) {
-  throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
-}
-
-// เก็บค่าอ้างอิง
-LAST_SUBMIT = {
-  ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
-  totalQty: totalQty,
-  totalAmount: totalCost
-};
-
-// เคลียร์ตะกร้า/ปิด modal ก่อน
-CART = [];
-updateCartUI();
-showSubmittingModal(false);
-
-// ====== นำทางอย่าง “ต้องไปได้” เสมอ ======
-let next = 'thank';
-try { next = String(json.nextPage || 'thank').toLowerCase(); } catch(_) {}
-
-if (next === 'blocked') {
-  await showBlocked(CURRENT_EMP?.id);
-} else {
-  showPage('thankyou');
-  renderThankYou();
-}
-
-// safety สุดท้าย: ถ้ายังไม่ได้เปิดอะไรเลย ให้บังคับไป thankyou
-const thxHidden = document.getElementById('thankyouContent')?.classList.contains('hidden');
-const blkHidden = document.getElementById('blockedContent')?.classList.contains('hidden');
-if (thxHidden && blkHidden){
-  console.warn('[submitRequest] fallback to Thank You (safety)');
-  showPage('thankyou');
-  renderThankYou();
-}
-    
-// กัน “ไม่เปิดอะไรเลย” (เผื่อข้างบน throw)
-if (
-  document.getElementById('thankyouContent')?.classList.contains('hidden') &&
-  document.getElementById('blockedContent')?.classList.contains('hidden')
-){
-  console.warn('[submitRequest] fallback to Thank You (safety)');
-  showPage('thankyou');
-  renderThankYou();
-}
-
+    // safety เผื่อไม่เปิดอะไรเลย
+    const thxHidden = document.getElementById('thankyouContent')?.classList.contains('hidden');
+    const blkHidden = document.getElementById('blockedContent')?.classList.contains('hidden');
+    if (thxHidden && blkHidden){
+      showPage('thankyou');
+      renderThankYou();
+    }
 
   } catch (err) {
     console.error(err);
     showSubmittingModal(false);
     alert('เกิดข้อผิดพลาดในการส่งคำขอ: ' + (err.message || 'ไม่ทราบสาเหตุ'));
   } finally {
-    IS_SUBMITTING = false;  // ปลดล็อกปุ่มส่ง
+    IS_SUBMITTING = false;
   }
 }
   
-    function renderThankYou(payload){
-  // 1) ดึงข้อมูลจาก payload (ถ้ามี) หรือจาก LAST_SUBMIT (fallback)
-  const ref   = String(payload?.ref || LAST_SUBMIT?.ref || '').trim();
-  const qty   = Number(payload?.totalQty ?? LAST_SUBMIT?.totalQty ?? 0);
-  const total = Number(payload?.totalAmount ?? LAST_SUBMIT?.totalAmount ?? 0);
+    function renderThankYou(){
+  const refEl   = document.getElementById('tyRef');
+  const dateEl  = document.getElementById('tyDate');
+  const qtyEl   = document.getElementById('tyQty');
+  const totalEl = document.getElementById('tyTotal');
 
-  // 2) วันที่ไทย (ใช้เวลาปัจจุบันฝั่ง client)
-  const now    = new Date();
-  const dateTH = now.toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
+  // ใช้ค่าจาก LAST_SUBMIT ถ้ามี (ชัวร์กว่า cart หลังเคลียร์)
+  const ref   = (LAST_SUBMIT?.ref) || ('REQ-' + Date.now());
+  const qty   = Number(LAST_SUBMIT?.totalQty || 0);
+  const total = Number(LAST_SUBMIT?.totalAmount || 0);
 
-  // 3) อัปเดต DOM แบบปลอดภัย
-  const elRef   = document.getElementById('tyRef');
-  const elQty   = document.getElementById('tyQty');
-  const elTotal = document.getElementById('tyTotal');
-  const elDate  = document.getElementById('tyDate');
-
-  if (elRef)   elRef.textContent   = ref ? `#${ref}` : '—';
-  if (elQty)   elQty.textContent   = `${qty.toLocaleString('th-TH')} รายการ`;
-  if (elTotal) elTotal.textContent = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-  if (elDate)  elDate.textContent  = dateTH;
-
-  // 4) เปิดหน้า Thank You
-  showPage('thankyou');
+  if (refEl)   refEl.textContent   = '#' + ref.toString();
+  if (dateEl)  dateEl.textContent  = new Date().toLocaleDateString('th-TH', { day:'2-digit', month:'long', year:'numeric' });
+  if (qtyEl)   qtyEl.textContent   = `${qty.toLocaleString('th-TH')} รายการ`;
+  if (totalEl) totalEl.textContent = '฿' + total.toLocaleString('th-TH', { minimumFractionDigits:2, maximumFractionDigits:2 });
 }
+
+function renderBlocked(){
+  // แสดง contact ของ BU Admin (หากคุณมีตัวแปร CURRENT_ADMIN_CONTACT)
+  const nameEl = document.getElementById('blkName');
+  const mailEl = document.getElementById('blkEmailText');
+  if (nameEl) nameEl.textContent = (window.CURRENT_ADMIN_CONTACT?.name || '—');
+  if (mailEl) mailEl.textContent = '📧 Email BU Admin: ' + (window.CURRENT_ADMIN_CONTACT?.email || '—');
+
+  // หากมีบรรทัดสรุปงบ เช่น K/L
+  const kEl = document.getElementById('blkBudgetK');
+  const lEl = document.getElementById('blkBudgetL');
+  if (kEl && typeof window.CURRENT_BUDGET !== 'undefined'){
+    kEl.textContent = String(window.CURRENT_BUDGET ?? '—');
+  }
+  if (lEl && typeof window.CURRENT_BUDGET_L !== 'undefined'){
+    lEl.textContent = String(window.CURRENT_BUDGET_L ?? '—');
+  }
+}
+
     
     
   </script>
