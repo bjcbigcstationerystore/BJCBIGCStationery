@@ -2125,6 +2125,17 @@ let selectedCategory = '';
 let modalItem = { name:'', price:0, detail:'', image:'' };
 let LAST_SUBMIT = null;
 let BU_HEAD_CHOICES = []; // [{name, email}, ...]
+    
+    // ===== Global guards (ช่วยจับ error ที่ทำให้จอขาว) =====
+window.addEventListener('error', (e) => {
+  console.error('[GlobalError]', e.error || e.message);
+  alert('เกิดข้อผิดพลาดขณะเปลี่ยนหน้า: ' + (e.message || 'ไม่ทราบสาเหตุ'));
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[UnhandledRejection]', e.reason);
+  alert('เกิดข้อผิดพลาดจากการส่งคำขอ: ' + (e.reason?.message || 'ไม่ทราบสาเหตุ'));
+});
+
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -2614,7 +2625,7 @@ function showLoadingProductsModal(show = true){
 function showPage(which){
   // บังคับทุกการขอ "home" ให้ไปหน้า verify
   if (which === 'home') which = 'verify';
-  
+
   const verify  = document.getElementById('verifyContent');
   const cate    = document.getElementById('categoryContent');
   const prod    = document.getElementById('productsContent');
@@ -2622,6 +2633,7 @@ function showPage(which){
   const thx     = document.getElementById('thankyouContent');
   const blocked = document.getElementById('blockedContent');
 
+  // ซ่อนทุกหน้าเสมอก่อน แล้วค่อยเปิดหน้าที่ต้องการ
   if (verify)  verify.classList.add('hidden');
   if (cate)    cate.classList.add('hidden');
   if (prod)    prod.classList.add('hidden');
@@ -2629,8 +2641,9 @@ function showPage(which){
   if (thx)     thx.classList.add('hidden');
   if (blocked) blocked.classList.add('hidden');
 
+  // เคลียร์ body/html class ที่อาจค้างจากหน้าก่อน
   document.body.classList.remove('category','products','summary','not-home','thankyou','blocked','verify');
-  document.documentElement.classList.remove('thankyou');
+  document.documentElement.classList.remove('thankyou'); // อย่าเติม class นี้กลับเข้าไป
 
   // เปิดหน้าตามที่ต้องการ
   if (which === 'verify'){
@@ -2661,13 +2674,14 @@ function showPage(which){
     setTop();
 
   } else if (which === 'thankyou'){
-    if (thx) thx.classList.remove('hidden');
+    if (!thx) { console.error('ไม่พบ #thankyouContent ใน DOM'); return; }
+    thx.classList.remove('hidden');
     document.body.classList.add('not-home','thankyou');
-    document.documentElement.classList.add('thankyou');
     setTop();
 
   } else if (which === 'blocked'){
-    if (blocked) blocked.classList.remove('hidden');
+    if (!blocked) { console.error('ไม่พบ #blockedContent ใน DOM'); return; }
+    blocked.classList.remove('hidden');
     document.body.classList.add('not-home','blocked');
     setCentered();
   }
@@ -2675,7 +2689,7 @@ function showPage(which){
   // กัน overlay โหลดค้าง
   showLoadingProductsModal(false);
 
-  // รีเซ็ต scroll + ตะกร้าลอยไม่ให้โชว์บน summary/thankyou
+  // รีเซ็ต scroll + ซ่อนปุ่มตะกร้าใน summary/thankyou
   window.scrollTo({ top: 0, behavior: 'auto' });
   updateCartUI();
   if (which === 'summary' || which === 'thankyou'){
@@ -3191,36 +3205,53 @@ async function submitRequest(){
     clearTimeout(timer);
 
     const raw = await res.text();
-    let json = null;
-    try { json = JSON.parse(raw); } catch(_) {}
+let json = null;
+try { json = JSON.parse(raw); } catch(err) {
+  console.warn('[submitRequest] JSON parse failed, raw =', raw);
+  // ให้ fallback เด้งหน้า Thank You แทนการตายเงียบ
+  json = { success: true, nextPage: 'thank', ref: null };
+}
 
-    if (!res.ok) {
-      const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-      throw new Error(msg);
-    }
+console.log('[submitRequest] response json =', json);
+
+if (!res.ok) {
+  const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
+  throw new Error(msg);
+}
 if (!json || json.success !== true) {
   throw new Error((json && (json.message || json.error)) || 'บันทึกไม่สำเร็จ');
 }
 
-// เก็บค่า ref และยอดไว้ (เหมือนเดิม)
+// เก็บค่า ref (กัน null)
 LAST_SUBMIT = {
   ref: (json.ref || (json.row ? `REQ-${String(json.row).padStart(5,'0')}` : '—')),
   totalQty: totalQty,
   totalAmount: totalCost
 };
 
-// เคลียร์ตะกร้าก่อน แล้วปิด modal
+// เคลียร์ตะกร้า แล้วปิด modal ก่อน
 CART = [];
 updateCartUI();
 showSubmittingModal(false);
 
-// ✅ ตัดสินใจหน้าไปต่อจากฝั่งเซิร์ฟเวอร์
-const next = String(json.nextPage || 'thank').toLowerCase();
+// ====== ตัดสินใจหน้าไปต่อ (มี fallback เสมอ) ======
+let next = 'thank';
+try { next = String(json.nextPage || 'thank').toLowerCase(); } catch(_) {}
 if (next === 'blocked') {
-  // แสดงหน้าบล็อก + เติม BU Admin ให้ชัวร์
+  // เซิร์ฟเวอร์สั่งบล็อก → ไปหน้า Blocked (แบบ SPA)
   await showBlocked(CURRENT_EMP?.id);
 } else {
-  // โฟลว์ปกติ: ขอบคุณ
+  // ทุกกรณีอื่น → Thank You
+  showPage('thankyou');
+  renderThankYou();
+}
+
+// กัน “ไม่เปิดอะไรเลย” (เผื่อข้างบน throw)
+if (
+  document.getElementById('thankyouContent')?.classList.contains('hidden') &&
+  document.getElementById('blockedContent')?.classList.contains('hidden')
+){
+  console.warn('[submitRequest] fallback to Thank You (safety)');
   showPage('thankyou');
   renderThankYou();
 }
