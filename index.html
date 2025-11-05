@@ -2943,279 +2943,95 @@ async function verifyEmployee(){
   return `<div class="space-y-1">${safe.map(s=>`<div>${s}</div>`).join('')}</div>`;
 }                                         
 
-    /* ===== เรนเดอร์หน้า Summary (ใหม่) ===== */
-    async function renderSummary(){
-  // วันที่/เวลา
- const now = new Date();
-const d = String(now.getDate()).padStart(2, '0');
-const m = String(now.getMonth() + 1).padStart(2, '0');
-const y = now.getFullYear();  // ถ้าอยากได้ พ.ศ. ใช้ now.getFullYear() + 543
-document.getElementById('sumDate').textContent = `Date : ${d}/${m}/${y}`;
-document.getElementById('sumTime').textContent = `Time : ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+/* ===== เรนเดอร์หน้า Summary (แก้ให้สะอาด) ===== */
+async function renderSummary(){
+  // 1) วันที่/เวลา
+  const now = new Date();
+  const d = String(now.getDate()).padStart(2, '0');
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const y = now.getFullYear();
+  document.getElementById('sumDate').textContent = `Date : ${d}/${m}/${y}`;
+  document.getElementById('sumTime').textContent = `Time : ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
 
-
-      // ผู้เบิก
+  // 2) ผู้เบิก
   const emp = CURRENT_EMP || {};
   document.getElementById('s_company').textContent  = emp.company || '-';
   document.getElementById('s_empid').textContent    = emp.id || '-';
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
-  document.getElementById('s_fullname').textContent = emp.name || '-';    
-      
- try{
-    const info = await getBudgetAndAdmin(emp.id || '');
+  document.getElementById('s_fullname').textContent = emp.name || '-';
 
-// ===== BU Admin (ตัดเงื่อนไข P–S ออก: โชว์ "—" ตลอด) =====
-{
-  const buNameDiv  = document.getElementById('s_bu_name');
-  const buEmailDiv = document.getElementById('s_bu_email');
-  const buNameSel  = document.getElementById('s_bu_name_sel');
-  const buEmailInp = document.getElementById('s_bu_email_inp');
+  // 3) BU Admin (ตามนโยบายใหม่ให้เป็น "—")
+  (document.getElementById('s_bu_name')  || {}).textContent  = '—';
+  (document.getElementById('s_bu_email') || {}).textContent  = '—';
+  window.CURRENT_ADMIN_CONTACT = { name:'—', email:'—' };
 
-  if (buNameDiv)  buNameDiv.textContent  = '—';
-  if (buEmailDiv) buEmailDiv.textContent = '—';
+  // 4) BU HEAD — ดึงจาก API: action=getbuhead
+  const nameDiv  = document.getElementById('s_head_name');      // แสดงชื่อแบบข้อความ
+  const emailDiv = document.getElementById('s_head_email');     // แสดงอีเมลแบบข้อความ
+  const nameSel  = document.getElementById('s_head_name_sel');  // dropdown
+  const emailInp = document.getElementById('s_head_email_inp'); // input แสดง email
 
-  buNameDiv?.classList.remove('hidden');
-  buEmailDiv?.classList.remove('hidden');
-  buNameSel?.classList.add('hidden');
-  buEmailInp?.classList.add('hidden');
-
-  // เก็บ state ไว้ให้ submit
-  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
-}
-
-// ฟังก์ชันแสดงโหมดเดียว
-function showAdminSingle(name, email){
-  buNameDiv.classList.remove('hidden');
-  buEmailDiv.classList.remove('hidden');
-  buNameSel.classList.add('hidden');
-  buEmailInp.classList.add('hidden');
-
-  buNameDiv.textContent  = name  || '—';
-  buEmailDiv.textContent = email || '—';
-
-  // เก็บไว้ใน state เดิมที่คุณมีอยู่
-  CURRENT_ADMIN_CONTACT = { name: buNameDiv.textContent, email: buEmailDiv.textContent };
-}
-
-// ฟังก์ชันแสดงโหมดหลายคน (dropdown)
-function showAdminDropdown(list){
-  buNameDiv.classList.add('hidden');
-  buEmailDiv.classList.add('hidden');
-  buNameSel.classList.remove('hidden');
-  buEmailInp.classList.remove('hidden');
-
-  // render options
-  buNameSel.innerHTML = list.map((x,i)=>{
-    const n = (x?.name  || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<option value="${i}">${n}</option>`;
-  }).join('');
-
-  // default: ถ้า backend ส่ง adminName/adminEmail มาก่อน ให้เลือกตามนั้น
-  let idx = 0;
-  if (adminName && adminName !== '—') {
-    const found = list.findIndex(x => String(x.name||'').trim() === String(adminName).trim());
-    if (found >= 0) idx = found;
+  // ปิด/เปิด helper
+  function showHeadSingle(name, email){
+    if (nameSel)  nameSel.classList.add('hidden');
+    if (emailInp) emailInp.classList.add('hidden');
+    if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
+    if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email || '—'; }
+    window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
   }
-  buNameSel.value = String(idx);
+  function showHeadDropdown(list){
+    if (!nameSel || !emailInp){ showHeadSingle(list[0]?.name, list[0]?.email); return; }
+    if (nameDiv)  nameDiv.classList.add('hidden');
+    if (emailDiv) emailDiv.classList.add('hidden');
+    nameSel.classList.remove('hidden');
+    emailInp.classList.remove('hidden');
 
-  const pick = list[idx] || {};
-  buEmailInp.value = pick.email || '—';
-
-  // sync state
-  CURRENT_ADMIN_CONTACT = { name: pick.name || '—', email: pick.email || '—' };
-
-  // เมื่อเปลี่ยนชื่อ → email เด้งตาม
-  buNameSel.onchange = ()=>{
-    const cur = list[Number(buNameSel.value) || 0] || {};
-    buEmailInp.value = cur.email || '—';
-    CURRENT_ADMIN_CONTACT = { name: cur.name || '—', email: cur.email || '—' };
-  };
-}
-
-// ตัดสินใจว่าจะใช้โหมดไหน
-if (ADMIN_CHOICES.length > 1){
-  showAdminDropdown(ADMIN_CHOICES);
-} else if (ADMIN_CHOICES.length === 1){
-  const only = ADMIN_CHOICES[0] || {};
-  showAdminSingle(only.name || adminName, only.email || adminEmail);
-} else {
-  showAdminSingle(adminName, adminEmail);
-}
-   
-// ===== BU HEAD (ดึงจาก getBuHead ตามเงื่อนไขใหม่) =====
-{
-  const nameDiv  = document.getElementById('s_head_name');
-  const emailDiv = document.getElementById('s_head_email');
-  const nameSel  = document.getElementById('s_head_name_sel');
-  const emailInp = document.getElementById('s_head_email_inp');
-
-  // helper: โหมด dropdown
-  function setHeadDropdown(list, defaultIndex = 0){
-    nameDiv?.classList.add('hidden');
-    emailDiv?.classList.add('hidden');
-    nameSel?.classList.remove('hidden');
-    emailInp?.classList.remove('hidden');
-
-    nameSel.innerHTML = list.map((x,i)=>{
-      const n = (x?.name || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return `<option value="${i}">${n}</option>`;
-    }).join('');
-
-    const idx  = Math.max(0, Math.min(defaultIndex, list.length - 1));
-    const pick = list[idx] || {};
-    nameSel.value = String(idx);
-    if (emailInp) emailInp.value = pick.email || '—';
-    window.CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
+    nameSel.innerHTML = list.map((x,i)=>`<option value="${i}">${(x?.name||'—')
+      .replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+    nameSel.value = '0';
+    emailInp.value = list[0]?.email || '—';
+    window.CURRENT_BU_HEAD = { name: list[0]?.name || '—', email: list[0]?.email || '—' };
 
     nameSel.onchange = ()=>{
-      const cur = list[Number(nameSel.value) || 0] || {};
-      if (emailInp) emailInp.value = cur.email || '—';
+      const i = Number(nameSel.value) || 0;
+      const cur = list[i] || {};
+      emailInp.value = cur.email || '—';
       window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
     };
   }
 
-  // helper: โหมด single
-  function setHeadSingle(name, email){
-    nameSel?.classList.add('hidden');
-    emailInp?.classList.add('hidden');
-    if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
-    if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email ? `📧 ${email}` : '📧 —'; }
-    window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
-  }
-
-  let headList = [];
-  let headName = '—', headEmail = '—';
-
   try{
-    const h = await getBuHead((CURRENT_EMP?.id) || '');
-    console.log('[getBuHead] raw =', h); // DEBUG
+    const hUrl = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(emp.id || '')}`;
+    const res  = await fetch(hUrl).then(r => r.json()).catch(()=>null);
+    const list = (res && res.success && res.data && Array.isArray(res.data.headList)) ? res.data.headList : [];
 
-    if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
-      headList = h.headList.filter(x => (x?.name || x?.email));
-    } else if (h?.headName || h?.headEmail){
-      headName  = h.headName  || '—';
-      headEmail = h.headEmail || '—';
-    }
-  }catch(e){
-    console.warn('getBuHead failed:', e);
+    if (list.length > 1)       showHeadDropdown(list);
+    else if (list.length === 1)showHeadSingle(list[0].name, list[0].email);
+    else                       showHeadSingle('—', '—');
+  }catch(_){
+    showHeadSingle('—', '—');
   }
 
-  // ✅ นโยบายแสดงผล
-  // - ถ้ามีอย่างน้อย 1 รายการ: โชว์ Dropdown (เพื่อให้เทส mapping ได้)
-  // - ถ้าไม่มีเลย: โชว์ Single เป็น '—'
-  if (headList.length >= 1){
-    setHeadDropdown(headList, 0);
-  } else {
-    setHeadSingle(headName, headEmail);
-  }
-}
-
-// ✅ ฟังก์ชันช่วยเรนเดอร์ (เหมือนเดิมของคุณ)
-function showHeadDropdown(list){
-  if (nameDiv)  nameDiv.classList.add('hidden');
-  if (emailDiv) emailDiv.classList.add('hidden');
-  if (nameSel)  nameSel.classList.remove('hidden');
-  if (emailInp) emailInp.classList.remove('hidden');
-
-  nameSel.innerHTML = list.map((x,i)=>{
-    const n = (x?.name || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<option value="${i}">${n}</option>`;
-  }).join('');
-
-  let idx = 0;
-  if (headName && headName !== '—') {
-    const found = list.findIndex(x => String(x.name||'').trim() === String(headName).trim());
-    if (found >= 0) idx = found;
-  }
-  nameSel.value = String(idx);
-
-  const pick = list[idx] || {};
-  if (emailInp) emailInp.value = pick.email || '—';
-  window.CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
-
-  nameSel.onchange = ()=>{
-    const cur = list[Number(nameSel.value) || 0] || {};
-    if (emailInp) emailInp.value = cur.email || '—';
-    window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
-  };
-}
-
-function showHeadSingle(name, email){
-  if (nameSel)  nameSel.classList.add('hidden');
-  if (emailInp) emailInp.classList.add('hidden');
-  if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
-  if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email ? `📧 ${email}` : '📧 —'; }
-  window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
-}
-
-// ✅ 1) เรียก fallback "ก่อน" ตัดสินใจแสดงเสมอ
-try {
-  // ถ้ายังไม่มี list เลย ให้ลองดึงจาก endpoint สำรองที่ผูกกับเงื่อนไขใหม่
-  if (BU_HEAD_CHOICES.length === 0 && emp.id) {
-    const h = await getBuHead(emp.id); // จะไปเรียก Apps Script: action=getbuhead
-    if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
-      BU_HEAD_CHOICES = h.headList;      // ได้หลายคน
-    } else if (h?.headName || h?.headEmail) {
-      headName  = h.headName  || headName;
-      headEmail = h.headEmail || headEmail;
-    }
-  }
-} catch(_) { /* เงียบไว้ */ }
-
-// ✅ 2) ตัดสินใจเรนเดอร์หลังได้ข้อมูลครบ
-if (BU_HEAD_CHOICES.length > 1 && nameSel && emailInp){
-  showHeadDropdown(BU_HEAD_CHOICES);
-} else if (BU_HEAD_CHOICES.length === 1){
-  const only = BU_HEAD_CHOICES[0] || {};
-  showHeadSingle(only.name || headName, only.email || headEmail);
-} else {
-  showHeadSingle(headName, headEmail);
-}
-
-// 3) ถ้าหลักไม่มา และไม่มี list → ลอง endpoint สำรอง
-if ((headName === '—' && headEmail === '—') && BU_HEAD_CHOICES.length === 0 && emp.id) {
-  const h = await getBuHead(emp.id);
-  if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
-    BU_HEAD_CHOICES = h.headList;  // ได้หลายคน → ไปโหมด dropdown
-  } else if (h?.headName || h?.headEmail) {
-    headName  = h.headName  || headName;
-    headEmail = h.headEmail || headEmail;
-  }
-}
-
-  
-   
-  }catch(e){
-    console.warn('getBudgetAndAdmin / getBuHead (Summary) failed', e);
-    document.getElementById('s_bu_name').textContent   = '—';
-    document.getElementById('s_bu_email').textContent  = '—';
-    document.getElementById('s_head_name').textContent = '—';
-    document.getElementById('s_head_email').textContent= '—';
-  }
-      // ตารางรายการ
+  // 5) ตารางรายการจาก CART
   const wrap = document.getElementById('sumItems');
   if(!wrap) return;
 
   if(!CART || CART.length===0){
     wrap.innerHTML = `<div class="text-center text-gray-500">ยังไม่มีรายการ</div>`;
     document.getElementById('sumTotal').textContent = '฿0';
+    (document.getElementById('itemCount')||{}).textContent = '0';
     return;
-  }     
-      document.getElementById('sumTotal').textContent = baht(cartSum());  // เดิมมีอยู่แล้ว
+  }
 
-// ✅ เพิ่ม: แสดงผลรวมจำนวนรายการที่เบิกทั้งหมด (รวมชิ้น)
-document.getElementById('itemCount').textContent = String(cartCount());
-
-     const rowsHtml = CART.map((it, i) => {
+  (document.getElementById('itemCount')||{}).textContent = String(cartCount());
+  const rowsHtml = CART.map((it, i) => {
     const qty  = Number(it.qty)||0;
     const unit = Number(it.price)||0;
     const line = qty*unit;
-
     const name = (it.name||'-').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const desc = (it.detail||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const img  = (it.image||'').replace(/"/g,'&quot;') || 'https://via.placeholder.com/34?text=%20';
-       
-        return `
+    return `
       <tr>
         <td class="sum-col-idx">${i+1}</td>
         <td>
@@ -3234,7 +3050,7 @@ document.getElementById('itemCount').textContent = String(cartCount());
     `;
   }).join('');
 
-       const tableHtml = `
+  wrap.innerHTML = `
     <table class="sum-table">
       <thead>
         <tr>
@@ -3254,9 +3070,7 @@ document.getElementById('itemCount').textContent = String(cartCount());
       </tfoot>
     </table>
   `;
-  wrap.innerHTML = tableHtml;
 
-  // ตัวเลขรวมใต้ตาราง (ของปุ่มเดิม)
   document.getElementById('sumTotal').textContent = baht(cartSum());
 }
 
