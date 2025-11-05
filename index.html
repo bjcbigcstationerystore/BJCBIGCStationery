@@ -1884,14 +1884,14 @@ label[for="s_bu_email"] {
     <!-- ฝั่งซ้าย: BU Head Email -->
     <div class="form-field">
       <label class="form-label">BU Head Email</label>
-      <div id="s_head_email" class="form-value input-box text-base font-medium text-slate-800">—</div>
+     <div id="s_head_email" class="form-value input-box text-base font-medium text-slate-800">—</div>
       <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
 
     <!-- ฝั่งขวา: BU Head Name -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
-      <div id="s_head_name" class="form-value input-box text-base font-medium text-slate-800">—</div>
+      <div id="s_head_name"  class="form-value input-box text-base font-medium text-slate-800">—</div>
       <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
         <option value="">— เลือก BU Head —</option>
       </select>
@@ -2964,22 +2964,24 @@ document.getElementById('sumTime').textContent = `Time : ${now.getHours().toStri
  try{
     const info = await getBudgetAndAdmin(emp.id || '');
 
-// ===== BU Admin (ตัด Emp HO P–S ออก: แสดง "—" เสมอ) =====
-const buNameDiv  = document.getElementById('s_bu_name');
-const buEmailDiv = document.getElementById('s_bu_email');
-const buNameSel  = document.getElementById('s_bu_name_sel');
-const buEmailInp = document.getElementById('s_bu_email_inp');
+// ===== BU Admin (ตัดเงื่อนไข P–S ออก: โชว์ "—" ตลอด) =====
+{
+  const buNameDiv  = document.getElementById('s_bu_name');
+  const buEmailDiv = document.getElementById('s_bu_email');
+  const buNameSel  = document.getElementById('s_bu_name_sel');
+  const buEmailInp = document.getElementById('s_bu_email_inp');
 
-// โหมดเดี่ยวเท่านั้น
-if (buNameDiv)  buNameDiv.textContent  = '—';
-if (buEmailDiv) buEmailDiv.textContent = '—';
-buNameDiv?.classList.remove('hidden');
-buEmailDiv?.classList.remove('hidden');
-buNameSel?.classList.add('hidden');
-buEmailInp?.classList.add('hidden');
+  if (buNameDiv)  buNameDiv.textContent  = '—';
+  if (buEmailDiv) buEmailDiv.textContent = '—';
 
-// เก็บ state ไว้ให้ submit
-CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+  buNameDiv?.classList.remove('hidden');
+  buEmailDiv?.classList.remove('hidden');
+  buNameSel?.classList.add('hidden');
+  buEmailInp?.classList.add('hidden');
+
+  // เก็บ state ไว้ให้ submit
+  CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+}
 
 // ฟังก์ชันแสดงโหมดเดียว
 function showAdminSingle(name, email){
@@ -3041,63 +3043,71 @@ if (ADMIN_CHOICES.length > 1){
 }
    
 // ===== BU HEAD (ดึงจาก getBuHead ตามเงื่อนไขใหม่) =====
-const nameDiv  = document.getElementById('s_head_name');
-const emailDiv = document.getElementById('s_head_email');
-const nameSel  = document.getElementById('s_head_name_sel');
-const emailInp = document.getElementById('s_head_email_inp');
+{
+  const nameDiv  = document.getElementById('s_head_name');
+  const emailDiv = document.getElementById('s_head_email');
+  const nameSel  = document.getElementById('s_head_name_sel');
+  const emailInp = document.getElementById('s_head_email_inp');
 
-function showHeadDropdown(list){
-  nameDiv?.classList.add('hidden');
-  emailDiv?.classList.add('hidden');
-  nameSel?.classList.remove('hidden');
-  emailInp?.classList.remove('hidden');
+  // helper: โหมด dropdown
+  function setHeadDropdown(list, defaultIndex = 0){
+    nameDiv?.classList.add('hidden');
+    emailDiv?.classList.add('hidden');
+    nameSel?.classList.remove('hidden');
+    emailInp?.classList.remove('hidden');
 
-  nameSel.innerHTML = list.map((x,i)=>{
-    const n = (x?.name || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<option value="${i}">${n}</option>`;
-  }).join('');
+    nameSel.innerHTML = list.map((x,i)=>{
+      const n = (x?.name || '—').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `<option value="${i}">${n}</option>`;
+    }).join('');
 
-  nameSel.value = '0';
-  const pick = list[0] || {};
-  if (emailInp) emailInp.value = pick.email || '—';
+    const idx  = Math.max(0, Math.min(defaultIndex, list.length - 1));
+    const pick = list[idx] || {};
+    nameSel.value = String(idx);
+    if (emailInp) emailInp.value = pick.email || '—';
+    window.CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
 
-  // เก็บ state สำหรับส่งฟอร์ม
-  window.CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
-
-  nameSel.onchange = ()=>{
-    const cur = list[Number(nameSel.value) || 0] || {};
-    if (emailInp) emailInp.value = cur.email || '—';
-    window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
-  };
-}
-
-function showHeadSingle(name, email){
-  nameSel?.classList.add('hidden');
-  emailInp?.classList.add('hidden');
-  if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
-  if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email ? `📧 ${email}` : '📧 —'; }
-  window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
-}
-
-let headName = '—', headEmail = '—';
-let headList = [];
-try{
-  const h = await getBuHead(emp.id || '');
-  if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
-    headList = h.headList;
-  } else if (h?.headName || h?.headEmail){
-    headName  = h.headName  || '—';
-    headEmail = h.headEmail || '—';
+    nameSel.onchange = ()=>{
+      const cur = list[Number(nameSel.value) || 0] || {};
+      if (emailInp) emailInp.value = cur.email || '—';
+      window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+    };
   }
-}catch(_){ /* ignore */ }
 
-if (headList.length > 1){
-  showHeadDropdown(headList);
-} else if (headList.length === 1){
-  const only = headList[0] || {};
-  showHeadSingle(only.name || '—', only.email || '—');
-} else {
-  showHeadSingle(headName, headEmail);
+  // helper: โหมด single
+  function setHeadSingle(name, email){
+    nameSel?.classList.add('hidden');
+    emailInp?.classList.add('hidden');
+    if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
+    if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email ? `📧 ${email}` : '📧 —'; }
+    window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+  }
+
+  let headList = [];
+  let headName = '—', headEmail = '—';
+
+  try{
+    const h = await getBuHead((CURRENT_EMP?.id) || '');
+    console.log('[getBuHead] raw =', h); // DEBUG
+
+    if (h?.headList && Array.isArray(h.headList) && h.headList.length > 0){
+      headList = h.headList.filter(x => (x?.name || x?.email));
+    } else if (h?.headName || h?.headEmail){
+      headName  = h.headName  || '—';
+      headEmail = h.headEmail || '—';
+    }
+  }catch(e){
+    console.warn('getBuHead failed:', e);
+  }
+
+  // ✅ นโยบายแสดงผล
+  // - ถ้ามีอย่างน้อย 1 รายการ: โชว์ Dropdown (เพื่อให้เทส mapping ได้)
+  // - ถ้าไม่มีเลย: โชว์ Single เป็น '—'
+  if (headList.length >= 1){
+    setHeadDropdown(headList, 0);
+  } else {
+    setHeadSingle(headName, headEmail);
+  }
 }
 
 // ✅ ฟังก์ชันช่วยเรนเดอร์ (เหมือนเดิมของคุณ)
