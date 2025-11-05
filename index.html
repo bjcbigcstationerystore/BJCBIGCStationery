@@ -1673,10 +1673,40 @@ label[for="s_bu_email"] {
 /* ให้ขนาดและน้ำหนักตัวอักษรในกรอบ BU Head เท่ากับ BU Admin */
 #buHeadCard .form-value {
   font-size: 1rem;      /* เท่ากับ text-base */
-  font-weight: 500;     /* เท่ากับ font-medium */
+  font-weight: 400;     /* เท่ากับ font-medium */
   color: #1e293b;       /* เท่ากับ text-slate-800 */
 }
 
+    /* ไอคอนลูกศรของ dropdown BU Head Name */
+.select-chevron{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:18px;
+  height:18px;
+  color:#64748b;      /* เทาอ่านง่าย */
+  opacity:.9;
+  pointer-events:none; /* ไม่บังการคลิก select */
+}
+
+/* เว้นที่ให้ลูกศรด้านขวา ไม่ให้ทับข้อความ */
+#s_head_name_sel{
+  padding-right:2.5rem !important;
+}
+
+/* ถ้า select ถูกซ่อน (.hidden) ให้ซ่อนไอคอนด้วย */
+.hidden + .select-chevron{
+  display:none;
+}
+
+   /* บังคับ dropdown BU Head Name ให้เป็นน้ำหนักปกติ */
+#s_head_name_sel {
+  font-weight: 400 !important;
+}
+#s_head_name_sel option {
+  font-weight: 400;
+}
 
     
 
@@ -1884,11 +1914,24 @@ label[for="s_bu_email"] {
     <!-- BU Head Name -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
-      <div id="s_head_name" class="form-value input-box text-base font-medium text-slate-800">—</div>
-      <select id="s_head_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Head">
-        <option value="">— เลือก BU Head —</option>
-      </select>
-    </div>
+      
+      <div id="s_head_name" class="form-value input-box text-base font-normal text-slate-800">—</div>
+      
+       <div class="relative">
+    <select
+      id="s_head_name_sel"
+      class="form-value input-box w-full pr-12 appearance-none hidden"
+      aria-label="เลือก BU Head"
+    >
+      <option value="">— เลือก BU Head —</option>
+    </select>
+
+    <!-- ไอคอนลูกศร (ซ่อนอัตโนมัติเมื่อ select มี .hidden) -->
+    <svg class="select-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
 
     <!-- BU Head Email -->
     <div class="form-field">
