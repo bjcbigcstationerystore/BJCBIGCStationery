@@ -13,6 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    #s_head_name,
+#s_head_name_sel { font-weight: 400 !important; }
+    
     #summaryContent .form-value ul{ margin:0; padding-left:1.25rem; }
 #summaryContent .form-value li{ line-height:1.45; }
     
@@ -1919,10 +1922,10 @@ label[for="s_bu_email"] {
       
        <div class="relative">
     <select
-      id="s_head_name_sel"
-      class="form-value input-box w-full pr-12 appearance-none hidden"
-      aria-label="เลือก BU Head"
-    >
+  id="s_head_name_sel"
+  class="form-value input-box w-full pr-12 appearance-none font-normal hidden"
+  aria-label="เลือก BU Head"
+>
       <option value="">— เลือก BU Head —</option>
     </select>
 
@@ -2391,6 +2394,43 @@ async function getBuHead(employeeId){
     return null;
   }
 }
+    
+async function getAdminByHead(employeeId, { headName = '', headEmail = '' } = {}){
+  try{
+    const url = `${API_BASE}?action=getadminbyhead&employeeId=${encodeURIComponent(employeeId)}&headName=${encodeURIComponent(headName)}&headEmail=${encodeURIComponent(headEmail)}`;
+    const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if (!ok || !json || json.success !== true) return null;
+    const data = json.data ?? json;
+    return {
+      name:  String(data.name  || '—').trim(),
+      email: String(data.email || '—').trim()
+    };
+  }catch(e){
+    console.warn('getAdminByHead failed', e);
+    return null;
+  }
+}
+    // === ANCHOR: UPDATE_ADMIN_BY_HEAD ===
+async function updateAdminBySelectedHead(headName, headEmail){
+  const empId = CURRENT_EMP_ID || (CURRENT_EMP?.id || '');
+  if (!empId) return;
+
+  const admin = await getAdminByHead(empId, { headName, headEmail });
+  const nm = admin?.name  || '—';
+  const em = admin?.email || '—';
+
+  // อัปเดต UI: กรอบข้อมูล BU Admin
+  const buNameEl  = document.getElementById('s_bu_name');
+  const buEmailEl = document.getElementById('s_bu_email');
+  if (buNameEl)  buNameEl.textContent  = nm;
+  if (buEmailEl) buEmailEl.textContent = em;
+
+  // อัปเดต state (ใช้ตอน submit/blocked)
+  window.CURRENT_ADMIN_CONTACT = { name: nm, email: em };
+}
+
+
+    
 /** มีค่า (ไม่ว่าง) = ผ่านเกณฑ์ (นับรวม "0" ด้วยว่า "มีค่า" ตามเงื่อนไขล่าสุด) */
 function hasNonBlank(v){
   return !(v === null || v === undefined || String(v).trim() === '');
@@ -2932,6 +2972,7 @@ async function verifyEmployee(){
       name:       emp.fullName   || emp.name || '-',
       costCenter: emp.costCenter || emp.cost || '-'
     };
+    CURRENT_EMP_ID = CURRENT_EMP.id;
 
     // ✅ ไปหน้า “หมวดหมู่” ได้เลย
     await preloadCategoriesFor(CURRENT_EMP.company);
@@ -3016,32 +3057,41 @@ async function renderSummary(){
 
   // ปิด/เปิด helper
   function showHeadSingle(name, email){
-    if (nameSel)  nameSel.classList.add('hidden');
-    if (emailInp) emailInp.classList.add('hidden');
-    if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
-    if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email || '—'; }
-    window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
-  }
+  if (nameSel)  nameSel.classList.add('hidden');
+  if (emailInp) emailInp.classList.add('hidden');
+  if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
+  if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email || '—'; }
+  window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+
+  // === ANCHOR: MAP_ADMIN_SINGLE ===
+  updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+}
   function showHeadDropdown(list){
-    if (!nameSel || !emailInp){ showHeadSingle(list[0]?.name, list[0]?.email); return; }
-    if (nameDiv)  nameDiv.classList.add('hidden');
-    if (emailDiv) emailDiv.classList.add('hidden');
-    nameSel.classList.remove('hidden');
-    emailInp.classList.remove('hidden');
+  if (!nameSel || !emailInp){ showHeadSingle(list[0]?.name, list[0]?.email); return; }
+  if (nameDiv)  nameDiv.classList.add('hidden');
+  if (emailDiv) emailDiv.classList.add('hidden');
+  nameSel.classList.remove('hidden');
+  emailInp.classList.remove('hidden');
 
-    nameSel.innerHTML = list.map((x,i)=>`<option value="${i}">${(x?.name||'—')
-      .replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
-    nameSel.value = '0';
-    emailInp.value = list[0]?.email || '—';
-    window.CURRENT_BU_HEAD = { name: list[0]?.name || '—', email: list[0]?.email || '—' };
+  nameSel.innerHTML = list.map((x,i)=>`<option value="${i}">${(x?.name||'—')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+  nameSel.value = '0';
+  emailInp.value = list[0]?.email || '—';
+  window.CURRENT_BU_HEAD = { name: list[0]?.name || '—', email: list[0]?.email || '—' };
 
-    nameSel.onchange = ()=>{
-      const i = Number(nameSel.value) || 0;
-      const cur = list[i] || {};
-      emailInp.value = cur.email || '—';
-      window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
-    };
-  }
+  // === ANCHOR: MAP_ADMIN_INIT ===
+  updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+
+  nameSel.onchange = ()=>{
+    const i = Number(nameSel.value) || 0;
+    const cur = list[i] || {};
+    emailInp.value = cur.email || '—';
+    window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+
+    // === ANCHOR: MAP_ADMIN_CHANGE ===
+    updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+  };
+}
 
   try{
     const hUrl = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(emp.id || '')}`;
