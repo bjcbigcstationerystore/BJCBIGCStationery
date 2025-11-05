@@ -12,10 +12,7 @@
     
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    #s_head_name,
-#s_head_name_sel { font-weight: 400 !important; }
-    
+  <style>    
     #summaryContent .form-value ul{ margin:0; padding-left:1.25rem; }
 #summaryContent .form-value li{ line-height:1.45; }
     
@@ -477,6 +474,18 @@ body.category .panel-body{  padding:8px 12px !important; }
 
 /* จุดเขียวหน้าหัวข้อให้เล็กลงนิดนึง */
 #summaryContent .dot{ width: .55rem !important; height: .55rem !important; }
+    
+    /* === BU Head: ทำให้ตัวปกติในหน้า Summary (ชนะกฎ 800 เดิม) === */
+#summaryContent #buHeadCard .form-field > .form-value,
+#summaryContent #s_head_name.form-value,
+#summaryContent #s_head_email.form-value,
+#summaryContent #s_head_name_sel,
+#summaryContent #s_head_email_inp,
+#summaryContent #s_head_name_sel option {
+  font-weight: 400 !important;
+  font-size: 1rem !important;   /* ตามภาพ: ขนาดปกติ */
+  color: #111827 !important;    /* โทนเดียวกับฟิลด์อื่น */
+}
     
 
     /* ===== THANK YOU (แบบรูปแรก) ===== */
@@ -1703,13 +1712,24 @@ label[for="s_bu_email"] {
   display:none;
 }
 
-   /* บังคับ dropdown BU Head Name ให้เป็นน้ำหนักปกติ */
-#s_head_name_sel {
+/* บังคับน้ำหนักฟอนต์ของ BU Head Name (ทั้ง div + select + option) */
+#buHeadCard .form-value,
+#buHeadCard .form-value * {
   font-weight: 400 !important;
 }
+
+/* กรณี select ยังหนา (เพราะ Browser default) → บังคับซ้ำ */
+#s_head_name_sel,
 #s_head_name_sel option {
-  font-weight: 400;
+  font-weight: 400 !important;
 }
+
+/* กรณี input email ก็ยังหนา → กดลงด้วย */
+#s_head_email,
+#s_head_email_inp {
+  font-weight: 400 !important;
+}
+
 
     
 
