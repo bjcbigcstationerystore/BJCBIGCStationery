@@ -2325,8 +2325,6 @@ async function getBudgetAndAdmin(employeeId){
   }
 }
 
-// ✅ endpoint สำรอง: ดึง BU Head แบบยืดหยุ่น (รองรับทั้ง headList และ headName/headEmail เดี่ยว)
-// **สำคัญ**: ใช้ action เป็นตัวพิมพ์เล็ก "getbuhead" เพื่อให้เข้ากับ doGet ที่ .toLowerCase() ไว้
 async function getBuHead(employeeId){
   try{
     const url = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(employeeId)}`;
@@ -3042,7 +3040,7 @@ if (ADMIN_CHOICES.length > 1){
   showAdminSingle(adminName, adminEmail);
 }
    
-// ===== BU Head: ใช้เฉพาะ getBuHead() =====
+// ===== BU HEAD (ดึงจาก getBuHead ตามเงื่อนไขใหม่) =====
 const nameDiv  = document.getElementById('s_head_name');
 const emailDiv = document.getElementById('s_head_email');
 const nameSel  = document.getElementById('s_head_name_sel');
@@ -3062,6 +3060,8 @@ function showHeadDropdown(list){
   nameSel.value = '0';
   const pick = list[0] || {};
   if (emailInp) emailInp.value = pick.email || '—';
+
+  // เก็บ state สำหรับส่งฟอร์ม
   window.CURRENT_BU_HEAD = { name: pick.name || '—', email: pick.email || '—' };
 
   nameSel.onchange = ()=>{
@@ -3079,7 +3079,6 @@ function showHeadSingle(name, email){
   window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
 }
 
-// ดึงจาก getBuHead() เท่านั้น
 let headName = '—', headEmail = '—';
 let headList = [];
 try{
@@ -3092,7 +3091,6 @@ try{
   }
 }catch(_){ /* ignore */ }
 
-// เรนเดอร์
 if (headList.length > 1){
   showHeadDropdown(headList);
 } else if (headList.length === 1){
@@ -3290,15 +3288,17 @@ async function submitRequest(){
     const totalQty  = items.reduce((s, x) => s + x.qty, 0);
     const totalCost = items.reduce((s, x) => s + x.line, 0);
 
-    const row = {
+const row = {
   'วันที่': dateTH,
   'เวลา': timeTH,
   'บริษัท': CURRENT_EMP.company || '',
   'Cost Center': CURRENT_EMP.costCenter || '',
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
-  'Name BU admin': '—',
-  'Email BU Admin': '—',
+  // Admin ถ้าคุณตัดออก ให้เป็น '—' หรือปล่อยตามที่คุณต้องการ
+  'Name BU admin': (CURRENT_ADMIN_CONTACT?.name || '—'),
+  'Email BU Admin': (CURRENT_ADMIN_CONTACT?.email || '—'),
+  // ✅ เก็บหัวหน้า (ได้จาก getBuHead)
   'Name BU Head':  (window.CURRENT_BU_HEAD?.name  || '—'),
   'Email BU Head': (window.CURRENT_BU_HEAD?.email || '—'),
   'รายการเบิก (ชิ้น)': totalQty,
