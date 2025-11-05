@@ -3045,7 +3045,32 @@ async function verifyEmployee(){
   if(!arr || arr.length === 0) return '—';
   const safe = arr.map(s => String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   return `<div class="space-y-1">${safe.map(s=>`<div>${s}</div>`).join('')}</div>`;
-}                                         
+}      
+    // === อ่านค่า BU Admin จาก UI ถ้ามี (รองรับทั้งโหมด div + dropdown) ===
+function getCurrentAdminFromUI(){
+  // Name
+  const nameDiv = document.getElementById('s_bu_name');
+  const nameSel = document.getElementById('s_bu_name_sel');
+  let adminName = '—';
+  if (nameSel && !nameSel.classList.contains('hidden')) {
+    adminName = (nameSel.options[nameSel.selectedIndex]?.text || '—').trim();
+  } else if (nameDiv) {
+    adminName = (nameDiv.textContent || '—').trim();
+  }
+
+  // Email
+  const emailDiv = document.getElementById('s_bu_email');
+  const emailInp = document.getElementById('s_bu_email_inp');
+  let adminEmail = '—';
+  if (emailInp && !emailInp.classList.contains('hidden')) {
+    adminEmail = (emailInp.value || '—').trim();
+  } else if (emailDiv) {
+    adminEmail = (emailDiv.textContent || '—').trim();
+  }
+
+  return { name: adminName || '—', email: adminEmail || '—' };
+}
+
 
 /* ===== เรนเดอร์หน้า Summary (แก้ให้สะอาด) ===== */
 async function renderSummary(){
@@ -3225,6 +3250,8 @@ async function submitRequest(){
     const totalQty  = items.reduce((s, x) => s + x.qty, 0);
     const totalCost = items.reduce((s, x) => s + x.line, 0);
 
+const UI_ADMIN = getCurrentAdminFromUI();
+
 const row = {
   'วันที่': dateTH,
   'เวลา': timeTH,
@@ -3232,10 +3259,8 @@ const row = {
   'Cost Center': CURRENT_EMP.costCenter || '',
   'รหัสพนักงาน': CURRENT_EMP.id || '',
   'ชื่อ-นามสกุล': CURRENT_EMP.name || '',
-  // Admin ถ้าคุณตัดออก ให้เป็น '—' หรือปล่อยตามที่คุณต้องการ
-  'Name BU admin': (CURRENT_ADMIN_CONTACT?.name || '—'),
-  'Email BU Admin': (CURRENT_ADMIN_CONTACT?.email || '—'),
-  // ✅ เก็บหัวหน้า (ได้จาก getBuHead)
+  'Name BU admin': UI_ADMIN.name,
+  'Email BU Admin': UI_ADMIN.email,
   'Name BU Head':  (window.CURRENT_BU_HEAD?.name  || '—'),
   'Email BU Head': (window.CURRENT_BU_HEAD?.email || '—'),
   'รายการเบิก (ชิ้น)': totalQty,
