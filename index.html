@@ -1839,6 +1839,34 @@ label[for="s_bu_email"] {
   text-overflow: clip !important;
   white-space: nowrap !important; /* <select> ห่อบรรทัดไม่ได้อยู่ดี แต่จะไม่โดน … */
 }
+/* ตัวโหลดสรุปรายการเบิก */
+.loading-mask{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.35);   /* โปร่งใส เห็นหน้าเดิมอยู่ข้างใต้ */
+  z-index: 10050;                /* ให้สูงกว่าตะกร้า/cart drawer */
+}
+.loading-box{
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(2,6,23,.18);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.spinner{
+  width: 22px; height: 22px;
+  border: 3px solid rgba(16,185,129,.25);
+  border-top-color: rgba(16,185,129,1);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 
 
     
@@ -1847,6 +1875,15 @@ label[for="s_bu_email"] {
 </head>
 
 <body>
+  
+  <!-- Loading overlay for Summary -->
+<div id="summaryLoadingOverlay" class="loading-mask hidden" aria-live="polite" aria-busy="true">
+  <div class="loading-box">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="loading-text">กำลังสรุปรายการเบิก ...</div>
+  </div>
+</div>
+
   
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
@@ -2308,6 +2345,19 @@ function showSection(targetId){
     else               { el.classList.add('hidden'); }
   });
 }
+    
+function showSummaryLoader(show = true){
+  const el = document.getElementById('summaryLoadingOverlay');
+  if (!el) return;
+  if (show){
+    el.classList.remove('hidden');
+    el.style.display = 'flex';     // ตรงกับ .loading-mask
+  }else{
+    el.style.display = 'none';
+    el.classList.add('hidden');
+  }
+}
+
 
 /* ============ UI SWITCH ============ */
 function hideAllPages() {
@@ -2457,14 +2507,16 @@ let inflight = { categories: null, items: null };
       document.getElementById('cartMask')?.classList.add('show');
       renderCartItems();
     }
-    function closeCart(){
-      document.getElementById('cartMask')?.classList.remove('show');
-    }
-    function proceedCart(){
-      closeCart();
-      showPage('summary'); // ✅ ไปหน้าใหม่
-      renderSummary();     // ✅ เติมข้อมูลสรุป
-    }
+    
+function closeCart(){
+  document.getElementById('cartMask')?.classList.remove('show');
+}
+
+// ทำให้เป็น global function
+function proceedCart(){
+  closeCart();
+  goToSummary();
+}
 
     /* ============ Utilities ============ */
     const baht = n => '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2931,7 +2983,7 @@ function showPage(which){
   try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e){}
 }
     
-async function showBlocked(empId){
+async function showBlockedByEmpId(empId){
   const nameEl = document.getElementById('blkName');
   const linkEl = document.getElementById('blkEmail');
   const textEl = document.getElementById('blkEmailText');
@@ -3171,6 +3223,62 @@ function getCurrentAdminFromUI(){
   return { name: adminName || '—', email: adminEmail || '—' };
 }
 
+// ===== แทนที่ฟังก์ชันเดิมทั้งบล็อก =====
+async function goToSummary(){
+  showSummaryLoader(true);     // โชว์ตัวโหลดทับหน้าเดิม
+
+  try{
+    // เตรียมข้อมูล/เรนเดอร์เนื้อหา summary ล่วงหน้า (แม้จะยัง hidden ก็อัปเดตได้)
+    await renderSummary();
+
+    // พร้อมแล้วค่อยเปลี่ยนหน้า
+    showPage('summary');
+  }catch(err){
+    console.error('Summary failed:', err);
+    alert('เกิดข้อผิดพลาดขณะโหลดสรุปรายการเบิก');
+    // อยู่หน้าเดิมหรือย้อนกลับสินค้า
+    showPage('products');
+  }finally{
+    showSummaryLoader(false);  // ปิดตัวโหลด
+  }
+}
+
+    
+    async function fillEmployeeBlock(){
+  // ใช้ตัวแปรที่คุณโหลดมาแล้ว เช่น current employee object
+  document.getElementById('s_company').textContent  = window.CURRENT_COMPANY || '—';
+  document.getElementById('s_cost').textContent     = window.CURRENT_COST_CENTER || '—';
+  document.getElementById('s_empid').textContent    = window.CURRENT_EMP_ID || '—';
+  document.getElementById('s_fullname').textContent = window.CURRENT_EMP_NAME || '—';
+}
+
+async function fillBUAdminBlock(){
+  document.getElementById('s_bu_name').textContent  = window.CURRENT_BU_ADMIN_NAME  || '—';
+  document.getElementById('s_bu_email').textContent = window.CURRENT_BU_ADMIN_EMAIL || '—';
+}
+
+// เติมตัวเลือก BU Head ลง dropdown แล้ว “ไม่ต้องโชว์จนกว่าจะพร้อม”
+async function populateBUHeadChoices(){
+  const sel = document.getElementById('s_head_name_sel');
+  if(!sel) return;
+
+  sel.innerHTML = '<option value="">— เลือก BU Head —</option>';
+
+  // ตัวอย่างใช้ตัวแปร BU_HEAD_CHOICES = [{name,email}, ...]
+  (window.BU_HEAD_CHOICES || []).forEach(({name,email})=>{
+    const opt = document.createElement('option');
+    opt.value = email; opt.textContent = name;
+    opt.dataset.email = email;   // เก็บอีเมลไว้ด้วย
+    sel.appendChild(opt);
+  });
+}
+
+async function fillSummaryItemsTable(){
+  // ใส่รายการเบิก/รวมยอด (อิงของเดิมที่คุณมี)
+  return;
+}
+
+
 
 /* ===== เรนเดอร์หน้า Summary (แก้ให้สะอาด) ===== */
 async function renderSummary(){
@@ -3398,7 +3506,7 @@ const row = {
     // นำทางตาม nextPage (ค่าเป็น 'thankyou' หรือ 'blocked')
     const next = String(json.nextPage || 'thankyou').toLowerCase();
     if (next === 'blocked') {
-      await showBlocked(CURRENT_EMP?.id);
+      await showBlockedByEmpId(CURRENT_EMP?.id);
     } else {
       showPage('thankyou');
       renderThankYou();
@@ -3483,7 +3591,7 @@ function renderBlocked(){
         </div>
         <div class="cart-actions">
           <button class="cart-btn-secondary" onclick="closeCart()">← หน้าหลัก</button>
-          <button class="cart-btn-primary" onclick="proceedCart()">ดำเนินการ</button>
+          <button class="cart-btn-primary" onclick="closeCart(); goToSummary()">ดำเนินการ</button>
         </div>
       </div>
     </div>
