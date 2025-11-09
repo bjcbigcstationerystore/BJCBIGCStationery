@@ -1083,14 +1083,6 @@ body.products .products-inner{
   font-size: .875rem;  /* เพิ่มขนาดแบบคงที่เพื่อความอ่านง่าย */
 }
 
-/* “x รายการ” = ตัวปกติ ไม่หนา */
-.cat-count{
-  margin-top:2px;
-  color:#059669;
-  font-weight:400;     /* ← ไม่หนา */
-}
-
-
 /* การ์ดสินค้าเล็กลงนิด */
 body.products .prod-card{
   padding:10px !important;            /* เดิม 12 */
@@ -2182,8 +2174,7 @@ let modalItem = { name:'', price:0, detail:'', image:'' };
 let LAST_SUBMIT = null;
 let BU_HEAD_CHOICES = []; // [{name, email}, ...]
 let CURRENT_EMP_ID = null;
-let CURRENT_BUDGET_K = null;
-let CURRENT_BUDGET_L = null;
+let CURRENT_BUDGET_M = null; // งบจากคอลัมน์ M (Emp HO)
     
     // ===== Global guards (ช่วยจับ error ที่ทำให้จอขาว) =====
 window.addEventListener('error', (e) => {
@@ -2230,29 +2221,8 @@ function showThankYou(info) {
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 
-function showBlocked(info) {
-  hideAllPages();
-  const el = document.getElementById('blockedContent');
-  if (!el) {
-    alert('งบประมาณไม่เพียงพอ');
-    return;
-  }
-
-  // แสดงชื่อ / อีเมล BU Admin
-  const nameEl = document.getElementById('blkName');
-  const mailEl = document.getElementById('blkEmailText');
-  if (nameEl) nameEl.textContent = info.adminName || '—';
-  if (mailEl) mailEl.textContent = `📧 Email BU Admin: ${info.adminEmail || '—'}`;
-
-  el.classList.remove('hidden');
-  document.body.scrollTop = document.documentElement.scrollTop = 0;
-}
 
 /* ============ RETURN HOME ============ */
-function goHomeFromThanks() {
-  hideAllPages();
-  document.getElementById('verifyContent')?.classList.remove('hidden');
-}
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -2756,6 +2726,26 @@ function showLoadingProductsModal(show = true){
   const { ok, json } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
   return (ok && json && json.success && json.data) ? json.data : null;
 }
+    
+    // ===== NEW: อ่านงบจากคอลัมน์ M ของ Emp HO =====
+async function getBudgetM(employeeId){
+  try{
+    const url = `${API_BASE}?action=getbudgetm&employeeId=${encodeURIComponent(employeeId)}`;
+    const { ok, json, text } = await fetchJSON(url, { timeout: 12000 }).catch(()=>({ok:false}));
+    if(!ok || !json || json.success !== true){
+      console.warn('getBudgetM response not ok:', { ok, json, text });
+      return null;
+    }
+    // รองรับทั้ง data.budgetM หรือ budgetM ตรงๆ
+    const data = json.data ?? json;
+    const m = data?.budgetM;
+    return (m == null ? null : Number(m));
+  }catch(e){
+    console.warn('getBudgetM failed', e);
+    return null;
+  }
+}
+
 
     /* ====== Layout helpers ====== */
     function setCentered(){ container.classList.remove('top'); container.classList.add('centered'); }
@@ -2972,9 +2962,6 @@ function goHomeFromBlocked(){
       }
     }
 
- // ⬅️ เงื่อนไขเดิม: เช็คคอลัมน์ M อย่างเดียว
-// - ถ้า M === 'NO'  => เด้งไปหน้า "งบประมาณไม่เพียงพอ"
-// - ถ้า M !== 'NO'  => ไปต่อ (โหลดหมวดฯ)
 async function verifyEmployee(){
   const inputEl  = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
@@ -2983,6 +2970,7 @@ async function verifyEmployee(){
   showCheckingModal(true);
   showLoadingProductsModal(false);
   try{
+    // 1) ดึงข้อมูลพนักงาน
     const emp = await getEmployeeData(rawInput);
     if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
 
@@ -2994,7 +2982,22 @@ async function verifyEmployee(){
     };
     CURRENT_EMP_ID = CURRENT_EMP.id;
 
-    // ✅ ไปหน้า “หมวดหมู่” ได้เลย
+    // 2) ตรวจงบคอลัมน์ M
+    const m = await getBudgetM(CURRENT_EMP_ID);
+    if (m == null || Number.isNaN(Number(m))){
+      showMsg('ไม่พบค่างบ (คอลัมน์ M) ของพนักงานนี้ กรุณาตรวจสอบข้อมูล Emp HO', 'error');
+      return;
+    }
+    CURRENT_BUDGET_M = Number(m);
+
+    // 3) ตัดสินทางเข้า / บล็อค
+    if (CURRENT_BUDGET_M < 300){
+      // ไปหน้า "งบประมาณไม่เพียงพอ"
+      await showBlocked(CURRENT_EMP_ID);
+      return;
+    }
+
+    // 4) อนุญาตเข้าเลือกหมวด/สินค้า
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
 
