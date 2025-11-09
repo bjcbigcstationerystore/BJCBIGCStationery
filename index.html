@@ -1875,14 +1875,6 @@ label[for="s_bu_email"] {
 </head>
 
 <body>
-  
-  <!-- Loading overlay for Summary -->
-<div id="summaryLoadingOverlay" class="loading-mask hidden" aria-live="polite" aria-busy="true">
-  <div class="loading-box">
-    <div class="spinner" aria-hidden="true"></div>
-    <div class="loading-text">กำลังสรุปรายการเบิก ...</div>
-  </div>
-</div>
 
   
   <div class="page-container centered" id="pageContainer">
@@ -2070,6 +2062,12 @@ label[for="s_bu_email"] {
   <section id="buHeadCard" class="info-card bu-head h-full order-2 lg:order-2">
   <h4 class="section-title">👔 BU Head</h4>
   <div class="section-divider"></div>
+  
+    <!-- 🔔 HINT: บอกให้ผู้ใช้เลือก BU Head (ซ่อนก่อน) -->
+  <div id="buHeadHint" class="mt-2 mb-3 hidden bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2 text-sm"
+       role="status" aria-live="polite">
+    กรุณาเลือก BU Head ที่ท่านสังกัด
+  </div>
 
   <!-- ✅ เปลี่ยนเป็นแนวตั้งเหมือน BU Admin -->
   <div class="form-vertical">
@@ -2273,6 +2271,18 @@ label[for="s_bu_email"] {
     <span class="text-gray-800 font-medium">กำลังส่งคำขอเบิก…</span>
   </div>
 </div>
+
+<!-- BU Loading Modal -->
+<div id="buLoadingModal" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/40">
+  <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3">
+    <svg class="w-6 h-6 animate-spin text-emerald-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    <span class="text-gray-800 font-medium">กำลังโหลดข้อมูล BU…</span>
+  </div>
+</div>
+
 
   <!-- Product Detail Modal -->
   <div id="itemModal" class="modal-mask">
@@ -2515,6 +2525,7 @@ function closeCart(){
 // ทำให้เป็น global function
 function proceedCart(){
   closeCart();
+  closeAllModals?.();
   goToSummary();
 }
 
@@ -2582,23 +2593,42 @@ async function getAdminByHead(employeeId, { headName = '', headEmail = '' } = {}
     return null;
   }
 }
-    // === ANCHOR: UPDATE_ADMIN_BY_HEAD ===
+ // กันผลตอบกลับเก่าทับของใหม่ (กรณีผู้ใช้เปลี่ยนหัวหน้ารัวๆ)
+let __adminReqSeq = 0;
+
+// === ANCHOR: UPDATE_ADMIN_BY_HEAD ===
 async function updateAdminBySelectedHead(headName, headEmail){
   const empId = CURRENT_EMP_ID || (CURRENT_EMP?.id || '');
   if (!empId) return;
 
-  const admin = await getAdminByHead(empId, { headName, headEmail });
-  const nm = admin?.name  || '—';
-  const em = admin?.email || '—';
+  // แสดงป๊อปอัพโหลดเฉพาะช่วงดึง BU Admin
+  setBULoadingText('กำลังโหลดข้อมูล BU Admin…');
+  showBULoading(true);
 
-  // อัปเดต UI: กรอบข้อมูล BU Admin
-  const buNameEl  = document.getElementById('s_bu_name');
-  const buEmailEl = document.getElementById('s_bu_email');
-  if (buNameEl)  buNameEl.textContent  = nm;
-  if (buEmailEl) buEmailEl.textContent = em;
+  const mySeq = ++__adminReqSeq;
+  try{
+    const admin = await getAdminByHead(empId, { headName, headEmail });
 
-  // อัปเดต state (ใช้ตอน submit/blocked)
-  window.CURRENT_ADMIN_CONTACT = { name: nm, email: em };
+    // ถ้ามีคำขอใหม่แซงมา ให้ทิ้งผลลัพธ์เก่านี้
+    if (mySeq !== __adminReqSeq) return;
+
+    const nm = admin?.name  || '—';
+    const em = admin?.email || '—';
+
+    // อัปเดต UI: กรอบข้อมูล BU Admin
+    const buNameEl  = document.getElementById('s_bu_name');
+    const buEmailEl = document.getElementById('s_bu_email');
+    if (buNameEl)  buNameEl.textContent  = nm;
+    if (buEmailEl) buEmailEl.textContent = em;
+
+    // อัปเดต state (ใช้ตอน submit/blocked)
+    window.CURRENT_ADMIN_CONTACT = { name: nm, email: em };
+  } catch(e){
+    console.warn('getAdminByHead failed', e);
+  } finally{
+    // ปิดป๊อปอัพไม่ว่าผลจะสำเร็จหรือไม่
+    showBULoading(false);
+  }
 }
 
 
@@ -3094,6 +3124,31 @@ function goHomeFromBlocked(){
   updateCartUI();
 });
 
+function showBULoading(show = true, text = 'กำลังโหลดข้อมูล BU…'){
+  const m = document.getElementById('buLoadingModal');
+  if(!m) return;
+
+  // ปรับข้อความบน modal นี้
+  const span = m.querySelector('span');
+  if(span) span.textContent = text;
+
+  if(show){
+    closeAllModals();          // ✅ กันซ้อน
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  }else{
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+}
+
+// เปลี่ยนข้อความใน modal โหลด BU ให้เป็นบริบทที่ต้องการ
+function setBULoadingText(t){
+  const el = document.querySelector('#buLoadingModal span');
+  if(el) el.textContent = t || 'กำลังโหลดข้อมูล BU…';
+}
+
+
    function showMsg(text, type='info'){
   const box = document.getElementById('message');
   if(!box){ alert(text); return; }
@@ -3123,6 +3178,24 @@ function goHomeFromBlocked(){
         m.classList.remove('flex');
       }
     }
+    
+    function closeAllModals(){
+  const ids = [
+    'checkingModal',
+    'loadingProductsModal',
+    'submittingModal',
+    'buLoadingModal',
+    'summaryLoadingOverlay'
+  ];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.add('hidden');
+    el.classList.remove('flex');
+    if(id==='summaryLoadingOverlay'){ el.style.display='none'; }
+  });
+}
+
 
  // ⬅️ เงื่อนไขเดิม: เช็คคอลัมน์ M อย่างเดียว
 // - ถ้า M === 'NO'  => เด้งไปหน้า "งบประมาณไม่เพียงพอ"
@@ -3223,26 +3296,22 @@ function getCurrentAdminFromUI(){
   return { name: adminName || '—', email: adminEmail || '—' };
 }
 
-// ===== แทนที่ฟังก์ชันเดิมทั้งบล็อก =====
+// ===== เวอร์ชันใหม่: เข้าหน้าสรุปทันที แล้วค่อยโหลด BU =====
 async function goToSummary(){
-  showSummaryLoader(true);     // โชว์ตัวโหลดทับหน้าเดิม
+  // กันไม่ให้ modal อื่นค้าง
+  closeAllModals?.();
+
+  // เข้า "หน้าสรุปรายการเบิก" ก่อนเลย (ไม่ใช้ summary overlay)
+  showPage('summary');
 
   try{
-    // เตรียมข้อมูล/เรนเดอร์เนื้อหา summary ล่วงหน้า (แม้จะยัง hidden ก็อัปเดตได้)
-    await renderSummary();
-
-    // พร้อมแล้วค่อยเปลี่ยนหน้า
-    showPage('summary');
+    await renderSummary();     // ภายในจะโชว์ Pop-up โหลด BU เอง
   }catch(err){
     console.error('Summary failed:', err);
     alert('เกิดข้อผิดพลาดขณะโหลดสรุปรายการเบิก');
-    // อยู่หน้าเดิมหรือย้อนกลับสินค้า
     showPage('products');
-  }finally{
-    showSummaryLoader(false);  // ปิดตัวโหลด
   }
 }
-
     
     async function fillEmployeeBlock(){
   // ใช้ตัวแปรที่คุณโหลดมาแล้ว เช่น current employee object
@@ -3326,37 +3395,71 @@ async function renderSummary(){
   nameSel.classList.remove('hidden');
   emailInp.classList.remove('hidden');
 
-  nameSel.innerHTML = list.map((x,i)=>`<option value="${i}">${(x?.name||'—')
-    .replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
-  nameSel.value = '0';
-  emailInp.value = list[0]?.email || '—';
-  window.CURRENT_BU_HEAD = { name: list[0]?.name || '—', email: list[0]?.email || '—' };
+  // ใส่ placeholder และยัง "ไม่เลือก" อะไร
+  nameSel.innerHTML =
+    `<option value="">— กรุณาเลือก BU Head —</option>` +
+    list.map((x,i)=>`<option value="${i+1}">${
+      (x?.name||'—').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    }</option>`).join('');
+  nameSel.value = '';
+  emailInp.value = '—';
+  window.CURRENT_BU_HEAD = { name:'—', email:'—' };
 
-  // === ANCHOR: MAP_ADMIN_INIT ===
-  updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+  // โชว์ hint + โฟกัส dropdown
+  const hintBox = document.getElementById('buHeadHint');
+  if (hintBox) hintBox.classList.remove('hidden');
+  nameSel.focus({preventScroll:true});
+  document.getElementById('buHeadCard')?.scrollIntoView({ behavior:'smooth', block:'center' });
 
-  nameSel.onchange = ()=>{
-    const i = Number(nameSel.value) || 0;
-    const cur = list[i] || {};
-    emailInp.value = cur.email || '—';
-    window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+  // เลือกแล้วค่อย map BU Admin
+  nameSel.onchange = async ()=>{
+  const i = Number(nameSel.value) || 0;
+  const cur = list[i] || {};
+  emailInp.value = cur.email || '—';
+  window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
 
-    // === ANCHOR: MAP_ADMIN_CHANGE ===
-    updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
-  };
+  const hintBox = document.getElementById('buHeadHint');
+  if (hintBox) hintBox.classList.add('hidden');
+
+  // ✅ โชว์ Pop-up โหลด BU Admin
+  showBULoading(true, 'กำลังโหลดข้อมูล BU Admin…');
+  try{
+    await updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+  }finally{
+    showBULoading(false);
+  }
+};
 }
 
-  try{
-    const hUrl = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(emp.id || '')}`;
-    const res  = await fetch(hUrl).then(r => r.json()).catch(()=>null);
-    const list = (res && res.success && res.data && Array.isArray(res.data.headList)) ? res.data.headList : [];
+try{
+  showBULoading(true);  // ⬅️ เริ่มหมุน “กำลังโหลดข้อมูล BU...”
 
-    if (list.length > 1)       showHeadDropdown(list);
-    else if (list.length === 1)showHeadSingle(list[0].name, list[0].email);
-    else                       showHeadSingle('—', '—');
-  }catch(_){
+  const hUrl = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(emp.id || '')}`;
+  const res  = await fetch(hUrl).then(r => r.json()).catch(()=>null);
+  const list = (res && res.success && res.data && Array.isArray(res.data.headList)) ? res.data.headList : [];
+
+  if (list.length > 1){
+    showHeadDropdown(list);
+
+    // ⬅️ โฟกัสและเลื่อนให้เห็น dropdown ชัดๆ
+    const nameSel = document.getElementById('s_head_name_sel');
+    const hintBox = document.getElementById('buHeadHint');
+    if (hintBox) hintBox.classList.remove('hidden');
+    if (nameSel){
+      nameSel.focus({preventScroll:true});
+      document.getElementById('buHeadCard')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  }else if (list.length === 1){
+    showHeadSingle(list[0].name, list[0].email);
+  }else{
     showHeadSingle('—', '—');
   }
+}catch(_){
+  showHeadSingle('—', '—');
+}finally{
+  showBULoading(false); // ⬅️ ปิดโหลดเดอร์ไม่ว่าผลจะเป็นอย่างไร
+}
+
 
   // 5) ตารางรายการจาก CART
   const wrap = document.getElementById('sumItems');
@@ -3429,13 +3532,25 @@ async function submitRequest(){
 
   try {
     if (!CURRENT_EMP) {
+      showSubmittingModal(false);
       alert('กรุณายืนยันตัวตนก่อน');
       showPage('verify');
-      return;
+      IS_SUBMITTING = false; return;
     }
     if (!CART || CART.length === 0) {
+      showSubmittingModal(false);
       alert('ยังไม่มีรายการในตะกร้า');
-      return;
+      IS_SUBMITTING = false; return;
+    }
+
+    // ❗ บังคับเลือก BU Head เมื่อเป็นโหมด dropdown
+    const headSel = document.getElementById('s_head_name_sel');
+    if (headSel && !headSel.classList.contains('hidden') && headSel.value === '') {
+      showSubmittingModal(false);
+      alert('กรุณาเลือก BU Head ที่ท่านสังกัด');
+      headSel.focus({preventScroll:true});
+      document.getElementById('buHeadCard')?.scrollIntoView({ behavior:'smooth', block:'center' });
+      IS_SUBMITTING = false; return;
     }
 
     // เตรียม payload flat แบบเดิม
