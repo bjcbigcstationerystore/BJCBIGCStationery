@@ -3124,16 +3124,18 @@ function goHomeFromBlocked(){
   updateCartUI();
 });
 
-function showBULoading(show = true, text = 'กำลังโหลดข้อมูล BU…'){
+function showBULoading(show = true, text){
   const m = document.getElementById('buLoadingModal');
   if(!m) return;
 
-  // ปรับข้อความบน modal นี้
-  const span = m.querySelector('span');
-  if(span) span.textContent = text;
+  // อัปเดตข้อความเฉพาะเมื่อมี text ใหม่ส่งเข้ามา
+  if (typeof text === 'string') {
+    const span = m.querySelector('span');
+    if (span) span.textContent = text;
+  }
 
   if(show){
-    closeAllModals();          // ✅ กันซ้อน
+    closeAllModals();          // กันซ้อน
     m.classList.remove('hidden');
     m.classList.add('flex');
   }else{
@@ -3295,23 +3297,30 @@ function getCurrentAdminFromUI(){
 
   return { name: adminName || '—', email: adminEmail || '—' };
 }
+    
+function proceedCart(){
+  closeCart();
+  closeAllModals?.();
+  goToSummary();
+}
 
-// ===== เวอร์ชันใหม่: เข้าหน้าสรุปทันที แล้วค่อยโหลด BU =====
-async function goToSummary(){
+function goToSummary(){
   // กันไม่ให้ modal อื่นค้าง
   closeAllModals?.();
-
-  // เข้า "หน้าสรุปรายการเบิก" ก่อนเลย (ไม่ใช้ summary overlay)
+  // เข้าหน้าสรุป — ให้ showPage เป็นคนเรียก renderSummary() เอง (ครั้งเดียว)
   showPage('summary');
-
-  try{
-    await renderSummary();     // ภายในจะโชว์ Pop-up โหลด BU เอง
-  }catch(err){
-    console.error('Summary failed:', err);
-    alert('เกิดข้อผิดพลาดขณะโหลดสรุปรายการเบิก');
-    showPage('products');
+}
+    async function renderSummary(){
+  if (window.__renderingSummary) return;      // ✅ กันซ้ำ
+  window.__renderingSummary = true;
+  try {
+    // ... (โค้ดเดิมใน renderSummary ทั้งหมด)
+  } finally {
+    window.__renderingSummary = false;
   }
 }
+
+
     
     async function fillEmployeeBlock(){
   // ใช้ตัวแปรที่คุณโหลดมาแล้ว เช่น current employee object
@@ -3371,68 +3380,90 @@ async function renderSummary(){
   (document.getElementById('s_bu_email') || {}).textContent  = '—';
   window.CURRENT_ADMIN_CONTACT = { name:'—', email:'—' };
 
-  // 4) BU HEAD — ดึงจาก API: action=getbuhead
-  const nameDiv  = document.getElementById('s_head_name');      // แสดงชื่อแบบข้อความ
-  const emailDiv = document.getElementById('s_head_email');     // แสดงอีเมลแบบข้อความ
-  const nameSel  = document.getElementById('s_head_name_sel');  // dropdown
-  const emailInp = document.getElementById('s_head_email_inp'); // input แสดง email
+ const nameDiv  = document.getElementById('s_head_name');      // โหมดข้อความ: ชื่อ
+  const emailDiv = document.getElementById('s_head_email');     // โหมดข้อความ: อีเมล
+  const nameSel  = document.getElementById('s_head_name_sel');  // โหมดเลือก: dropdown ชื่อ
+  const emailInp = document.getElementById('s_head_email_inp'); // โหมดเลือก: input อีเมล
 
-  // ปิด/เปิด helper
-  function showHeadSingle(name, email){
-  if (nameSel)  nameSel.classList.add('hidden');
-  if (emailInp) emailInp.classList.add('hidden');
-  if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
-  if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email || '—'; }
-  window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
-
-  // === ANCHOR: MAP_ADMIN_SINGLE ===
-  updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
-}
-  function showHeadDropdown(list){
-  if (!nameSel || !emailInp){ showHeadSingle(list[0]?.name, list[0]?.email); return; }
-  if (nameDiv)  nameDiv.classList.add('hidden');
-  if (emailDiv) emailDiv.classList.add('hidden');
-  nameSel.classList.remove('hidden');
-  emailInp.classList.remove('hidden');
-
-  // ใส่ placeholder และยัง "ไม่เลือก" อะไร
-  nameSel.innerHTML =
-    `<option value="">— กรุณาเลือก BU Head —</option>` +
-    list.map((x,i)=>`<option value="${i+1}">${
-      (x?.name||'—').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    }</option>`).join('');
-  nameSel.value = '';
-  emailInp.value = '—';
-  window.CURRENT_BU_HEAD = { name:'—', email:'—' };
-
-  // โชว์ hint + โฟกัส dropdown
-  const hintBox = document.getElementById('buHeadHint');
-  if (hintBox) hintBox.classList.remove('hidden');
-  nameSel.focus({preventScroll:true});
-  document.getElementById('buHeadCard')?.scrollIntoView({ behavior:'smooth', block:'center' });
-
-  // เลือกแล้วค่อย map BU Admin
-  nameSel.onchange = async ()=>{
-  const i = Number(nameSel.value) || 0;
-  const cur = list[i] || {};
-  emailInp.value = cur.email || '—';
-  window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
-
-  const hintBox = document.getElementById('buHeadHint');
-  if (hintBox) hintBox.classList.add('hidden');
-
-  // ✅ โชว์ Pop-up โหลด BU Admin
-  showBULoading(true, 'กำลังโหลดข้อมูล BU Admin…');
-  try{
-    await updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
-  }finally{
-    showBULoading(false);
+  // ✅ ซ่อนทุกอย่างไว้ก่อนกันซ้อนระหว่างโหลด
+  [nameDiv, emailDiv, nameSel, emailInp].forEach(el => el && el.classList.add('hidden'));
+  // เคลียร์ค่า placeholder ให้เรียบร้อย
+  if (nameDiv)  nameDiv.textContent  = '—';
+  if (emailDiv) emailDiv.textContent = '—';
+  if (emailInp) emailInp.value       = '—';
+  if (nameSel) {
+    nameSel.innerHTML = '<option value="">— กำลังโหลด… —</option>';
+    nameSel.value = '';
   }
-};
-}
 
-try{
-  showBULoading(true);  // ⬅️ เริ่มหมุน “กำลังโหลดข้อมูล BU...”
+  function showHeadSingle(name, email){
+    // ปิด modal/overlay อื่น ๆ ก่อน
+    closeAllModals?.();
+
+    // ซ่อนโหมดเลือก
+    if (nameSel)  nameSel.classList.add('hidden');
+    if (emailInp) emailInp.classList.add('hidden');
+
+    // แสดงโหมดข้อความเดี่ยว
+    if (nameDiv)  { nameDiv.classList.remove('hidden');  nameDiv.textContent  = name  || '—'; }
+    if (emailDiv) { emailDiv.classList.remove('hidden'); emailDiv.textContent = email || '—'; }
+
+    const hintBox = document.getElementById('buHeadHint');
+    if (hintBox) hintBox.classList.add('hidden');
+
+    window.CURRENT_BU_HEAD = { name: name || '—', email: email || '—' };
+
+    setBULoadingText('กำลังโหลดข้อมูล BU Admin…');
+    showBULoading(true);
+    updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email)
+      .finally(()=> showBULoading(false));
+  }
+
+  function showHeadDropdown(list){
+    // แสดงเฉพาะโหมดเลือก
+    if (nameDiv)  nameDiv.classList.add('hidden');
+    if (emailDiv) emailDiv.classList.add('hidden');
+    if (nameSel)  nameSel.classList.remove('hidden');
+    if (emailInp) emailInp.classList.remove('hidden');
+
+    if (!nameSel || !emailInp){ showHeadSingle(list[0]?.name, list[0]?.email); return; }
+
+    nameSel.innerHTML =
+      `<option value="">— กรุณาเลือก BU Head —</option>` +
+      list.map((x,i)=>`<option value="${i}">${
+        (x?.name||'—').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      }</option>`).join('');
+    nameSel.value = '';
+    emailInp.value = '—';
+    window.CURRENT_BU_HEAD = { name:'—', email:'—' };
+
+    nameSel.onchange = async ()=>{
+      const v = nameSel.value;
+      const idx = (v === '' ? -1 : Number(v));
+      if (!Number.isInteger(idx) || idx < 0 || !list[idx]) {
+        emailInp.value = '—';
+        window.CURRENT_BU_HEAD = { name:'—', email:'—' };
+        return;
+      }
+      const cur = list[idx];
+      emailInp.value = cur.email || '—';
+      window.CURRENT_BU_HEAD = { name: cur.name || '—', email: cur.email || '—' };
+
+      const hintBox = document.getElementById('buHeadHint');
+      if (hintBox) hintBox.classList.add('hidden');
+
+      setBULoadingText('กำลังโหลดข้อมูล BU Admin…');
+      showBULoading(true);
+      try{
+        await updateAdminBySelectedHead(window.CURRENT_BU_HEAD.name, window.CURRENT_BU_HEAD.email);
+      }finally{
+        showBULoading(false);
+      }
+    };
+  }
+
+  try{
+    showBULoading(true);  // ⬅️ เริ่มหมุน “กำลังโหลดข้อมูล BU...”
 
   const hUrl = `${API_BASE}?action=getbuhead&employeeId=${encodeURIComponent(emp.id || '')}`;
   const res  = await fetch(hUrl).then(r => r.json()).catch(()=>null);
