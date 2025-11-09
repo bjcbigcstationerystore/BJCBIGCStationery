@@ -2727,7 +2727,7 @@ function showLoadingProductsModal(show = true){
   return (ok && json && json.success && json.data) ? json.data : null;
 }
     
-    // ===== NEW: อ่านงบจากคอลัมน์ M ของ Emp HO =====
+// ===== NEW: อ่านงบจากคอลัมน์ M ของ Emp HO (robust keys/format) =====
 async function getBudgetM(employeeId){
   try{
     const url = `${API_BASE}?action=getbudgetm&employeeId=${encodeURIComponent(employeeId)}`;
@@ -2736,10 +2736,33 @@ async function getBudgetM(employeeId){
       console.warn('getBudgetM response not ok:', { ok, json, text });
       return null;
     }
-    // รองรับทั้ง data.budgetM หรือ budgetM ตรงๆ
+
     const data = json.data ?? json;
-    const m = data?.budgetM;
-    return (m == null ? null : Number(m));
+
+    // รองรับหลายคีย์ที่พบบ่อยจาก backend ต่างเวอร์ชัน
+    let raw = (
+      data?.budgetM ??
+      data?.BudgetM ??
+      data?.M ??
+      data?.budget ??
+      data?.value ??
+      data?.amount ??
+      null
+    );
+
+    // บางที backend อาจส่งเป็น string เช่น "300", "300 บาท", "฿300.00"
+    if (raw != null) {
+      const num = Number(String(raw).replace(/[^\d\.\-]/g, ''));
+      if (Number.isFinite(num)) return num;
+    }
+
+    // ลองสำรอง: ถ้ามีข้อความอธิบายรวมตัวเลข เช่น message:"M=300"
+    if (typeof data?.message === 'string') {
+      const m = Number((data.message.match(/[-+]?\d+(\.\d+)?/)||[])[0]);
+      if (Number.isFinite(m)) return m;
+    }
+
+    return null;
   }catch(e){
     console.warn('getBudgetM failed', e);
     return null;
@@ -2982,13 +3005,25 @@ async function verifyEmployee(){
     };
     CURRENT_EMP_ID = CURRENT_EMP.id;
 
-    // 2) ตรวจงบคอลัมน์ M
-    const m = await getBudgetM(CURRENT_EMP_ID);
-    if (m == null || Number.isNaN(Number(m))){
-      showMsg('ไม่พบค่างบ (คอลัมน์ M) ของพนักงานนี้ กรุณาตรวจสอบข้อมูล Emp HO', 'error');
-      return;
-    }
-    CURRENT_BUDGET_M = Number(m);
+    // 2) ตรวจงบคอลัมน์ M (ลองสองรูปแบบ id)
+let m = await getBudgetM(CURRENT_EMP?.id || '');
+if (m == null) {
+  // fallback: ลองใช้รหัสที่ผู้ใช้กรอกตรง ๆ เผื่อ backend ต้องการรูปแบบนี้
+  const rawInputForAPI = (document.getElementById('employeeId')?.value || '').trim();
+  if (rawInputForAPI) {
+    console.warn('[BudgetM] primary id not found, try raw input:', rawInputForAPI);
+    m = await getBudgetM(rawInputForAPI);
+  }
+}
+
+// log ค่าไว้เช็คใน console
+console.log('[BudgetM] parsed value:', m);
+
+if (m == null || Number.isNaN(Number(m))){
+  showMsg('ไม่พบค่างบ (คอลัมน์ M) ของพนักงานนี้ กรุณาตรวจสอบข้อมูล Emp HO', 'error');
+  return;
+}
+CURRENT_BUDGET_M = Number(m);
 
     // 3) ตัดสินทางเข้า / บล็อค
     if (CURRENT_BUDGET_M < 300){
