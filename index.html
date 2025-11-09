@@ -3645,12 +3645,11 @@ const row = {
     });
 
     // ✅ เปลี่ยนมาใช้ GET: action=submitrequestflat&row=<json>
-    const url = `${API_BASE}?action=submitrequest`;
+const url = `${API_BASE}?action=submitrequestflat&row=${encodeURIComponent(JSON.stringify(row))}`;
+
 const res = await fetch(url, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  cache: 'no-store',
-  body: JSON.stringify({ row })
+  method: 'GET',
+  cache: 'no-store'
 });
     
     const text = await res.text();
