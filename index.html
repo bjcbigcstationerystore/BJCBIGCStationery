@@ -2074,7 +2074,7 @@ label[for="s_bu_email"] {
     <!-- BU Head Name -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
-      <div id="s_head_name" class="form-value input-box text-base font-normal text-slate-800">—</div>
+      <div id="s_head_name" class="form-value input-box text-base font-normal text-slate-800 hidden">—</div>
 
       <div class="relative">
         <select
@@ -2093,7 +2093,7 @@ label[for="s_bu_email"] {
     <!-- BU Head Email -->
     <div class="form-field">
       <label class="form-label">BU Head Email</label>
-      <div id="s_head_email" class="form-value input-box text-base font-normal text-slate-800">—</div>
+      <div id="s_head_email" class="form-value input-box text-base font-normal text-slate-800 hidden">—</div>
       <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
@@ -3310,16 +3310,6 @@ function goToSummary(){
   // เข้าหน้าสรุป — ให้ showPage เป็นคนเรียก renderSummary() เอง (ครั้งเดียว)
   showPage('summary');
 }
-    async function renderSummary(){
-  if (window.__renderingSummary) return;      // ✅ กันซ้ำ
-  window.__renderingSummary = true;
-  try {
-    // ... (โค้ดเดิมใน renderSummary ทั้งหมด)
-  } finally {
-    window.__renderingSummary = false;
-  }
-}
-
 
     
     async function fillEmployeeBlock(){
@@ -3385,16 +3375,15 @@ async function renderSummary(){
   const nameSel  = document.getElementById('s_head_name_sel');  // โหมดเลือก: dropdown ชื่อ
   const emailInp = document.getElementById('s_head_email_inp'); // โหมดเลือก: input อีเมล
 
-  // ✅ ซ่อนทุกอย่างไว้ก่อนกันซ้อนระหว่างโหลด
-  [nameDiv, emailDiv, nameSel, emailInp].forEach(el => el && el.classList.add('hidden'));
-  // เคลียร์ค่า placeholder ให้เรียบร้อย
-  if (nameDiv)  nameDiv.textContent  = '—';
-  if (emailDiv) emailDiv.textContent = '—';
-  if (emailInp) emailInp.value       = '—';
-  if (nameSel) {
-    nameSel.innerHTML = '<option value="">— กำลังโหลด… —</option>';
-    nameSel.value = '';
-  }
+  // รีเซ็ตโหมดทุกกล่องให้ซ่อนก่อน (กันเห็นซ้อน)
+[nameDiv, emailDiv, nameSel, emailInp].forEach(el => {
+  if (!el) return;
+  el.classList.add('hidden');
+  if (el.tagName === 'SELECT') el.innerHTML = '<option value="">— กำลังโหลด… —</option>';
+  if (el.tagName === 'INPUT')  el.value = '—';
+  if (el === nameDiv || el === emailDiv) el.textContent = '—';
+});
+
 
   function showHeadSingle(name, email){
     // ปิด modal/overlay อื่น ๆ ก่อน
