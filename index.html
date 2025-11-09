@@ -1581,17 +1581,10 @@ body.summary .info-card.bu-admin .form-grid{
   border-radius: 0.5rem;
   background: #fff;
 }
-    /* ===== BU Head ===== */
-.info-card.bu-head {
-  margin-top: 1.5rem; /* ระยะห่างจาก BU Admin */
-}
+    
 
-/* ให้สองกล่องอยู่แนวนอนเหมือน Employee Info */
-.info-card.bu-head .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 กล่องแนวนอน */
-  gap: 1rem;
-}
+.info-card.bu-head {
+  margin-top: 0; }
 
 /* ปรับขนาดฟอนต์และสไตล์ให้เหมือนเดิม */
 .info-card.bu-head .form-label {
@@ -1608,11 +1601,6 @@ body.summary .info-card.bu-admin .form-grid{
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 0.65rem 0.9rem;
-}
-
-    /* ===== BU Head กล่องใหญ่ แบ่งซ้ายขวา ===== */
-.info-card.bu-head {
-  margin-top: 1.5rem; /* เว้นจาก BU Admin */
 }
 
 /* แบ่งภายในกล่องเป็น 2 คอลัมน์ (ซ้าย/ขวา) */
@@ -1642,12 +1630,6 @@ body.summary .info-card.bu-admin .form-grid{
   width: 100%;
 }
 
-/* สำหรับจอมือถือให้ซ้อนลงมา */
-@media (max-width: 768px) {
-  .info-card.bu-head .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
     /* ให้ <select> และ <input> ดูเหมือน .form-value */
 #s_head_name_sel,
 #s_head_email_inp{
@@ -1728,6 +1710,134 @@ label[for="s_bu_email"] {
 #s_head_email,
 #s_head_email_inp {
   font-weight: 400 !important;
+}
+/* ให้ทุกกล่องค่ามีความสูงพื้นฐานเท่ากัน */
+#summaryContent .form-value,
+#summaryContent .input-box {
+  min-height: 2.5rem; /* หรือ 40px ตามชอบ */
+}
+/* BU Head = แนวตั้งเหมือน BU Admin */
+.info-card.bu-head .form-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* กล่องภายใน */
+.info-card.bu-head .input-box,
+.info-card.bu-head .form-value {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #111827;
+}
+/* === Equal height for 3 cards === */
+.grid.auto-rows-fr > .info-card,
+.info-card.h-full{
+  height: 100% !important;
+}
+.info-card{
+  display: flex;
+  flex-direction: column;
+}
+.info-card .section-divider{
+  margin-bottom: 12px;
+}
+.info-card .form-vertical,
+.info-card .form-grid{
+  flex: 1 1 auto;                /* ดันเนื้อหาให้กินที่เท่ากัน */
+  display: grid;
+  align-content: start;          /* เริ่มชิดบนเหมือนกัน */
+  gap: 12px;
+}
+
+/* === Uniform field box height (div.form-value / input / select เท่ากัน) === */
+:root{
+  --field-min-h: 44px;           /* ปรับได้ตามใจ: 40–48px */
+}
+.form-value,
+.input-box,
+#summaryContent select.form-value,
+#summaryContent input.form-value{
+  min-height: var(--field-min-h) !important;
+  display: flex !important;
+  align-items: center !important; /* จัดแนวตัวหนังสือกลางกล่อง */
+  box-sizing: border-box !important;
+  padding: 0.65rem 0.9rem !important;
+}
+
+/* ให้กรอบ BU Admin / BU Head / Employee ดูเท่ากันหมด */
+#buAdminCard .form-value,
+#buHeadCard  .form-value,
+#summaryContent .info-card .form-value{
+  font-weight: 400 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+}
+
+/* กันเคสมีบางกล่อง “ยืด” เพราะคำยาว */
+#summaryContent .form-value{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;           /* ถ้าต้องการตัดบรรทัด ให้ลบบรรทัดนี้ */
+}
+/* === BU Head dropdown = same size as info boxes === */
+/* ยกความสูงมาตรฐานขึ้นเป็น 48px ให้เท่ากันทั้ง div/input/select */
+:root{ --field-min-h: 48px; }
+
+.form-value,
+.input-box,
+#summaryContent select.form-value,
+#summaryContent input.form-value{
+  min-height: var(--field-min-h) !important;
+  height: var(--field-min-h) !important;      /* บังคับให้เสมอกันจริง ๆ */
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  line-height: 1.45 !important;
+}
+
+
+#s_head_name_sel{
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--field-min-h) !important;
+  min-height: var(--field-min-h) !important;
+  /* padding ซ้ายขวาให้พอดี + เผื่อที่ให้ไอคอนลูกศร */
+  padding: 0.65rem 3.25rem 0.65rem 0.9rem !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  font-size: 1rem !important;
+  line-height: 1.45 !important;       /* ให้ความสูงภายในเท่ากล่องข้อความ */
+  box-sizing: border-box !important;
+}
+
+/* โฟกัสเหมือนกล่อง input อื่น ๆ */
+#s_head_name_sel:focus{
+  outline: none;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.18);
+}
+
+/* จัดตำแหน่งไอคอนลูกศรให้สัมพันธ์กับความสูงใหม่ */
+#buHeadCard .select-chevron{
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+/* ให้ dropdown แสดงข้อความเต็มบรรทัดเดียวโดยไม่ถูก ellipsis บังคับ */
+#summaryContent select.form-value{
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important; /* <select> ห่อบรรทัดไม่ได้อยู่ดี แต่จะไม่โดน … */
 }
 
 
@@ -1871,14 +1981,13 @@ label[for="s_bu_email"] {
       <div class="panel">
           <div class="panel-body">
 
- <!-- ผู้เบิก + BU Admin (จัดวางข้างกันบนเดสก์ท็อป / ซ้อนบนมือถือ) -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+ <!-- ผู้เบิก + BU Admin + BU Head (3 กล่องเรียงกันบนเดสก์ท็อป) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch auto-rows-fr">
   <!-- ผู้เบิก -->
-  <section class="info-card">
+  <section class="info-card h-full lg:order-1">
     <h4 class="section-title">🧑‍💼 ข้อมูลผู้เบิก / Employee Information</h4>
     <div class="section-divider"></div>
 
-    <!-- แถวที่ 1: Company / Cost Center -->
     <div class="form-grid mb-3">
       <div class="form-field">
         <label class="form-label">Company</label>
@@ -1890,7 +1999,6 @@ label[for="s_bu_email"] {
       </div>
     </div>
 
-    <!-- แถวที่ 2: Employee ID / Full Name -->
     <div class="form-grid">
       <div class="form-field">
         <label class="form-label">Employee ID</label>
@@ -1903,67 +2011,59 @@ label[for="s_bu_email"] {
     </div>
   </section>
 
-  <!-- BU Admin (ฟิลด์เรียงทีละบรรทัด) -->
-<div class="info-card bu-admin" id="buAdminCard">
+  <!-- BU Admin -->
+  <section class="info-card bu-admin h-full lg:order-3" id="buAdminCard">
   <h4 class="section-title">🏢 ข้อมูล BU Admin</h4>
   <div class="section-divider"></div>
 
   <div class="form-vertical">
-    <!-- Name: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Name</label>
       <div id="s_bu_name" class="form-value input-box">—</div>
-      <select id="s_bu_name_sel" class="form-value input-box hidden" aria-label="เลือก BU Admin">
-        <option value="">— เลือก BU Admin —</option>
-      </select>
     </div>
 
-    <!-- Email: โหมดเดียว/หลายคน -->
     <div class="form-field">
       <label class="form-label">BU Admin Email</label>
       <div id="s_bu_email" class="form-value input-box">—</div>
-      <input id="s_bu_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
-</div>
-  
-<!-- BU Head (ฟิลด์ซ้าย-ขวา สลับตำแหน่งกัน) -->
-<section id="buHeadCard" class="info-card bu-head">
+</section>
+
+  <!-- BU Head -->
+  <section id="buHeadCard" class="info-card bu-head h-full order-2 lg:order-2">
   <h4 class="section-title">👔 ข้อมูล BU Head</h4>
   <div class="section-divider"></div>
 
-  <!-- จัดแนวตั้งเหมือน BU Admin: Name ก่อน, Email ด้านล่าง -->
-  <div class="form-grid">
+  <!-- ✅ เปลี่ยนเป็นแนวตั้งเหมือน BU Admin -->
+  <div class="form-vertical">
     <!-- BU Head Name -->
     <div class="form-field">
       <label class="form-label">BU Head Name</label>
-      
       <div id="s_head_name" class="form-value input-box text-base font-normal text-slate-800">—</div>
-      
-       <div class="relative">
-    <select
-  id="s_head_name_sel"
-  class="form-value input-box w-full pr-12 appearance-none font-normal hidden"
-  aria-label="เลือก BU Head"
->
-      <option value="">— เลือก BU Head —</option>
-    </select>
 
-    <!-- ไอคอนลูกศร (ซ่อนอัตโนมัติเมื่อ select มี .hidden) -->
-    <svg class="select-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div>
-</div>
+      <div class="relative">
+        <select
+          id="s_head_name_sel"
+          class="form-value input-box w-full pr-12 appearance-none font-normal hidden"
+          aria-label="เลือก BU Head"
+        >
+          <option value="">— เลือก BU Head —</option>
+        </select>
+        <svg class="select-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
 
     <!-- BU Head Email -->
     <div class="form-field">
       <label class="form-label">BU Head Email</label>
-      <div id="s_head_email" class="form-value input-box text-base font-medium text-slate-800">—</div>
+      <div id="s_head_email" class="form-value input-box text-base font-normal text-slate-800">—</div>
       <input id="s_head_email_inp" type="email" class="form-value input-box hidden" readonly />
     </div>
   </div>
 </section>
+</div>
             
             <!-- รายการ -->
             <div class="mb-6">
