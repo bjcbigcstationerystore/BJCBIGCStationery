@@ -163,6 +163,14 @@ body.category .panel-body{  padding:8px 12px !important; }
     .modal{background:#fff;border-radius:18px;max-width:520px;width:92%;padding:22px 22px 20px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
     .qty-btn{width:38px;height:38px;border-radius:9999px;border:1px solid #e5e7eb;background:#fff;font-weight:800}
     .price-green{color:#059669;font-weight:800}
+    
+    /* ✅ ขยายเฉพาะกล่อง Request & Approval Timeline ให้กว้างแบบรูปที่ 2 */
+#timelineModal .modal{
+  max-width: 960px;                    /* กล่องกว้างขึ้น */
+  width: min(960px, 92vw);             /* เต็มจอแต่ไม่ล้น */
+  padding: 32px 40px 28px;             /* เว้นระยะขอบในเยอะขึ้นแบบรูป */
+}
+
 
     /* ===== Cart floating button + badge ===== */
     .cart-btn{
@@ -1867,6 +1875,53 @@ label[for="s_bu_email"] {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ==== Timeline rows ==== */
+.timeline-rows{
+  margin-top: 4px;
+}
+
+.timeline-row{
+  display: flex;
+  align-items: flex-start;
+  column-gap: 12px;
+}
+
+/* คอลัมน์จุดสี ให้กว้างเท่ากันทุกแถว */
+.timeline-dot-wrap{
+  flex: 0 0 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ปรับขนาดจุดสีใน Timeline Modal ให้เล็กลงแบบรูปที่ 1 ===== */
+#timelineModal .dot-wrap,
+#timelineModal .relative {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+}
+
+#timelineModal .dot-outer,
+#timelineModal .absolute.w-8 {
+  width: 18px !important;
+  height: 18px !important;
+  background: inherit;
+}
+
+#timelineModal .dot-inner,
+#timelineModal .absolute.w-4 {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+/* ให้ระยะ icon กับข้อความตรงกัน */
+#timelineModal .flex.items-start.gap-3 {
+  gap: 10px !important;
+  align-items: center !important;
+}
+
 
 
     
@@ -1921,8 +1976,21 @@ label[for="s_bu_email"] {
     <div id="message" aria-live="polite" class="hidden mt-4 p-4 rounded-lg text-center"></div>
 
     <button id="verifyBtn" type="button" class="verify-button" onclick="verifyEmployee()">ยืนยันตัวตน</button>
-  </div>
-</div>
+    
+   <!-- ปุ่ม Request & Approval Timeline (แบบ text link) -->
+<button
+  type="button"
+  class="mt-6 inline-flex items-center gap-2 text-slate-800 font-semibold focus:outline-none focus:ring-0 cursor-pointer"
+  onclick="openTimelineModal()"
+>
+  <!-- อิโมจิ 🕒 ไม่ถูกขีดเส้น -->
+  <span class="text-lg select-none">🕒</span>
+
+  <!-- ขีดเส้นเฉพาะข้อความตอน hover -->
+  <span class="whitespace-nowrap hover:underline">
+    Request &amp; Approval Timeline
+  </span>
+</button>
       
       <!-- ============ Categories ============ -->
       <div id="categoryContent" class="hidden text-left">
@@ -2292,6 +2360,89 @@ label[for="s_bu_email"] {
       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
     </svg>
     <span class="text-gray-800 font-medium">กำลังโหลดข้อมูล BU…</span>
+  </div>
+</div>
+    
+<!-- Request & Approval Timeline Modal -->
+<div id="timelineModal" class="modal-mask" onclick="closeTimelineModal()">
+  <div class="modal max-w-[720px] w-full" onclick="event.stopPropagation();">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🕒</span>
+        <h2 class="text-xl font-bold text-slate-900 whitespace-nowrap">
+          Request &amp; Approval Timeline
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        class="ml-3 text-slate-400 hover:text-slate-600"
+        onclick="closeTimelineModal()"
+      >
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none">
+          <path d="M6 6l12 12M18 6l-12 12"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="mt-1 space-y-4 text-[15px] text-slate-800">
+
+      <!-- LINE 1 -->
+      <div class="flex items-start gap-3 whitespace-nowrap">
+        <span class="relative flex items-center justify-center w-8 h-8">
+          <span class="absolute w-8 h-8 rounded-full"
+                style="background:#d4f7e8;"></span>
+          <span class="absolute w-4 h-4 rounded-full"
+                style="background:#059669;"></span>
+        </span>
+        <p class="whitespace-nowrap">
+          พนักงานสามารถยื่นคำขอเบิกอุปกรณ์ได้ระหว่างวันที่ 1–10 ของทุกเดือน
+        </p>
+      </div>
+
+      <!-- LINE 2 -->
+      <div class="flex items-start gap-3 whitespace-nowrap">
+        <span class="relative flex items-center justify-center w-8 h-8">
+          <span class="absolute w-8 h-8 rounded-full"
+                style="background:#dff1ff;"></span>
+          <span class="absolute w-4 h-4 rounded-full"
+                style="background:#0284c7;"></span>
+        </span>
+        <p class="whitespace-nowrap">
+          รายการที่ได้รับการอนุมัติภายในวันที่ 15 จะถูกจัดเตรียมและส่งมอบภายในช่วงสิ้นเดือน
+        </p>
+      </div>
+
+      <!-- LINE 3 -->
+      <div class="flex items-start gap-3 whitespace-nowrap">
+        <span class="relative flex items-center justify-center w-8 h-8">
+          <span class="absolute w-8 h-8 rounded-full"
+                style="background:#fef2c0;"></span>
+          <span class="absolute w-4 h-4 rounded-full"
+                style="background:#d97706;"></span>
+        </span>
+        <p class="whitespace-nowrap">
+          หากรายการได้รับการอนุมัติหลังวันที่ 15 จะถูกเลื่อนไปจัดส่งในรอบเดือนถัดไป
+        </p>
+      </div>
+
+    </div>
+
+    <!-- CLOSE BUTTON -->
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold"
+        onclick="closeTimelineModal()"
+      >
+        ปิด
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2943,6 +3094,27 @@ function showLoadingProductsModal(show = true){
   addToCart(modalItem, qty);
   closeItemModal();
 }
+    
+    function confirmAdd(){
+  let qty = normalizeQty(mQty.value);
+  if (!Number.isFinite(qty) || qty <= 0) qty = 1;
+  addToCart(modalItem, qty);
+  closeItemModal();
+}
+
+/* ===== Timeline Modal (Request & Approval) ===== */
+function openTimelineModal(){
+  const el = document.getElementById('timelineModal');
+  if (!el) return;
+  el.style.display = 'flex';
+}
+
+function closeTimelineModal(){
+  const el = document.getElementById('timelineModal');
+  if (!el) return;
+  el.style.display = 'none';
+}
+
 
     /* ====== Employee ====== */
     async function getEmployeeData(rawId){
@@ -3197,6 +3369,7 @@ function setBULoadingText(t){
     'loadingProductsModal',
     'submittingModal',
     'buLoadingModal',
+    'timelineModal',
     'summaryLoadingOverlay'
   ];
   ids.forEach(id=>{
