@@ -1991,6 +1991,11 @@ label[for="s_bu_email"] {
     Request &amp; Approval Timeline
   </span>
 </button>
+    
+    <!-- ✅ ปิดกล่อง verify ให้จบตรงนี้ -->
+</div> <!-- .verify-box -->
+</div> <!-- #verifyContent -->
+      
       
       <!-- ============ Categories ============ -->
       <div id="categoryContent" class="hidden text-left">
@@ -3184,6 +3189,11 @@ function showPage(which){
     setTop?.();
     stage = 'blocked';
     renderBlocked?.();           // ให้เรียกเติมข้อมูล
+    
+    if (blocked) {
+  blocked.classList.remove('hidden');
+  blocked.style.display = 'block';  // กันถูกเล่น display:none จากที่อื่น
+}
 
   } else {
     // fallback
@@ -3198,17 +3208,42 @@ function showPage(which){
 }
     
 async function showBlockedByEmpId(empId){
-  const nameEl = document.getElementById('blkName');
-  const linkEl = document.getElementById('blkEmail');
-  const textEl = document.getElementById('blkEmailText');
+  // 1) ซ่อนทุกหน้าอื่นก่อน
+  hideAllPages();
 
-  // แสดงขีดตามนโยบายใหม่
-  const mail = '—';
-  nameEl && (nameEl.textContent = '—');
-  textEl && (textEl.textContent = `📧 Email BU Admin: ${mail}`);
-  if (linkEl) linkEl.href = '#';
+  // 2) เตรียมค่า BU Admin เบื้องต้น
+  const nameEl  = document.getElementById('blkName');
+  const linkEl  = document.getElementById('blkEmail');
+  const textEl  = document.getElementById('blkEmailText');
 
-  showPage('blocked');
+  const adminName  = (window.CURRENT_ADMIN_CONTACT?.name  || '—');
+  const adminEmail = (window.CURRENT_ADMIN_CONTACT?.email || '—');
+
+  if (nameEl)  nameEl.textContent  = adminName;
+  if (textEl)  textEl.textContent  = `📧 Email BU Admin: ${adminEmail}`;
+  if (linkEl)  linkEl.href         = adminEmail && adminEmail !== '—'
+    ? `mailto:${adminEmail}`
+    : '#';
+
+  // 3) แสดงเนื้อหาหน้า blocked
+  const blocked = document.getElementById('blockedContent');
+  if (blocked){
+    blocked.classList.remove('hidden');
+    blocked.style.display = 'block';   // กันเคส display:none ค้าง
+  }
+
+  // 4) เซ็ต class บน body สำหรับพื้นหลังไล่สี
+  document.body.className = '';                // ล้างของเดิมทั้งหมด
+  document.body.classList.add('not-home','blocked');
+
+  // 5) ตั้ง stage ปัจจุบัน และเรนเดอร์ข้อมูลเสริม (ถ้ามี)
+  stage = 'blocked';
+  if (typeof renderBlocked === 'function') {
+    renderBlocked();
+  }
+
+  // 6) เลื่อนขึ้นบนสุด
+  try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) {}
 }
     
 function goHomeFromBlocked(){
@@ -3388,14 +3423,21 @@ function setBULoadingText(t){
 async function verifyEmployee(){
   const inputEl  = document.getElementById('employeeId');
   const rawInput = (inputEl?.value || '').trim();
-  if (!rawInput) { showMsg('กรุณากรอกรหัสพนักงาน', 'error'); return; }
+  if (!rawInput) { 
+    showMsg('กรุณากรอกรหัสพนักงาน', 'error'); 
+    return; 
+  }
 
-  showCheckingModal(true);
-  showLoadingProductsModal(false);
+  showCheckingModal(true); showLoadingProductsModal(false);
+
   try{
     const emp = await getEmployeeData(rawInput);
-    if (!emp) { showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); return; }
+    if (!emp) { 
+      showMsg('ไม่พบรหัสพนักงานในระบบ กรุณาตรวจสอบอีกครั้ง', 'error'); 
+      return; 
+    }
 
+    // เก็บข้อมูลพนักงาน
     CURRENT_EMP = {
       id:         emp.employeeId || emp.id || rawInput,
       company:    normalizeCompanyName(emp.company || 'BJC'),
@@ -3404,7 +3446,20 @@ async function verifyEmployee(){
     };
     CURRENT_EMP_ID = CURRENT_EMP.id;
 
-    // ✅ ไปหน้า “หมวดหมู่” ได้เลย
+    // อ่านค่า Budget จากคอลัมน์ M (Emp HO! backend ส่งเป็น budgetM)
+    const rawBudgetM = emp.budgetM ?? emp.budget ?? emp.mBudget;
+    const budgetM = Number(String(rawBudgetM ?? '').replace(/,/g, '').trim()) || 0;
+
+    // 🔴 เงื่อนไขใหม่:
+    // ถ้า M < 300 → ไปหน้าบล็อกงบประมาณไม่เพียงพอ
+    if (budgetM < 300) {
+      // เก็บงบไว้ใช้โชว์บนหน้าบล็อกได้ถ้าต้องการ
+      window.CURRENT_BUDGET_M = budgetM;
+      showBlockedByEmpId(CURRENT_EMP.id);   // → เรียกไปหน้า blocked
+      return;
+    }
+
+    // ✅ ถ้า M >= 300 → ผ่าน และไปหน้าเลือกหมวดหมู่
     await preloadCategoriesFor(CURRENT_EMP.company);
     showPage('category');
 
@@ -3903,7 +3958,7 @@ function renderBlocked(){
   if (lEl && typeof window.CURRENT_BUDGET_L !== 'undefined'){
     lEl.textContent = String(window.CURRENT_BUDGET_L ?? '—');
   }
-}
+} 
 
     
     
