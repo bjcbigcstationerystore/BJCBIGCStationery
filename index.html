@@ -3455,9 +3455,9 @@ async function verifyEmployee(){
     if (budgetM < 300) {
       // เก็บงบไว้ใช้โชว์บนหน้าบล็อกได้ถ้าต้องการ
       window.CURRENT_BUDGET_M = budgetM;
-      showBlockedByEmpId(CURRENT_EMP.id);   // → เรียกไปหน้า blocked
-      return;
-    }
+      showPage('blocked');
+  return;
+}
 
     // ✅ ถ้า M >= 300 → ผ่าน และไปหน้าเลือกหมวดหมู่
     await preloadCategoriesFor(CURRENT_EMP.company);
@@ -3900,21 +3900,15 @@ const res = await fetch(url, {
     showSubmittingModal(false);
 
     // นำทางตาม nextPage (ค่าเป็น 'thankyou' หรือ 'blocked')
-    const next = String(json.nextPage || 'thankyou').toLowerCase();
-    if (next === 'blocked') {
-      await showBlockedByEmpId(CURRENT_EMP?.id);
-    } else {
-      showPage('thankyou');
-      renderThankYou();
-    }
+const next = String(json.nextPage || 'thankyou').toLowerCase();
 
-    // safety เผื่อไม่เปิดอะไรเลย
-    const thxHidden = document.getElementById('thankyouContent')?.classList.contains('hidden');
-    const blkHidden = document.getElementById('blockedContent')?.classList.contains('hidden');
-    if (thxHidden && blkHidden){
-      showPage('thankyou');
-      renderThankYou();
-    }
+// ใช้ตัวเดียวกับระบบเปลี่ยนหน้าอื่น ๆ
+if (next === 'blocked') {
+  showPage('blocked');
+} else {
+  showPage('thankyou');
+}
+
 
   } catch (err) {
     console.error(err);
@@ -3960,6 +3954,9 @@ function renderBlocked(){
   }
 } 
 
+    // ไว้กดทดสอบใน Console
+window.debugShowThankyou = () => showPage('thankyou');
+window.debugShowBlocked  = () => showPage('blocked');
     
     
   </script>
