@@ -732,9 +732,7 @@ body.thankyou .ty-total{ color:#10b981 !important; }
 .blk-title{ font-weight:800; font-size:2rem; color:#111827; margin-top:6px; }
 .blk-sub{ color:#6b7280; font-weight:600; margin-top:6px; }
 
-/* กล่องติดต่อ (ฟ้า-ม่วงอ่อน) */
 .blk-admin{
-  /* ↑ เพิ่มช่องว่างรอบกล่องและด้านใน */
   margin:24px auto 8px;
   background:linear-gradient(180deg,#f0f5ff 0%, #eef2ff 100%);
   border:1px solid #e6e9f2;
@@ -745,10 +743,56 @@ body.thankyou .ty-total{ color:#10b981 !important; }
 }
 .blk-admin-title{ color:#334155; font-weight:800; margin-bottom:6px; }
 .blk-admin-name{ color:#0f172a; font-weight:400; }
+    
 .blk-admin-email{
-  display:inline-flex; align-items:center; gap:6px;
-  margin-top:6px; color:#2563eb; font-weight:400; text-decoration:none;
+  margin-top:4px;
+  font-size:0.9rem;
+  font-weight:400;
+  color:#0f172a;          /* สีปกติ */
+  pointer-events:none;     /* ปิดการคลิก */
+  cursor:default;          /* เมาส์เป็นแบบปกติ */
+  text-decoration:none;
 }
+    /* รายการ BU Admin รวม */
+.blk-admin-list {
+  margin-top: 8px;
+}
+
+/* 1 คน = 1 บล็อก */
+.blk-admin-item {
+  padding: 8px 0;
+  border-top: 1px solid rgba(148,163,184,0.35); /* เส้นแบ่งบรรทัด */
+}
+
+/* คนแรกไม่ต้องมีเส้นบน */
+.blk-admin-item:first-child {
+  border-top: none;
+}
+
+/* ชื่อ BU Admin */
+.blk-admin-item .blk-admin-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* ลิงก์อีเมล BU Admin */
+.blk-admin-item .blk-admin-email {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.blk-admin-item .blk-admin-email:hover {
+  text-decoration: underline;
+}
+
+    
 /* ปุ่มม่วงไล่เฉด + ไอคอนบ้าน */
 .blk-btn{
   width:100%;
@@ -2178,13 +2222,14 @@ body.blocked .blk-btn:hover {
             </div>
 
             <!-- กล่องติดต่อ BU Admin -->
-            <div class="blk-admin">
-              <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
-              <div class="blk-admin-name">👨‍💼 <span id="blkName">—</span></div>
-              <a id="blkEmail" href="#" class="blk-admin-email" rel="nofollow noopener">
-                <span id="blkEmailText">📧 Email BU Admin: —</span>
-              </a>
-            </div>
+<div class="blk-admin">
+  <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
+
+  <!-- ตรงนี้เป็น container ที่ JS จะใส่รายชื่อ BU Admin ทุกคน -->
+  <div id="blkAdminList" class="blk-admin-list">
+    <!-- JS จะเติม <div class="blk-admin-item"> ... </div> ให้เอง -->
+  </div>
+</div>
 
             <!-- ปุ่มกลับหน้าหลัก -->
             <button class="blk-btn" onclick="goHomeFromBlocked()">
@@ -2848,6 +2893,7 @@ let CURRENT_BU_ADMIN = { names: [], emails: [] };
     /* ===== NEW: Budget & Admin from Emp HO (K, L, M) ===== */
 let CURRENT_BUDGET = null;  // ค่าคอลัมน์ K (null/0/ตัวเลข)
 let CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+let CURRENT_ADMIN_LIST = [];
     
     /* ===== BU Head (state) ===== */
 let CURRENT_BU_HEAD = { name: '—', email: '—' };
@@ -3703,6 +3749,22 @@ async function verifyEmployee(){
       costCenter: emp.costCenter || emp.cost || '-'
     };
     CURRENT_EMP_ID = CURRENT_EMP.id;
+    
+    // เก็บ BU Admin หลายคนจาก backend (Emp HO + User_BJC_BigC)
+CURRENT_ADMIN_LIST = Array.isArray(emp.buAdmins)
+  ? emp.buAdmins.filter(a => a && (a.name || a.email))
+  : [];
+
+// เผื่อฟังก์ชันเก่า ๆ ที่ยังใช้ CURRENT_ADMIN_CONTACT
+if (CURRENT_ADMIN_LIST.length > 0) {
+  window.CURRENT_ADMIN_CONTACT = {
+    name:  CURRENT_ADMIN_LIST[0].name  || '—',
+    email: CURRENT_ADMIN_LIST[0].email || '—'
+  };
+} else {
+  window.CURRENT_ADMIN_CONTACT = { name: '—', email: '—' };
+}
+
 
     // อ่านค่า Budget จากคอลัมน์ M (Emp HO! backend ส่งเป็น budgetM)
     const rawBudgetM = emp.budgetM ?? emp.budget ?? emp.mBudget;
@@ -3845,7 +3907,7 @@ async function fillSummaryItemsTable(){
 
 /* ===== เรนเดอร์หน้า Summary (แก้ให้สะอาด) ===== */
 async function renderSummary(){
-  // 1) วันที่/เวลา
+  // 1) วันที่/เวลา 
   const now = new Date();
   const d = String(now.getDate()).padStart(2, '0');
   const m = String(now.getMonth() + 1).padStart(2, '0');
@@ -4195,13 +4257,35 @@ if (next === 'blocked') {
 }
 
 function renderBlocked(){
-  // แสดง contact ของ BU Admin (หากคุณมีตัวแปร CURRENT_ADMIN_CONTACT)
-  const nameEl = document.getElementById('blkName');
-  const mailEl = document.getElementById('blkEmailText');
-  if (nameEl) nameEl.textContent = (window.CURRENT_ADMIN_CONTACT?.name || '—');
-  if (mailEl) mailEl.textContent = '📧 Email BU Admin: ' + (window.CURRENT_ADMIN_CONTACT?.email || '—');
+  // 1) แสดงรายชื่อ BU Admin หลายคน
+  const listEl = document.getElementById('blkAdminList');
+  if (listEl) {
+    const admins = (Array.isArray(CURRENT_ADMIN_LIST) && CURRENT_ADMIN_LIST.length)
+      ? CURRENT_ADMIN_LIST
+      : (CURRENT_ADMIN_CONTACT && CURRENT_ADMIN_CONTACT.name
+          ? [CURRENT_ADMIN_CONTACT]
+          : []);
 
-  // หากมีบรรทัดสรุปงบ เช่น K/L
+    if (!admins.length) {
+      listEl.innerHTML =
+        '<div class="blk-admin-item">ไม่พบข้อมูล BU Admin สำหรับหน่วยงานนี้</div>';
+    } else {
+      listEl.innerHTML = admins.map(a => {
+        const name  = (a.name  || '—').toString();
+        const email = (a.email || '—').toString();
+
+        return `
+          <div class="blk-admin-item">
+            <div class="blk-admin-name">📍 ${name}</div>
+            <div class="blk-admin-email">
+              📧 Email: ${email}
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2) ถ้ามี element แสดงงบ K/L ก็อัปเดตตามเดิม
   const kEl = document.getElementById('blkBudgetK');
   const lEl = document.getElementById('blkBudgetL');
   if (kEl && typeof window.CURRENT_BUDGET !== 'undefined'){
@@ -4210,11 +4294,7 @@ function renderBlocked(){
   if (lEl && typeof window.CURRENT_BUDGET_L !== 'undefined'){
     lEl.textContent = String(window.CURRENT_BUDGET_L ?? '—');
   }
-} 
-
-    // ไว้กดทดสอบใน Console
-window.debugShowThankyou = () => showPage('thankyou');
-window.debugShowBlocked  = () => showPage('blocked');
+}
     
     
   </script>
@@ -4224,7 +4304,7 @@ window.debugShowBlocked  = () => showPage('blocked');
     <div id="cartPanel" class="cart-panel" onclick="event.stopPropagation();">
       <div class="cart-header">
         <div style="font-size:1.3rem;font-weight:900;">ตะกร้าสินค้า</div>
-        <div style="opacity:.85;">รายการที่เลือก</div>
+        <div style="opacity:.85;">รายการที่เลือก</div> 
         <div class="icon">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
