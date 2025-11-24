@@ -2041,6 +2041,115 @@ body.blocked .blk-btn:hover {
   box-shadow: 0 18px 36px rgba(16, 185, 129, 0.34);
 }
 
+/* ===== งบประมาณไม่เพียงพอ (Blocked) ===== */
+
+.blk-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.blk-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px 24px 40px;
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.blk-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  box-shadow: 0 14px 28px rgba(248, 150, 69, 0.45);
+  margin: 0 auto 20px auto;
+}
+
+.blk-icon-img {
+  width: 28px;    /* ปรับขนาดไอคอนได้ */
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(100%) contrast(100%);
+}
+
+/* ตัวอักษรหัวข้อ/รายละเอียด */
+.blk-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.blk-sub {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* กล่องข้อมูล BU Admin */
+.blk-admin {
+  margin: 20px 0 10px;
+  background: linear-gradient(180deg, #f0f5ff 0%, #eef2ff 100%);
+  border: 1px solid #e6e9f2;
+  border-radius: 18px;
+  padding: 16px 14px;
+}
+
+.blk-admin-title {
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.blk-admin-name {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.blk-admin-email {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 0.92rem;
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.blk-admin-email:hover {
+  text-decoration: underline;
+}
+
+/* ปุ่มกลับหน้าหลัก */
+.blk-btn {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 16px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 16px 34px rgba(16, 185, 129, 0.30);
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+}
+
+.blk-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(16, 185, 129, 0.34);
+}
 
 
     
@@ -2053,8 +2162,39 @@ body.blocked .blk-btn:hover {
   
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
-      <!-- ใช้โลโก้บน App Bar แล้ว จึงซ่อนตัวนี้ -->
-<!-- <img ... class="corner-logo ..."> -->
+      
+       <!-- ============ Blocked (งบประมาณไม่เพียงพอ) ============ -->
+      <div id="blockedContent" class="hidden text-left">
+        <div class="blk-wrap">
+          <div class="blk-card">
+            <!-- วงกลมส้ม + ไอคอนเตือนสีขาว -->
+            <div class="blk-icon" aria-hidden="true">
+  <img src="https://i.postimg.cc/jdc0FCfP/exclamation.png" alt="!" class="blk-icon-img">
+</div>
+
+            <h1 class="blk-title">⚠️ งบประมาณไม่เพียงพอ</h1>
+            <div class="blk-sub">
+              Budget BU ของท่านไม่เพียงพอสำหรับการเบิกครั้งนี้
+            </div>
+
+            <!-- กล่องติดต่อ BU Admin -->
+            <div class="blk-admin">
+              <div class="blk-admin-title">ช่องทางติดต่อ BU Admin</div>
+              <div class="blk-admin-name">👨‍💼 <span id="blkName">—</span></div>
+              <a id="blkEmail" href="#" class="blk-admin-email" rel="nofollow noopener">
+                <span id="blkEmailText">📧 Email BU Admin: —</span>
+              </a>
+            </div>
+
+            <!-- ปุ่มกลับหน้าหลัก -->
+            <button class="blk-btn" onclick="goHomeFromBlocked()">
+              กลับสู่หน้าหลัก
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /Blocked ============ -->
+
 
       <!-- Cart Floating Button -->
       <button id="cartFab" class="cart-btn" onclick="openCart()" aria-label="เปิดตะกร้า">
