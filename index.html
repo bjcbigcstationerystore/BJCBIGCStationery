@@ -1921,6 +1921,125 @@ label[for="s_bu_email"] {
   gap: 10px !important;
   align-items: center !important;
 }
+/* ===== BLOCKED PAGE – FINAL OVERRIDE ===== */
+
+/* พื้นฐาน layout */
+body.blocked {
+  background:
+    radial-gradient(1200px 480px at 15% -10%, #ffe9c4 0%, transparent 60%),
+    radial-gradient(1200px 480px at 85% 120%, #ffd9ef 0%, transparent 60%),
+    linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%) !important;
+  overflow-x: hidden;
+}
+
+/* ให้ container กลางจอเสมอ */
+body.blocked .page-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  padding: 2rem 1rem !important;
+}
+
+/* ตัด effect ของ content-card หน้าอื่นทิ้ง */
+body.blocked .content-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  max-width: 960px !important;
+  width: 100% !important;
+}
+
+/* บังคับให้ section งบไม่พอแสดงแน่ ๆ */
+body.blocked #blockedContent {
+  display: block !important;
+}
+
+/* จัดให้การ์ดอยู่กลางและไม่ติดขอบ */
+body.blocked #blockedContent .blk-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+body.blocked #blockedContent .blk-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px 24px 40px;
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+/* ข้อความให้สีเข้ม อ่านชัด */
+body.blocked .blk-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+body.blocked .blk-sub {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* กล่องข้อมูล BU Admin */
+body.blocked .blk-admin {
+  margin: 20px auto 10px;
+  background: linear-gradient(180deg, #f0f5ff 0%, #eef2ff 100%);
+  border: 1px solid #e6e9f2;
+  border-radius: 18px;
+  padding: 18px 16px;
+  max-width: 480px;
+}
+
+body.blocked .blk-admin-title {
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+body.blocked .blk-admin-name {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+body.blocked .blk-admin-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* ปุ่มกลับหน้าหลัก */
+body.blocked .blk-btn {
+  width: 100%;
+  max-width: 480px;
+  margin: 24px auto 0;
+  border: 0;
+  border-radius: 16px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 16px 34px rgba(16, 185, 129, 0.3);
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+}
+
+body.blocked .blk-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(16, 185, 129, 0.34);
+}
 
 
 
@@ -3452,7 +3571,6 @@ async function verifyEmployee(){
     // 🔴 เงื่อนไขใหม่:
     // ถ้า M < 300 → ไปหน้าบล็อกงบประมาณไม่เพียงพอ
     if (budgetM < 300) {
-      // เก็บงบไว้ใช้โชว์บนหน้าบล็อกได้ถ้าต้องการ
       window.CURRENT_BUDGET_M = budgetM;
       showPage('blocked');
   return;
