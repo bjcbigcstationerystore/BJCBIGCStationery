@@ -2208,6 +2208,76 @@ body.blocked .blk-btn:hover {
   opacity: 0.9;
   margin-top: 2px;     /* ⭐ ขยับลง 4px */
 }
+    
+    #thankyouContent.hidden {
+  display: none !important;
+}
+
+.ty-wrap {
+  max-width: 680px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 40px 36px;
+  border-radius: 24px;
+  box-shadow: 0 12px 50px rgba(0,0,0,0.12);
+}
+
+.ty-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.ty-sub {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.ty-card {
+  background: #f6f8ff;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 auto 30px;
+}
+
+.ty-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ty-label {
+  font-weight: 600;
+  color: #444;
+}
+
+.ty-ref, .ty-val, .ty-total {
+  font-weight: 500;
+  color: #111;
+}
+
+.ty-next {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.ty-btn {
+  width: 100%;
+  max-width: 460px;
+  margin: 24px auto;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg,#10b981,#059669);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
 
 
 
@@ -2221,6 +2291,81 @@ body.blocked .blk-btn:hover {
   
   <div class="page-container centered" id="pageContainer">
     <div class="content-card text-center" id="mainCard">
+      
+      <!-- ============ Thank You Page ============ -->
+<div id="thankyouContent" class="hidden text-left">
+  <div class="ty-wrap">
+
+    <!-- ไอคอนติ๊ก -->
+    <div class="ty-check">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none">
+        <circle cx="12" cy="12" r="11" stroke="white" stroke-width="2"></circle>
+        <path d="M7 12.5l3 3 7-7"
+              stroke="white" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+
+    <!-- หัวข้อ -->
+    <h1 class="ty-title">🎉 Thank You!</h1>
+    <div class="ty-sub">การเบิกอุปกรณ์ของคุณสำเร็จแล้ว</div>
+
+    <!-- รายละเอียด -->
+    <div class="ty-card">
+      <h4>📋 รายละเอียดการเบิก</h4>
+
+      <div class="ty-grid">
+
+        <div class="ty-row">
+          <div class="ty-label">หมายเลขคำขอ:</div>
+          <div id="tyRef" class="ty-ref">-</div>
+        </div>
+
+        <div class="ty-row">
+          <div class="ty-label">วันที่เบิก:</div>
+          <div id="tyDate" class="ty-val">-</div>
+        </div>
+
+        <div class="ty-row">
+          <div class="ty-label">จำนวนรายการ:</div>
+          <div id="tyQty" class="ty-val">-</div>
+        </div>
+
+        <div class="ty-row">
+          <div class="ty-label">ราคาทั้งหมด:</div>
+          <div id="tyTotal" class="ty-total">-</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ขั้นตอนถัดไป -->
+    <div class="ty-next">
+      <div class="emoji">⏰</div>
+      <div class="title">ขั้นตอนถัดไป</div>
+      <div class="desc">
+        ระบบจะส่งรายการของคุณไปยังกระบวนการถัดไป<br>
+        เพื่อดำเนินการอนุมัติและจัดเตรียมอุปกรณ์
+      </div>
+    </div>
+
+    <!-- ปุ่มกลับ home -->
+    <button class="ty-btn" onclick="goHomeFromThanks()">กลับสู่หน้าหลัก</button>
+
+    <div class="ty-divider"></div>
+
+    <!-- Contact -->
+    <div class="ty-footer">
+      หากมีคำถามเพิ่มเติม ติดต่อ
+      <div class="row">
+        <span>📞 02-123-4567</span>
+        <span>✉️ supply@company.com</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
       
        <!-- ============ Blocked (งบประมาณไม่เพียงพอ) ============ -->
       <div id="blockedContent" class="hidden text-left">
@@ -4314,7 +4459,23 @@ function renderBlocked(){
     lEl.textContent = String(window.CURRENT_BUDGET_L ?? '—');
   }
 }
-    
+    function renderThankYou() {
+  const ref = LAST_SUBMIT?.ref || '-';
+  const qty = LAST_SUBMIT?.totalQty || 0;
+  const total = LAST_SUBMIT?.totalAmount || 0;
+
+  document.getElementById("tyRef").textContent   = ref;
+  document.getElementById("tyDate").textContent  =
+    new Date().toLocaleDateString('th-TH',{day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById("tyQty").textContent   = qty + " รายการ";
+  document.getElementById("tyTotal").textContent = "฿" + total.toLocaleString();
+}
+
+function goHomeFromThanks() {
+  hideAllPages();
+  showPage("verify");
+}
+
     
   </script>
 
