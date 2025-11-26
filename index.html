@@ -2381,12 +2381,38 @@ body.verify .verify-subtitle{
 /* ============ ย่อหน้า Verify และจัดให้อยู่กลางหน้าจอ (Desktop) ============ */
 @media (min-width: 800px){
   body.verify #verifyContent{
-    transform: scale(0.8);            /* ขนาดที่ต้องการ เช่น 0.7, 0.8, 0.9 */
+    transform: scale(0.9);            /* ขนาดที่ต้องการ เช่น 0.7, 0.8, 0.9 */
     transform-origin: center center;  /* ย่อจากจุดกึ่งกลางจริง */
     display: flex;                    /* จัดกึ่งกลางด้วย flex */
     justify-content: center;
     align-items: center;
     min-height: 80vh;                /* ให้กินความสูงทั้งหน้า */
+  }
+}
+
+    /* ========== ปรับขนาดกรอบ Modal Request & Approval Timeline ========== */
+@media (min-width: 1024px){
+  #timelineModal .modal-box{
+    max-width: 720px !important;   /* เดิมเกือบเต็มจอ → ย่อเหลือขนาดกำลังดี */
+    padding: 32px 40px !important; /* ย่อ padding ให้ดูพอดี ไม่โล่งเกิน */
+    border-radius: 22px !important;
+  }
+
+  #timelineModal .modal-box h2{
+    font-size: 1.45rem !important;  /* หัวข้อบน Modal เล็กลง */
+  }
+
+  #timelineModal .modal-box p{
+    font-size: 0.95rem !important;  /* เนื้อหาด้านในเล็กลง */
+    line-height: 1.45;
+  }
+
+  #timelineModal .modal-box .close-btn{
+    transform: scale(0.85);        /* ปุ่ม X เล็กลง */
+  }
+
+  #timelineModal .modal-close{
+    transform: scale(0.9);         /* ปุ่ม "ปิด" เล็กลง */
   }
 }
 
