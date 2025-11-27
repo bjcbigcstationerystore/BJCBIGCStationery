@@ -2584,6 +2584,15 @@ body.products .prod-card .font-extrabold,
 body.products .prod-card .text-emerald-600 {
   font-weight: 600 !important;   /* ถ้าอยากบางแบบปกติ ใช้ 400 ได้ */
 }
+    /* ซ่อนปุ่มกลับเมื่อเปิดตะกร้า */
+#cartPanel.open ~ #btnBack,
+#cartPanel.open ~ * #btnBack {
+    display: none !important;
+}
+
+    
+    
+    
     
 
   </style>
@@ -3459,13 +3468,26 @@ let inflight = { categories: null, items: null };
       }).join('');
     }
 
-    function openCart(){
-      document.getElementById('cartMask')?.classList.add('show');
-      renderCartItems();
-    }
-    
+// ฟังก์ชันช่วยซ่อน/โชว์ปุ่มกลับทุกอัน
+function toggleBackButtons(show){
+  document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.style.display = show ? '' : 'none';
+  });
+}
+
+function openCart(){
+  document.getElementById('cartMask')?.classList.add('show');
+  renderCartItems();
+
+  // ซ่อนปุ่มกลับทุกอัน (หน้าหมวดหมู่ + หน้ารายการสินค้า)
+  toggleBackButtons(false);
+}
+
 function closeCart(){
   document.getElementById('cartMask')?.classList.remove('show');
+
+  // กลับมาแสดงปุ่มกลับทุกอัน
+  toggleBackButtons(true);
 }
 
 // ทำให้เป็น global function
@@ -4835,7 +4857,7 @@ function goHomeFromThanks() {
           <span id="cartSum" style="color:#10b981;">฿0</span>
         </div>
         <div class="cart-actions">
-          <button class="cart-btn-secondary" onclick="closeCart()">← หน้าหลัก</button>
+          <button class="cart-btn-secondary" onclick="closeCart()">หน้าหลัก</button>
           <button class="cart-btn-primary" onclick="closeCart(); goToSummary()">ดำเนินการ</button>
         </div>
       </div>
