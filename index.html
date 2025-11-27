@@ -3009,7 +3009,7 @@ body.products .prod-card .text-emerald-600 {
 </div>
             
             <!-- รายการ -->
-            <div class="mb-6">
+            <div class="mt-8 mb-6">
   <h4 class="section-title">📦 รายการที่เบิก / Items Requested</h4>
   <div class="section-divider"></div>
 
@@ -4504,10 +4504,21 @@ async function renderSummary(){
   document.getElementById('s_cost').textContent     = emp.costCenter || '-';
   document.getElementById('s_fullname').textContent = emp.name || '-';
 
-  // 3) BU Admin (ตามนโยบายใหม่ให้เป็น "—")
-  (document.getElementById('s_bu_name')  || {}).textContent  = '—';
-  (document.getElementById('s_bu_email') || {}).textContent  = '—';
-  window.CURRENT_ADMIN_CONTACT = { name:'—', email:'—' };
+  // 3) BU Admin – ใช้ค่าที่ดึงมาจากระบบ
+  const buAdminName  = window.CURRENT_BU_ADMIN_NAME  || '—';
+  const buAdminEmail = window.CURRENT_BU_ADMIN_EMAIL || '—';
+
+  const buNameEl  = document.getElementById('s_bu_name');
+  const buEmailEl = document.getElementById('s_bu_email');
+
+  if (buNameEl)  buNameEl.textContent  = buAdminName;
+  if (buEmailEl) buEmailEl.textContent = buAdminEmail;
+
+  // ถ้ายังใช้ตัวแปรนี้อยู่ ก็อัปเดตให้ตรงด้วย
+  window.CURRENT_ADMIN_CONTACT = {
+    name:  buAdminName,
+    email: buAdminEmail
+  };
 
  const nameDiv  = document.getElementById('s_head_name');      // โหมดข้อความ: ชื่อ
   const emailDiv = document.getElementById('s_head_email');     // โหมดข้อความ: อีเมล
