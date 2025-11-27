@@ -2599,8 +2599,24 @@ body.products .prod-card .text-emerald-600 {
     display: none !important;
 }
 
-    
-    
+   /* ลดความหนาข้อความหัวข้อ "ตะกร้าสินค้า" */
+#cartMask .font-bold,
+#cartMask .text-white.font-bold {
+    font-weight: 500 !important;   /* ถ้าอยากบางกว่านี้ ใช้ 400 */
+}
+
+/* ลดความหนาปุ่ม หน้าหลัก + ดำเนินการ */
+#cartMask .cart-btn-secondary,
+#cartMask .cart-btn-primary {
+    font-weight: 500 !important;   /* ลดความหนา */
+}
+ 
+/* ลดความหนาตัวอักษรของหัวข้อ "ตะกร้าสินค้า" */
+#cartMask h2 {
+    font-weight: 200 !important;   /* ถ้าต้องการบางมาก ใช้ 400 */
+}
+
+   
     
     
 
@@ -2861,14 +2877,14 @@ body.products .prod-card .text-emerald-600 {
           <div class="logo-box">
             <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
           </div>
-          <h1 class="hero-title">สรุปรายการเบิกอุปกรณ์</h1>
-          <div class="hero-sub">PLEASE REVIEW AND COMPLETE THE INFORMATION</div>
+          <h1 class="hero-title">BJC Big C</h1>
+          <div class="hero-sub">STATIONERY&nbsp;STORE</div>
           <div class="hero-dots"><span class="dim"></span><span class="dim"></span><span></span></div>
         </div>
         
         <div class="summary-header-box">
   <h2>ใบเบิกอุปกรณ์สำนักงาน</h2>
-  <p>BJC Big C Stationery Request Form</p>
+  <p>PLEASE REVIEW AND COMPLETE THE INFORMATION</p>
   <!-- วัน/เวลา มุมขวา (ถ้าไม่ต้องการ สามารถลบบล็อกนี้ได้) -->
   <div class="summary-header-meta">
     <div id="sumDate" class="date"></div>
@@ -3423,20 +3439,30 @@ let inflight = { categories: null, items: null };
     }
 
     function updateCartUI(){
-      const n = cartCount();
-      const badge = document.getElementById('cartBadge');
-      const badgeHdr = document.getElementById('cartBadgeHdr');
-      const sumEl = document.getElementById('cartSum');
-      const fab = document.getElementById('cartFab');
+  const n = cartCount();
+  const badge = document.getElementById('cartBadge');
+  const badgeHdr = document.getElementById('cartBadgeHdr');
+  const sumEl = document.getElementById('cartSum');
+  const fab = document.getElementById('cartFab');
 
-      const isAllowedPage = document.body.classList.contains('category') || document.body.classList.contains('products');
-      if (fab) { fab.classList.toggle('show', n > 0 && isAllowedPage); }
+  // เช็คว่าตอนนี้แถบตะกร้าถูกเปิดอยู่หรือไม่
+  const mask = document.getElementById('cartMask');
+  const isCartOpen = mask && mask.classList.contains('show');
 
-      if(badge){ badge.style.display = n>0 ? 'flex' : 'none'; badge.textContent = n; }
-      if(badgeHdr){ badgeHdr.textContent = n; }
-      if(sumEl){ sumEl.textContent = baht(cartSum()); }
-      renderCartItems();
-    }
+  const isAllowedPage =
+    document.body.classList.contains('category') ||
+    document.body.classList.contains('products');
+
+  // โชว์ปุ่มตะกร้าลอยเฉพาะตอนมีของในตะกร้า + อยู่หน้า category/products + ยังไม่ได้เปิดแถบตะกร้า
+  if (fab) {
+    fab.classList.toggle('show', n > 0 && isAllowedPage && !isCartOpen);
+  }
+
+  if (badge) { badge.style.display = n > 0 ? 'flex' : 'none'; badge.textContent = n; }
+  if (badgeHdr) { badgeHdr.textContent = n; }
+  if (sumEl) { sumEl.textContent = baht(cartSum()); }
+  renderCartItems();
+}
 
     function renderCartItems(){
       const wrap = document.getElementById('cartItems');
@@ -3499,12 +3525,19 @@ function toggleBackButtons(hide){
 function openCart(){
   document.getElementById('cartMask')?.classList.add('show');
   toggleBackButtons(true);       // ซ่อนปุ่มกลับทุกอันเมื่อเปิดตะกร้า
+  
+    const fab = document.getElementById('cartFab');
+  if (fab) fab.classList.remove('show');
+ 
   renderCartItems();
 }
 
 function closeCart(){
   document.getElementById('cartMask')?.classList.remove('show');
   toggleBackButtons(false);      // แสดงปุ่มกลับเมื่อปิดตะกร้า
+  
+  // ปิดแถบตะกร้าแล้ว ให้ระบบเช็คใหม่ว่าควรโชว์ปุ่มตะกร้าลอยหรือไม่
+  updateCartUI();
 }
 
 // ทำให้เป็น global function
@@ -4856,8 +4889,7 @@ function goHomeFromThanks() {
   <div id="cartMask" class="cart-mask" onclick="closeCart()">
     <div id="cartPanel" class="cart-panel" onclick="event.stopPropagation();">
       <div class="cart-header">
-        <div style="font-size:1.3rem;font-weight:900;">ตะกร้าสินค้า</div>
-        <div style="opacity:.85;">รายการที่เลือก</div> 
+        <div style="font-size:1.5rem;font-weight:600;">รายการเบิก</div>
         <div class="icon">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M3 3h2l.4 2M7 13h9l3-8H6.4M7 13L5.4 5M7 13l-2 6h13M10 21a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
