@@ -2554,6 +2554,24 @@ body.products .back-btn {
     box-shadow:0 10px 22px rgba(0,0,0,.06);
     transform:translateY(-1px);
 }
+  
+/* ลดความหนาตัวอักษร: ชื่อสินค้า + ราคา + Price: ฿xx */
+#itemModal #mName,
+#itemModal #mPrice,
+#itemModal #mTotal,
+#itemModal .font-semibold,
+#itemModal .price-green {
+  font-weight: 500 !important;   /* ถ้าอยากบางเท่าตัวเนื้อหาใช้ 400 แทนได้ */
+}
+    
+    /* ลดความหนาตัวอักษรปุ่มใน Modal เพิ่มสินค้า */
+#itemModal .modal-btn,
+#itemModal #cancelBtn,
+#itemModal #addBtn,
+#itemModal button {
+    font-weight: 500 !important;
+}
+
     
 
   </style>
