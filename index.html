@@ -345,7 +345,7 @@ body.category .panel-body{  padding:8px 12px !important; }
 .sum-table tfoot td{
   padding:14px 16px;
   background:#ecfdf5;
-  font-weight:600;        /* เดิม 900 */
+  font-weight:600;   /* เดิม 900 ลดให้บางลง */
   color:#065f46;
 }
 /* ฐาน: มือถือ/แท็บเล็ต ใช้ px ใกล้เคียงของเดิม */
@@ -370,7 +370,11 @@ body.category .panel-body{  padding:8px 12px !important; }
   width:34px; height:34px; border-radius:8px; background:#f1f5f9;
   object-fit:contain; box-shadow:inset 0 0 0 1px #e5e7eb;
 }
-.sum-name{ font-weight:800; color:#0f172a; line-height:1.2; }
+.sum-name{
+  font-weight:600;   /* ลดความหนา */
+  color:#0f172a;
+  line-height:1.2;
+}
 .sum-desc{ font-size:.85rem; color:#6b7280; margin-top:2px; }    
 
 /* ==== Summary: ให้ label อยู่บน และสร้างช่องคั่นในด้านในของกล่องค่า ==== */
@@ -2686,7 +2690,12 @@ body.products .prod-card .text-emerald-600 {
   font-weight: 600 !important;   /* ลดความหนาของ strong */
 }
 
-    
+  /* ลดพื้นที่ว่างด้านล่างปุ่มในหน้า Summary */
+#summaryContent .sum-actions {
+  margin-top: 20px !important;
+  margin-bottom: 12px !important;
+}
+  
 
   </style>
 </head>
@@ -3074,7 +3083,7 @@ body.products .prod-card .text-emerald-600 {
                 
 <!-- ✅ Summary footer: จัดกลางหน้าจอ -->
 <div id="summaryFooter"
-     class="mt-6 flex flex-wrap items-baseline justify-center gap-x-6 md:gap-x-10 gap-y-1 text-xl font-extrabold text-center">
+     class="mt-6 flex flex-wrap items-baseline justify-center gap-x-6 md:gap-x-10 gap-y-1 text-xl font-semibold text-center">
 
   <!-- กลุ่มที่ 1: รายการทั้งหมด -->
   <div class="flex items-baseline gap-2">
