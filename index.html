@@ -1519,38 +1519,38 @@ body.summary .form-label {
   font-weight: 700 !important;   /* หนากว่าปกติ */
 }   
 
-/* ================== CATEGORY PAGE ONLY (70% SCALE) ================== */
+/* ================== CATEGORY PAGE ONLY (60–65% SCALE) ================== */
 /* ลดขนาดเฉพาะหน้าหมวดหมู่เท่านั้น */
 body.category .category-header-box,
 body.category .panel-body{
-  font-size: 0.7em !important;
+  font-size: 0.65em !important;   /* เดิม 0.7em → เล็กลงอีก */
   line-height: 1.4 !important;
 }
 
-/* กล่องหมวดหมู่ */
+/* กล่องหมวดหมู่ – เตี้ยและเล็กลงอีกนิด */
 body.category .cat-item{
-  padding: 26px 14px !important;
-  min-height: 150px !important;
+  padding: 22px 12px !important;  /* เดิม 26x14 */
+  min-height: 135px !important;   /* เดิม 150 */
 }
 
-/* ไอคอนหมวดหมู่ */
+/* ไอคอนหมวดหมู่ – เล็กลง */
 body.category .cat-item img.cat-icon,
 body.category .cat-icon{
-  width: 42px !important;
-  height: 42px !important;
+  width: 36px !important;         /* เดิม 42px */
+  height: 36px !important;
 }
 
-/* ชื่อหมวดและจำนวนรายการ */
+/* ชื่อหมวดและจำนวนรายการ – ย่อฟอนต์ */
 body.category .cat-title{
-  font-size: 0.75rem !important;
+  font-size: 0.7rem !important;   /* เดิม 0.75rem */
   font-weight: 700 !important;
 }
 body.category .cat-count{
-  font-size: 0.62rem !important;
+  font-size: 0.58rem !important;  /* เดิม 0.62rem */
   font-weight: 400 !important;
 }
 
-/* ปุ่ม "กลับ" */
+/* ปุ่ม "กลับ" ให้ขนาดเท่าเดิม ไม่ต้องยุ่งก็ได้ */
 body.category .back-btn{
   transform: scale(1);
   transform-origin: bottom right;
