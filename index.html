@@ -1552,7 +1552,7 @@ body.category .cat-count{
 
 /* ปุ่ม "กลับ" ให้ขนาดเท่าเดิม ไม่ต้องยุ่งก็ได้ */
 body.category .back-btn{
-  transform: scale(0.60);
+  transform: scale(0.70);
   transform-origin: bottom right;
 }
 
@@ -2478,7 +2478,39 @@ body.category .back-btn{
   transform-origin: top center;  /* ยึดจากบนลงล่าง */
 }
 
-    
+    /* ย่อทั้งหน้ารายการสินค้าให้เท่าหมวดหมู่ */
+body.products #productsContent {
+  transform: scale(0.70);
+  transform-origin: top center;
+}
+
+  /* ปรับปุ่มกลับในหน้ารายการสินค้า */
+body.products .back-btn {
+  transform: scale(0.70);
+  transform-origin: bottom right;
+}
+  
+   /* ย่อการ์ดสินค้า */
+body.products .product-card {
+  transform: scale(0.90);
+  transform-origin: top center;
+  padding: 18px 12px !important;
+  min-height: 150px !important;
+}
+ 
+   body.products .product-card img {
+  width: 80px !important;
+  height: auto;
+}
+
+    body.products .product-title {
+  font-size: 0.85rem !important;
+}
+
+body.products .product-price {
+  font-size: 0.95rem !important;
+}
+
     
     
 
