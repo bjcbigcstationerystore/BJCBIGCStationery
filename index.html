@@ -2702,7 +2702,7 @@ body.category .back-btn{
     <div class="logo-box">
       <img src="https://i.postimg.cc/B6wpk3yh/cropped-Logo-BJC-Big-C-2021-2048x606.png" alt="BJC Big C" onerror="this.style.display='none'"/>
     </div>
-    <h1 class="hero-title" id="prodHeroTitle">รายการสินค้า</h1>
+    <h1 class="hero-title" id="prodHeroTitle">BJC Big C</h1>
     <div class="hero-sub">STATIONERY&nbsp;STORE</div>
     <div class="hero-dots"><span class="dim"></span><span></span><span class="dim"></span></div>
   </div> 
@@ -3662,9 +3662,13 @@ async function openCategory(name){
   // ✅ หลังโหลดเสร็จ → ปิดโหมดโหลดสด (เหลือ cache รอบถัดไปได้เลย)
   FORCE_FRESH = false;
 
- document.getElementById('prodHeroTitle').textContent  = selectedCategory || 'รายการสินค้า';
-document.getElementById('prodHeaderTitle').textContent = selectedCategory ? `หมวด: ${selectedCategory}` : 'รายการสินค้า';
-document.getElementById('prodHeaderDesc').textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
+const heroTitleEl   = document.getElementById('prodHeroTitle');
+const headerTitleEl = document.getElementById('prodHeaderTitle');
+const headerDescEl  = document.getElementById('prodHeaderDesc');
+
+if (heroTitleEl)   heroTitleEl.textContent   = 'BJC Big C';          // แถบสีเขียว
+if (headerTitleEl) headerTitleEl.textContent = 'รายการสินค้า';   // หัวกล่องสีขาว
+if (headerDescEl)  headerDescEl.textContent  = 'คลิกเพื่อดูรายละเอียดและเลือกจำนวน';
 
   renderProducts();
   showPage('products');
