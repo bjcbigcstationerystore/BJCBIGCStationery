@@ -2478,11 +2478,6 @@ body.category .back-btn{
   transform-origin: top center;  /* ยึดจากบนลงล่าง */
 }
 
-    /* ย่อทั้งหน้ารายการสินค้าให้เท่าหมวดหมู่ */
-body.products #productsContent {
-  transform: scale(0.70);
-  transform-origin: top center;
-}
 
   /* ปรับปุ่มกลับในหน้ารายการสินค้า */
 body.products .back-btn {
@@ -2511,7 +2506,46 @@ body.products .product-price {
   font-size: 0.95rem !important;
 }
 
-    
+  /* ================== PRODUCTS PAGE – SAME SCALE AS CATEGORY ================== */
+
+/* ลดขนาดหัวข้อให้เท่าหน้าหมวดหมู่ */
+body.products .products-header-box {
+  font-size: 0.70em !important;
+  line-height: 1.4;
+}
+
+/* ลดขนาด card สินค้าให้สัดส่วนเท่าหน้าหมวดหมู่ */
+body.products .prod-card {
+  padding: 24px 14px !important;
+  border-radius: 16px !important;
+  min-height: 150px !important;
+  transform: scale(0.95);             /* ย่อเฉพาะ card ไม่ย่อทั้งหน้า */
+  transform-origin: top center;
+}
+
+/* รูปสินค้า – ปรับเท่าหมวดหมู่ */
+body.products .prod-img {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+/* ชื่อสินค้า */
+body.products .prod-title {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+/* ราคา */
+body.products .prod-price {
+  font-size: 0.85rem !important;
+}
+
+/* ปรับปุ่มกลับให้เท่าหน้าหมวดหมู่ */
+body.products .back-btn {
+  transform: scale(0.70);
+  transform-origin: bottom right;
+}
+  
     
 
   </style>
