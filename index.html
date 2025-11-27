@@ -316,10 +316,11 @@ body.category .panel-body{  padding:8px 12px !important; }
   width:100%; border-collapse:separate; border-spacing:0; overflow:hidden;
   border:1px solid #e5e7eb; border-radius:14px; background:#fff;
 }
+    
 .sum-table thead th{
   background:#f8fafc;
   color:#111827;
-  font-weight:800;
+  font-weight:600;        /* เดิม 800 */
   padding:14px 16px;
   border-bottom:1px solid #e5e7eb;
 }
@@ -342,7 +343,10 @@ body.category .panel-body{  padding:8px 12px !important; }
   padding:14px 16px; border-bottom:1px solid #e5e7eb; vertical-align:middle;
 }
 .sum-table tfoot td{
-  padding:14px 16px; background:#ecfdf5; font-weight:900; color:#065f46;
+  padding:14px 16px;
+  background:#ecfdf5;
+  font-weight:600;        /* เดิม 900 */
+  color:#065f46;
 }
 /* ฐาน: มือถือ/แท็บเล็ต ใช้ px ใกล้เคียงของเดิม */
 .sum-col-idx{ width:60px; text-align:center; }
@@ -2094,7 +2098,7 @@ body.blocked .blk-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 500;
   font-size: 1rem;
   color: #fff;
   background: linear-gradient(135deg, #10b981, #059669);
@@ -2629,7 +2633,59 @@ body.products .prod-card .text-emerald-600 {
   display: none !important;
 }
  
-    
+    /* ลดความหนาหัวข้อ รายการที่เบิก */
+#summaryContent .section-title {
+  font-weight: 600 !important;
+}
+
+    /* ลดความหนาหัวตาราง */
+#summaryContent .sum-table thead th {
+  font-weight: 600 !important;   /* เดิม 800 */
+}
+
+    /* ลดความหนาชื่อสินค้า */
+#summaryContent .sum-table tbody td {
+  font-weight: 500 !important; /* หรือ 600 ถ้าอยากหนากว่า */
+}
+#summaryContent .sum-table tbody td .item-name {
+  font-weight: 600 !important;
+}
+#summaryContent .sum-table tbody td .item-pack {
+  font-weight: 500 !important;
+}
+
+    #summaryContent .sum-table tbody td .font-bold {
+  font-weight: 600 !important;
+}
+
+    /* ลดความหนาแถวรวมท้ายตาราง */
+#summaryContent .sum-table tfoot td {
+  font-weight: 600 !important;  /* เดิมคือ 900 */
+}
+
+    /* ลดความหนา summary footer */
+#summaryContent .sum-footer {
+  font-weight: 600 !important;
+}
+
+#summaryContent .sum-footer strong {
+  font-weight: 600 !important;
+}
+
+    /* ลดความหนาเฉพาะชื่อสินค้าในใบเบิก */
+#summaryContent .sum-table tbody td .font-bold {
+  font-weight: 600 !important; /* เดิม 700-800 */
+}
+
+    /* ลดความหนาข้อความด้านล่างสุด */
+#summaryContent .sum-footer {
+  font-weight: 500 !important;   /* ลดความหนาของข้อความปกติ */
+}
+
+#summaryContent .sum-footer strong {
+  font-weight: 600 !important;   /* ลดความหนาของ strong */
+}
+
     
 
   </style>
@@ -3037,10 +3093,21 @@ body.products .prod-card .text-emerald-600 {
   </div>
 </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <button class="py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-bold" onclick="showPage('products')">แก้ไขรายการ</button>
-              <button class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold" onclick="submitRequest()">ส่งคำขอเบิก</button>
-            </div>
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <!-- ปุ่มแก้ไขรายการ – ตัวอักษรบางลง -->
+  <button
+    class="py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-medium"
+    onclick="showPage('products')">
+    แก้ไขรายการ
+  </button>
+
+  <!-- ปุ่มส่งคำขอเบิก – ตัวอักษรบางลง -->
+  <button
+    class="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium"
+    onclick="submitRequest()">
+    ส่งคำขอเบิก
+  </button>
+</div>
           </div>
         </div>
       </div>
