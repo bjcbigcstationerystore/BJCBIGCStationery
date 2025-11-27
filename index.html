@@ -1439,9 +1439,17 @@ body.summary .hero{
   text-align:center;
   position: relative; /* เผื่อมีวัน/เวลา มุมขวา */
 }
-    /* เพิ่มช่องว่างด้านบนของเนื้อหาในหน้า Summary */
+/* เพิ่มช่องว่างด้านบนของเนื้อหาในหน้า Summary */
 body.summary .panel .panel-body{
-  padding-top: 12px !important;   /* ⬅️ กันกรณี margin-collapse */
+  padding-top: 12px !important;   /* กันกรณี margin-collapse */
+}
+
+/* ย่อขนาดเนื้อหาทั้งหน้าใบเบิก (เฉพาะส่วนที่อยู่ใต้แถบสีขาว) */
+@media (min-width: 1024px){
+  body.summary #summaryContent .panel-body{
+    transform: scale(0.9);        /* ปรับขนาด 0.9 = ย่อเหลือ 90% (จะย่อลง/ขยายขึ้นก็เปลี่ยนตัวเลขตรงนี้ได้) */
+    transform-origin: top center; /* ย่อจากด้านบนตรงกลางลงมา */
+  }
 }
     
 .summary-header-box h2{
