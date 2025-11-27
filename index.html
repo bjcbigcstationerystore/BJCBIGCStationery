@@ -1149,7 +1149,8 @@ body.products .products-inner{
 
 
 /* การ์ดสินค้าเล็กลงนิด */
-body.products .prod-card{
+body.products 
+    .prod-card{
   padding:10px !important;            /* เดิม 12 */
   border-radius:12px !important;       /* เดิม 14 */
   display:grid;                        /* ทำให้จัดวางเว้นช่วงดีขึ้น */
@@ -2537,7 +2538,22 @@ body.products .back-btn {
   transform: scale(0.70);
   transform-origin: bottom right;
 }
-  
+
+/* การ์ดสินค้า – เอาขอบเขียวออกก่อน hover */
+.prod-card{
+    background:#ffffff;
+    border:1px solid #e5e7eb !important;   /* ขอบเทาอ่อนเท่านั้น */
+    border-radius:16px;
+    transition:0.2s ease-in-out;
+}
+
+/* Hover – ขึ้นเฉพาะขอบเขียวเข้ม */
+.prod-card:hover{
+    background:#f0fdf4;                    /* พื้นเขียวอ่อน */
+    border:1px solid #006C45 !important;   /* ขอบเขียวเข้ม */
+    box-shadow:0 10px 22px rgba(0,0,0,.06);
+    transform:translateY(-1px);
+}
     
 
   </style>
@@ -3808,17 +3824,29 @@ function showLoadingProductsModal(show = true){
 }
 
     function openItem(idx){
-      const p = PRODUCTS[idx];
-      if(!p) return;
-      modalItem = {...p};
-      mImg.src = p.image || '';
-      mName.textContent = p.name || '';
-      mDetail.textContent = p.detail || '';
-      mPrice.textContent = baht(p.price);
-      mQty.value = 1;
-      updateTotal();
-      modalEl.style.display = 'flex';
-    }
+  const p = PRODUCTS[idx];
+  if (!p) return;
+
+  modalItem = { ...p };
+
+  // ✅ รีเซ็ตรูปให้แสดงก่อนทุกครั้ง
+  mImg.style.display = '';          // เอา display:none ออกก่อน
+
+  if (p.image) {
+    mImg.src = p.image;             // มีรูป → เซ็ต src ปกติ
+  } else {
+    mImg.src = '';                  // ไม่มีรูป → ซ่อนรูปไปเลย
+    mImg.style.display = 'none';
+  }
+
+  mName.textContent   = p.name   || '';
+  mDetail.textContent = p.detail || '';
+  mPrice.textContent  = baht(p.price);
+  mQty.value = 1;
+  updateTotal();
+  modalEl.style.display = 'flex';
+}
+    
     function closeItemModal(){ modalEl.style.display = 'none'; }
     function chgQty(d){
       let q = normalizeQty(mQty.value);
