@@ -149,13 +149,22 @@ body.category .panel-body{  padding:8px 12px !important; }
     
 
     /* ปุ่มกลับ (แบบเดียวกับหน้ายืนยันตัวตน/หมวด) */
-    .back-btn{
-      position:absolute;bottom:18px;right:28px;background:#fff;border:1px solid #e5e7eb;
+    .back-btn{   
+      position:absolute;
+      bottom:18px;
+      right:28px;
+      background:#fff;border:1px solid #e5e7eb;
       border-radius:9999px;padding:.6rem 1rem;display:flex;align-items:center;gap:6px;
       color:var(--emerald-700);font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.08);
       transition:transform .15s, box-shadow .15s;
     }
     .back-btn:hover{transform:translateX(-2px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
+    
+    /* ซ่อนปุ่มกลับเวลาตะกร้าเปิด */
+.back-btn.hide-when-cart {
+  display: none !important;
+}
+
     
   
     /* Modal */
@@ -3475,19 +3484,27 @@ function toggleBackButtons(show){
   });
 }
 
+// ฟังก์ชันช่วย ซ่อน/แสดงปุ่มกลับทุกอัน
+function toggleBackButtons(hide){
+  const backBtns = document.querySelectorAll('.back-btn');
+  backBtns.forEach(btn => {
+    if (hide){
+      btn.classList.add('hide-when-cart');   // ซ่อน
+    }else{
+      btn.classList.remove('hide-when-cart'); // โชว์กลับมา
+    }
+  });
+}
+
 function openCart(){
   document.getElementById('cartMask')?.classList.add('show');
+  toggleBackButtons(true);       // ซ่อนปุ่มกลับทุกอันเมื่อเปิดตะกร้า
   renderCartItems();
-
-  // ซ่อนปุ่มกลับทุกอัน (หน้าหมวดหมู่ + หน้ารายการสินค้า)
-  toggleBackButtons(false);
 }
 
 function closeCart(){
   document.getElementById('cartMask')?.classList.remove('show');
-
-  // กลับมาแสดงปุ่มกลับทุกอัน
-  toggleBackButtons(true);
+  toggleBackButtons(false);      // แสดงปุ่มกลับเมื่อปิดตะกร้า
 }
 
 // ทำให้เป็น global function
