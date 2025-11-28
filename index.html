@@ -3012,6 +3012,30 @@ body.thankyou .ty-card .ty-row {
     }
 }
 
+    /* ===== FIX THANK YOU CENTERING ===== */
+
+body.thankyou, 
+body.thankyou html {
+    height: 100%;
+    overflow-y: hidden; /* ตัดสกอร์บาร์ออก */
+}
+
+body.thankyou .page-container{
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center !important;   /* จัดกลางแนวตั้ง */
+    align-items: center !important;       /* จัดกลางแนวนอน */
+
+    min-height: 100vh !important;         /* ให้สูงเท่าหน้าจอ */
+    padding: 0 !important;                /* เอา padding ที่ดันขึ้นบนออก */
+    margin: 0 !important;
+}
+
+/* กันเหนียว: เอา margin ล่างของ content-card ออก */
+body.thankyou .content-card{
+    margin-bottom: 0 !important;
+}
+
     
     
     
@@ -3091,8 +3115,8 @@ body.thankyou .ty-card .ty-row {
     <div class="ty-footer">
       หากมีคำถามเพิ่มเติม ติดต่อ
       <div class="row">
-        <span>📞 02-123-4567</span>
-        <span>✉️ supply@company.com</span>
+        <span>📞 02-146-5959 #4384  </span>
+        <span>✉️ Noppada.tan@bigc.co.th </span>
       </div>
     </div>
 
