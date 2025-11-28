@@ -440,6 +440,18 @@ body.category .panel-body{  padding:8px 12px !important; }
 @media (max-width:768px){
   #summaryContent .form-grid{ grid-template-columns:1fr !important; }
 }
+    /* กล่องที่ห่อ table ของ Summary */
+  #summaryContent #sumItems{
+    width: 100%;
+    overflow-x: auto;                /* ✅ ให้เลื่อนแนวนอนได้ */
+    -webkit-overflow-scrolling: touch; /* ลื่นบน iOS */
+  }
+
+  /* บังคับให้ตัวตารางกว้างกว่าหน้าจอเล็กน้อย จะได้มีพื้นที่ให้เลื่อน */
+  #summaryContent #sumItems .sum-table{
+    min-width: 520px;                /* ปรับเลขได้ตามจำนวนคอลัมน์ที่ต้องการ */
+  }
+}
 
     /* ============= FINAL OVERRIDE ============= */
 #summaryContent .panel .panel-body .form-grid .form-field > .form-value,
@@ -2944,6 +2956,15 @@ body.thankyou .ty-card .ty-grid {
     justify-items: center !important;   /* ← จัดแต่ละช่องให้ตรงกลาง */
     align-items: center !important;
 }
+    /* ===== มือถือ: ให้รายละเอียดการเบิกเรียงลงมา 1 คอลัมน์ ===== */
+@media (max-width: 768px){
+  body.thankyou .ty-card .ty-grid{
+    grid-template-columns: 1fr;   /* จาก 2 คอลัมน์ → เหลือคอลัมน์เดียว */
+    column-gap: 0;                /* ไม่ต้องมีช่องว่างด้านข้าง */
+    row-gap: 12px;                /* ระยะห่างแต่ละบรรทัดเล็กน้อย */
+  }
+}
+
 
 
 /* ===================== FIX: บรรทัดข้อมูลแต่ละรายการ ===================== */
@@ -3283,7 +3304,7 @@ body.thankyou .ty-wrap{
           <div class="panel-body">
 
  <!-- ผู้เบิก + BU Admin + BU Head (3 กล่องเรียงกันบนเดสก์ท็อป) -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch auto-rows-fr">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch lg:auto-rows-fr">
   <!-- ผู้เบิก -->
   <section class="info-card h-full lg:order-1">
     <h4 class="section-title">🧑‍💼 Employee Information</h4>
