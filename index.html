@@ -2990,7 +2990,21 @@ body.thankyou .page-container{
   margin: 0 !important;
 }
  
+    /* ===== REMOVE OUTER WHITE CARD ON THANK YOU PAGE ===== */
+body.thankyou .ty-wrap{
+    /* เอากล่องสีขาวใหญ่ที่คลุมทั้งหมดออก */
+    background: transparent !important;   /* ไม่ให้มีพื้นหลังขาว */
+    box-shadow: none !important;          /* ตัดเงากรอบออก */
+    border-radius: 0 !important;          /* ไม่ต้องโค้งมุม */
     
+    /* ถ้าอยากให้ยังมีระยะขอบด้านในนิดหน่อยคง padding ไว้
+       ถ้าอยากให้เนื้อหาชิดตามรูปตัวอย่างจริง ๆ ตัด padding ออกด้วย */
+    padding: 0 !important;
+    
+    /* จัดให้อยู่กลางเหมือนเดิม แต่ไม่สร้างกรอบ */
+    margin: 0 auto !important;
+}
+
     
     
     
