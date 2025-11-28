@@ -720,14 +720,13 @@ body.thankyou .ty-btn{
 body.thankyou .ty-ref{ color:#2563eb !important; }
 body.thankyou .ty-total{ color:#10b981 !important; }
     
-    /* ===== Thank You – ปรับ Layout เฉพาะ Desktop ===== */
+/* ย่อหน้า Thank You ทั้งหน้าลง */
 @media (min-width: 1024px){
-
-  /* ให้กรอบ Thank You บน Desktop กว้างขึ้น ไม่ตัดข้อความ */
-  body.thankyou .ty-wrap{
-    width: 100%;
-    max-width: 960px;          /* จากเดิม 880px → กว้างขึ้นอีกนิด */
-  }
+    body.thankyou{
+        /* ใช้แค่ zoom พอ ไม่ต้อง transform เพื่อไม่ให้เกิดสกอลล์บาร์เกินจอ */
+        zoom: 0.90;                /* ลดขนาดลง 10% */
+    }
+}
 
   body.thankyou .ty-card .ty-grid{
     display: grid;
@@ -2970,31 +2969,37 @@ body.thankyou .ty-card .ty-row {
     }
 }
     
-/* ===== FIX THANK YOU LAYOUT – ขยับกล่องลงจากขอบบน ===== */
+/* ===== FIX THANK YOU LAYOUT – ขนาดพอดีจอ / ไม่ต้องเลื่อน ===== */
 
-/* ✅ อนุญาตให้หน้า Thank You เลื่อนลงได้ถ้าการ์ดยาวกว่าหน้าจอ */
-body.thankyou {
-  min-height: 100vh;   /* สูงอย่างน้อยเท่าหน้าจอ */
-  overflow-y: auto;    /* ให้มีสกอร์บาร์แนวตั้งเมื่อเนื้อยาว */
+/* ให้ทั้ง html และ body สูงเท่าจอ */
+html,
+body{
+  height: 100%;
 }
 
+/* ใช้เฉพาะตอนอยู่หน้า Thank You เท่านั้น (body มีคลาส thankyou) */
+body.thankyou{
+  /* ตัดแถบเลื่อนทั้งแนวตั้งและแนวนอน */
+  overflow: hidden;
+}
+
+/* จัดกรอบหน้าขอบคุณให้พอดีจอและอยู่ตรงกลาง */
 body.thankyou .page-container{
-    display: flex !important;
-    flex-direction: column;
-    justify-content: flex-start !important;
-    align-items: center !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center !important;   /* จัดกลางแนวตั้ง */
+  align-items: center !important;
 
-    min-height: 100vh !important;
+  min-height: 100vh !important;         /* สูงเท่าจอ */
 
-    padding-top: 56px !important;     /* เดิม 80px */
-    padding-bottom: 24px !important;  /* เดิม 40px */
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+  /* ช่องว่างบน–ล่างนิดหน่อย ให้ลอยกลางสวย ๆ แต่ไม่เกินจอ */
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 
-    margin: 0 !important;
+  margin: 0 !important;
 }
-
-
 
     
     
