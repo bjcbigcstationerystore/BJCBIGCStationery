@@ -537,12 +537,6 @@ body.thankyou {
   overflow-y: hidden;              /* ตัดสกอร์บาร์แนวตั้งออกสำหรับหน้า Thank You */
 }
 
-body.thankyou .page-container{
-  align-items: flex-start;         /* ให้การ์ดเริ่มจากด้านบนเหมือนเดิม */
-  padding-top: 24px;               /* เว้นด้านบนเล็กน้อย */
-  padding-bottom: 0;               /* ตัด padding ด้านล่างที่ทำให้มีขอบขาว + ต้องเลื่อน */
-}
-
 /* กันเหนียว เผื่อ content-card มี margin-bottom เดิม */
 body.thankyou .content-card{
   margin-bottom: 0;
@@ -563,12 +557,6 @@ body.thankyou .logo-box{ display:none !important; }
 html.thankyou,
 body.thankyou {
   background:#f8fafc !important;
-}
-
-/* ตัด padding-top ที่ปกติเผื่อให้ appbar ออกไปด้วย */
-body.thankyou .page-container{
-  padding: 24px 12px !important;           /* ไม่มี calc(56px + …) แล้ว */
-  align-items: flex-start;
 }
 
 body.thankyou .content-card{
