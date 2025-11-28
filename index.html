@@ -1506,11 +1506,11 @@ body.summary .panel .panel-body{
   padding-top: 12px !important;   /* กันกรณี margin-collapse */
 }
 
-/* ย่อขนาดเนื้อหาทั้งหน้าใบเบิก (เฉพาะส่วนที่อยู่ใต้แถบสีขาว) */
 @media (min-width: 1024px){
-  body.summary #summaryContent .panel-body{
-    transform: scale(0.9);        /* ปรับขนาด 0.9 = ย่อเหลือ 90% (จะย่อลง/ขยายขึ้นก็เปลี่ยนตัวเลขตรงนี้ได้) */
-    transform-origin: top center; /* ย่อจากด้านบนตรงกลางลงมา */
+  body.thankyou{
+    zoom: 0.85;
+    transform: scale(0.85);
+    transform-origin: top center;
   }
 }
     
@@ -2964,38 +2964,32 @@ body.thankyou .ty-card .ty-row {
     }
 }
 
-    /* ===== FIX THANK YOU LAYOUT – ขนาดพอดีจอ / ไม่ต้องเลื่อน ===== */
+   /* ===== FIX THANK YOU LAYOUT – จัดกลางจอ / ไม่ต้องเลื่อน ===== */
 
-/* ให้ทั้ง html และ body สูงเท่าจอ */
-html,
-body{
-  height: 100%;
+/* body หน้า Thank You สูงเท่าจอ และไม่ให้มี scrollbar */
+body.thankyou {
+  min-height: 100vh;
+  overflow: hidden;          /* ❗ ตัดสกอร์บาร์ทั้งแนวตั้ง-แนวนอน */
 }
 
-/* ใช้เฉพาะตอนอยู่หน้า Thank You เท่านั้น (body มีคลาส thankyou) */
-body.thankyou{
-  /* ตัดแถบเลื่อนทั้งแนวตั้งและแนวนอน */
-  overflow: hidden;
-}
-
+/* จัดกรอบหน้าขอบคุณ (.page-container) ให้อยู่กลางจอพอดี */
 body.thankyou .page-container{
-    display: flex !important;
-    flex-direction: column;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center !important;   /* จัดกลางแนวตั้ง */
+  align-items: center !important;       /* จัดกลางแนวนอน */
 
-    /* ดันกล่องลงมาแบบรูปที่ 2 แต่ยังยึดด้านบน (ถ้ามีหน้าจอเตี้ยจะได้เลื่อนได้) */
-    justify-content: flex-start !important;
-    align-items: center !important;
+  min-height: 100vh !important;         /* สูงเท่าจอ */
 
-    min-height: 100vh !important;
+  /* เว้นขอบบน-ล่างนิดหน่อยให้ดูไม่ชิดเกินไป */
+  padding-top: 32px !important;
+  padding-bottom: 32px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 
-    padding-top: 80px !important;     /* ↑ เพิ่มจาก 56px ให้กล่องลงต่ำลง */
-    padding-bottom: 32px !important;  /* เพิ่มระยะด้านล่างนิดหน่อย */
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-
-    margin: 0 !important;
+  margin: 0 !important;
 }
-
+ 
     
     
     
