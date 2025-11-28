@@ -666,7 +666,7 @@ body.summary #mainCard{
 
 /* ขยับบรรทัด "หากมีคำถามเพิ่มเติม" ลงมาอีกนิด */
 .ty-footer{
-  margin-top:4px;          /* เดิม 8px → 4px */
+  margin-top: 0;          /* เดิม 8px → 4px */
   text-align:center;
   color:#6b7280;
   font-weight:600;
@@ -2983,13 +2983,47 @@ body.thankyou .page-container{
 
   /* เว้นขอบบน-ล่างนิดหน่อยให้ดูไม่ชิดเกินไป */
   padding-top: 200px !important;
-  padding-bottom: 32px !important;
+  padding-bottom: 0 !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 
   margin: 0 !important;
 }
- 
+
+    body.thankyou hr{
+    margin: 0 !important;      /* เอาระยะห่างออก */
+    padding: 0 !important;     /* ป้องกันการกินพื้นที่ */
+}
+
+    /* --- FIX THANK YOU LOWER-GAP --- */
+
+body.thankyou .page-container{
+    display: flex !important;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    align-items: center !important;
+
+    min-height: 100vh !important;
+
+    padding-top: 200px !important;
+    padding-bottom: 0 !important;   /* ❗ เอาขอบล่างออก */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    margin: 0 !important;
+}
+
+/* ลดช่องว่างใต้ข้อความ footer */
+.ty-footer{
+    margin-top: 0 !important;
+}
+
+/* เอาระยะห่างของเส้นคั่นออก */
+body.thankyou hr{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
     
     
     
