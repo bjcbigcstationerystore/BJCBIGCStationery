@@ -559,12 +559,12 @@ body.summary #mainCard{
 /* กลุ่มสไตล์ของหน้าขอบคุณ (รูปที่ 2) */
 /* กล่องสีขาวคลุมหน้าขอบคุณทั้งหมด */
 .ty-wrap{
-  /* เดสก์ท็อป: กว้างประมาณ 60% ของหน้าจอ แต่ไม่เกิน 880px (สัดส่วนใกล้ ๆ หน้าบล็อกงบไม่พอ) */
+  /* เดสก์ท็อป: ขนาดใกล้เดิม แต่ลดระยะห่างบน–ล่างลง */
   width: min(60vw, 880px);
-  margin: 40px auto;
+  margin: 24px auto;
 
   background: #ffffff;
-  padding: 40px 36px;
+  padding: 28px 32px;          /* เดิม 40px → 28px เพื่อลดความสูงรวม */
   border-radius: 24px;
   box-shadow: 0 12px 50px rgba(0,0,0,0.12);
 }
@@ -588,16 +588,17 @@ body.summary #mainCard{
 .ty-sub{ text-align:center; margin-top:8px; color:#6b7280; font-weight:600; }
 
 .ty-card{
-  margin-top:16px;
+  margin-top:14px;
   background:#eaf1ff;
   border:1px solid #e5e7eb;
   border-radius:16px;
 
-  /* เพิ่มพื้นที่ห่างจากขอบกรอบสีฟ้า */
-  padding:24px 32px;   /* บน-ล่าง 24, ซ้าย-ขวา 32 */
+  /* ลด padding ด้านบน–ล่างลงเล็กน้อย */
+  padding:20px 28px;
 
   box-shadow:0 8px 18px rgba(0,0,0,.06);
 }
+    
 .ty-card h4{ display:flex; align-items:center; justify-content:center; gap:8px;
   font-weight:900; color:#1f2937; margin-bottom:10px; }
 
@@ -610,19 +611,20 @@ body.summary #mainCard{
 .ty-total{ color:#10b981; font-weight:900; }
 
 .ty-next{
-  margin-top:16px;
-  background: linear-gradient(180deg,#ffffff 0%, #fff7ed 100%);
-  border: none;
-  border-radius:16px;
-  padding:18px 16px;
+  margin-top:18px;
+  border-radius:18px;
+  background:#fff7eb;
+  border:1px solid #fed7aa;
+  padding:14px 16px;      /* เดิม 18px → 14px ให้เตี้ยลงนิดนึง */
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
-  color:#334155;            /* ตัวเนื้อหา */
+  gap:4px;                /* ลดช่องว่างระหว่างบรรทัด */
+  color:#334155;
   font-weight:600;
   text-align:center;
 }
+    
 .ty-next .emoji{            /* ไอคอนด้านบน */
   font-size:28px;
   line-height:1;
@@ -664,19 +666,19 @@ body.summary #mainCard{
 
 /* ขยับบรรทัด "หากมีคำถามเพิ่มเติม" ลงมาอีกนิด */
 .ty-footer{
-  margin-top:8px;
+  margin-top:4px;          /* เดิม 8px → 4px */
   text-align:center;
   color:#6b7280;
   font-weight:600;
   font-size:.9rem;
 }
 .ty-footer .row{
-  margin-top:6px;
+  margin-top:4px;          /* เดิม 6px → 4px */
   display:flex;
   justify-content:center;
-  gap:16px;
-  color:#334155;
-  font-weight:800;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
 }
 /* ================== THANK YOU TYPO OVERRIDES ================== */
 /* ใช้เฉพาะหน้า Thank You เท่านั้น */
@@ -2959,14 +2961,6 @@ body.thankyou .ty-card .ty-row {
     white-space: normal !important;
 }
 
-/* ย่อหน้า Thank You ทั้งหน้าลง */
-@media (min-width: 1024px){
-    body.thankyou{
-        zoom: 0.90;                /* ลดขนาดลง 10% */
-        transform: scale(0.90);
-        transform-origin: top center;
-    }
-}
 
 /* ลดความกว้างเนื้อหาภายในกรอบ */
 @media (min-width: 1024px){
@@ -2984,18 +2978,16 @@ body.thankyou {
   overflow-y: auto;    /* ให้มีสกอร์บาร์แนวตั้งเมื่อเนื้อยาว */
 }
 
-/* ตัวนี้ให้คงไว้เหมือนเดิมได้เลย */
 body.thankyou .page-container{
     display: flex !important;
     flex-direction: column;
-
     justify-content: flex-start !important;
     align-items: center !important;
 
     min-height: 100vh !important;
 
-    padding-top: 80px !important;
-    padding-bottom: 40px !important;
+    padding-top: 56px !important;     /* เดิม 80px */
+    padding-bottom: 24px !important;  /* เดิม 40px */
     padding-left: 0 !important;
     padding-right: 0 !important;
 
