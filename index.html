@@ -5309,9 +5309,27 @@ function renderBlocked(){
   document.getElementById("tyTotal").textContent = "฿" + total.toLocaleString();
 }
 
-function goHomeFromThanks() {
-  hideAllPages();
-  showPage("verify");
+function goHomeFromThanks(){
+  // บังคับให้โหลดข้อมูลใหม่ถ้าจำเป็น
+  FORCE_FRESH = true;
+
+  // ยกเลิก request ที่ค้างอยู่
+  abortInflight();
+
+  // ล้างตะกร้าและสถานะการส่งล่าสุด
+  CART = [];
+  LAST_SUBMIT = null;
+  updateCartUI();
+  document.getElementById('cartMask')?.classList.remove('show');
+
+  // รีเซ็ตฟอร์มยืนยันตัวตน (รวมถึงเคลียร์รหัสพนักงาน)
+  resetVerifyForm();
+
+  // กลับไปหน้า verify เหมือนเข้าใหม่
+  showPage('verify');
+
+  // เลื่อนกลับไปบนสุดของหน้า
+  try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e){}
 }
 
     
