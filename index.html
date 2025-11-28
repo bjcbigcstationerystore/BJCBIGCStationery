@@ -561,7 +561,7 @@ body.summary #mainCard{
 .ty-wrap{
   /* เดสก์ท็อป: ขนาดใกล้เดิม แต่ลดระยะห่างบน–ล่างลง */
   width: min(60vw, 880px);
-  margin: 24px auto;
+  margin: 0 auto;
 
   background: #ffffff;
   padding: 28px 32px;          /* เดิม 40px → 28px เพื่อลดความสูงรวม */
@@ -720,13 +720,6 @@ body.thankyou .ty-btn{
 body.thankyou .ty-ref{ color:#2563eb !important; }
 body.thankyou .ty-total{ color:#10b981 !important; }
     
-/* ย่อหน้า Thank You ทั้งหน้าลง */
-@media (min-width: 1024px){
-    body.thankyou{
-        /* ใช้แค่ zoom พอ ไม่ต้อง transform เพื่อไม่ให้เกิดสกอลล์บาร์เกินจอ */
-        zoom: 0.90;                /* ลดขนาดลง 10% */
-    }
-}
 
   body.thankyou .ty-card .ty-grid{
     display: grid;
@@ -2968,8 +2961,8 @@ body.thankyou .ty-card .ty-row {
         padding: 28px 32px !important; 
     }
 }
-    
-/* ===== FIX THANK YOU LAYOUT – ขนาดพอดีจอ / ไม่ต้องเลื่อน ===== */
+
+    /* ===== FIX THANK YOU LAYOUT – ขนาดพอดีจอ / ไม่ต้องเลื่อน ===== */
 
 /* ให้ทั้ง html และ body สูงเท่าจอ */
 html,
@@ -2988,18 +2981,19 @@ body.thankyou .page-container{
   display: flex !important;
   flex-direction: column;
   justify-content: center !important;   /* จัดกลางแนวตั้ง */
-  align-items: center !important;
+  align-items: center !important;       /* จัดกลางแนวนอน */
 
-  min-height: 100vh !important;         /* สูงเท่าจอ */
+  min-height: 100vh !important;         /* สูงเท่ากับ viewport พอดี */
 
-  /* ช่องว่างบน–ล่างนิดหน่อย ให้ลอยกลางสวย ๆ แต่ไม่เกินจอ */
-  padding-top: 24px !important;
-  padding-bottom: 24px !important;
+  /* ไม่ให้มี padding เพิ่มความสูงเกินจอ */
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 
   margin: 0 !important;
 }
+
 
     
     
