@@ -2981,8 +2981,27 @@ body.thankyou .ty-card .ty-row {
     white-space: normal !important;
 }
 
+/* ย่อหน้า Thank You ทั้งหน้าลง */
+@media (min-width: 1024px){
+    body.thankyou{
+        zoom: 0.90;                /* ลดขนาดลง 10% */
+        transform: scale(0.90);
+        transform-origin: top center;
+    }
+}
 
+/* ลดความกว้างเนื้อหาภายในกรอบ */
+@media (min-width: 1024px){
+    body.thankyou .ty-wrap{
+        max-width: 760px !important;   /* เดิม ~900–960 → ลดลง */
+        padding: 28px 32px !important; 
+    }
+}
 
+    
+    
+    
+    
   </style>
 </head>
 
