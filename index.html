@@ -559,12 +559,12 @@ body.summary #mainCard{
 /* กลุ่มสไตล์ของหน้าขอบคุณ (รูปที่ 2) */
 /* กล่องสีขาวคลุมหน้าขอบคุณทั้งหมด */
 .ty-wrap{
-  /* เดสก์ท็อป: ขนาดใกล้เดิม แต่ลดระยะห่างบน–ล่างลง */
-  width: min(60vw, 880px);
-  margin: 0 auto;
+  /* ย่อขนาดทั้งกล่องให้เล็กลงกว่าของเดิม */
+  width: min(52vw, 820px);   /* เดิม 60vw, 880px -> เล็กลง */
+  margin: 0 auto;            /* ระยะบน–ล่างให้ไปคุมที่ page-container แทน */
 
   background: #ffffff;
-  padding: 28px 32px;          /* เดิม 40px → 28px เพื่อลดความสูงรวม */
+  padding: 24px 28px;        /* ลด padding ลงเล็กน้อยให้กล่องเตี้ยลง */
   border-radius: 24px;
   box-shadow: 0 12px 50px rgba(0,0,0,0.12);
 }
@@ -2363,16 +2363,18 @@ body.blocked .blk-btn:hover {
   border: none;
   cursor: pointer;
 }
-    /* Layout หน้า Thank You สำหรับ Desktop ให้พอดีหน้าจอ */
+    
+/* Layout หน้า Thank You สำหรับ Desktop ให้พอดีหน้าจอ */
 @media (min-width: 1024px){
 
   /* กรอบขาวหลัก */
   body.thankyou .ty-wrap{
-    width: 60%;             /* ประมาณ 60% ของหน้าจอ */
-    max-width: 920px;       /* ไม่ให้กว้างเกินไป */
-    margin: 24px auto 24px; /* จัดกลางและลดช่องว่างบน–ล่าง */
+    /* ย่อขนาดลงอีก และใช้ค่าตรงกับ .ty-wrap ด้านบน */
+    width: 52%;
+    max-width: 820px;
+    margin: 0 auto 16px;     /* ไม่เว้นด้านบน ให้ไปดันจาก page-container แทน */
     background: #ffffff;
-    padding: 24px 32px 24px;/* ลด padding ด้านบนลง ให้ไอคอนสูงขึ้น */
+    padding: 22px 28px 24px; /* ลด padding บน–ข้างลง ทำให้หน้าดูเล็กลง */
     border-radius: 24px;
     box-shadow: 0 18px 45px rgba(15,23,42,0.18);
   }
@@ -2976,24 +2978,23 @@ body.thankyou{
   overflow: hidden;
 }
 
-/* จัดกรอบหน้าขอบคุณให้พอดีจอและอยู่ตรงกลาง */
 body.thankyou .page-container{
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center !important;   /* จัดกลางแนวตั้ง */
-  align-items: center !important;       /* จัดกลางแนวนอน */
+    display: flex !important;
+    flex-direction: column;
 
-  min-height: 100vh !important;         /* สูงเท่ากับ viewport พอดี */
+    /* ดันกล่องลงมาแบบรูปที่ 2 แต่ยังยึดด้านบน (ถ้ามีหน้าจอเตี้ยจะได้เลื่อนได้) */
+    justify-content: flex-start !important;
+    align-items: center !important;
 
-  /* ไม่ให้มี padding เพิ่มความสูงเกินจอ */
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+    min-height: 100vh !important;
 
-  margin: 0 !important;
+    padding-top: 80px !important;     /* ↑ เพิ่มจาก 56px ให้กล่องลงต่ำลง */
+    padding-bottom: 32px !important;  /* เพิ่มระยะด้านล่างนิดหน่อย */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    margin: 0 !important;
 }
-
 
     
     
