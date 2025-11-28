@@ -514,7 +514,7 @@ body.category .panel-body{  padding:8px 12px !important; }
     
 
     /* ===== THANK YOU (แบบรูปแรก) ===== */
-.thx-wrap{max-width:420px;margin:0 auto;padding:24px 16px 34px;}
+.thx-wrap{max-width:420px;margin:0 auto;padding:20px 16px 20px;}
 .thx-card{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.12);padding:24px 18px;position:relative;}
 .thx-logo{position:absolute;top:14px;right:14px;height:32px;width:auto;background:#fff;border-radius:10px;padding:4px 6px;box-shadow:0 3px 8px rgba(0,0,0,.12);}
 .thx-check{width:72px;height:72px;border-radius:9999px;display:flex;align-items:center;justify-content:center;margin:6px auto 14px;background:#22c55e;color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.35);}
@@ -532,7 +532,21 @@ body.category .panel-body{  padding:8px 12px !important; }
 .thx-footer{margin-top:16px;text-align:center;color:#6b7280;font-weight:600;font-size:.9rem;}
 .thx-footer .row{display:flex;gap:16px;justify-content:center;margin-top:6px;color:#334155;font-weight:800;}
 
-body.thankyou .page-container{align-items:flex-start;padding-top:32px;}
+/* ปรับ layout หน้า Thank You ไม่ให้มีพื้นที่ขาวล่างเกินไป */
+body.thankyou {
+  overflow-y: hidden;              /* ตัดสกอร์บาร์แนวตั้งออกสำหรับหน้า Thank You */
+}
+
+body.thankyou .page-container{
+  align-items: flex-start;         /* ให้การ์ดเริ่มจากด้านบนเหมือนเดิม */
+  padding-top: 24px;               /* เว้นด้านบนเล็กน้อย */
+  padding-bottom: 0;               /* ตัด padding ด้านล่างที่ทำให้มีขอบขาว + ต้องเลื่อน */
+}
+
+/* กันเหนียว เผื่อ content-card มี margin-bottom เดิม */
+body.thankyou .content-card{
+  margin-bottom: 0;
+}
 
     /* ซ่อนโลโก้มุมขวาบนตัว global เฉพาะหน้าขอบคุณ */
 body.thankyou .appbar{                     /* ซ่อน top appbar สีเขียว */
