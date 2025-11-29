@@ -3808,11 +3808,6 @@ function showBlocked(info) {
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 
-/* ============ RETURN HOME ============ */
-function goHomeFromThanks() {
-  hideAllPages();
-  document.getElementById('verifyContent')?.classList.remove('hidden');
-}
 
 /* ===== CART STATE ===== */
 let CART = [];
@@ -4398,12 +4393,20 @@ function showLoadingProductsModal(show = true){
 function openTimelineModal(){
   const el = document.getElementById('timelineModal');
   if (!el) return;
-  el.style.display = 'flex';
+
+  // เอา hidden ออกก่อน แล้วค่อยให้มันแสดง
+  el.classList.remove('hidden');
+  el.classList.add('flex');      // ให้ใช้ flex เหมือน modal อื่น ๆ
+  el.style.display = 'flex';     // กันเผื่อ style inline เคยถูก set เป็น none
 }
 
 function closeTimelineModal(){
   const el = document.getElementById('timelineModal');
   if (!el) return;
+
+  // ซ่อนทั้งด้วย class และ style
+  el.classList.add('hidden');
+  el.classList.remove('flex');
   el.style.display = 'none';
 }
 
@@ -4549,16 +4552,6 @@ function goHomeFromBlocked(){
   showPage('verify');
 }
 
-    function goHomeFromThanks(){
-  FORCE_FRESH = true;
-  abortInflight();
-  CART = [];
-  LAST_SUBMIT = null;
-  updateCartUI();
-  document.getElementById('cartMask')?.classList.remove('show');
-  resetVerifyForm();
-  showPage('verify');    // << กลับไปที่หน้า verify
-}
 
     function resetVerifyForm(){
   abortInflight();  
@@ -5310,26 +5303,31 @@ function renderBlocked(){
 }
 
 function goHomeFromThanks(){
-  // บังคับให้โหลดข้อมูลใหม่ถ้าจำเป็น
+  // 1) บังคับให้รอบถัดไปโหลดข้อมูลใหม่
   FORCE_FRESH = true;
 
-  // ยกเลิก request ที่ค้างอยู่
-  abortInflight();
+  // 2) ยกเลิก request ที่ค้างอยู่
+  try { abortInflight(); } catch(e){}
 
-  // ล้างตะกร้าและสถานะการส่งล่าสุด
-  CART = [];
-  LAST_SUBMIT = null;
-  updateCartUI();
-  document.getElementById('cartMask')?.classList.remove('show');
+  // 3) ปิด modal / overlay ทุกตัวที่อาจค้างอยู่
+  try { closeAllModals(); } catch(e){}
 
-  // รีเซ็ตฟอร์มยืนยันตัวตน (รวมถึงเคลียร์รหัสพนักงาน)
-  resetVerifyForm();
+  // 4) รีเซ็ตฟอร์ม + state ทั้งหมดให้กลับไปหน้า verify ใหม่
+  try { resetVerifyForm(); } catch(e){}
 
-  // กลับไปหน้า verify เหมือนเข้าใหม่
+  // 5) เผื่อกรณี cartMask ยังติด class show อยู่
+  const cartMask = document.getElementById('cartMask');
+  if (cartMask) {
+    cartMask.classList.remove('show');
+  }
+
+  // 6) แสดงหน้า verify เป็นหน้าแรก
   showPage('verify');
 
-  // เลื่อนกลับไปบนสุดของหน้า
-  try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e){}
+  // 7) เลื่อนกลับไปด้านบนสุดของหน้า
+  try {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  } catch(e){}
 }
 
     
