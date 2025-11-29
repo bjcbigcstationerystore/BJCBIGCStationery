@@ -2985,26 +2985,26 @@ body.thankyou .ty-card .ty-row {
     }
 }
 
-   /* ===== FIX THANK YOU LAYOUT – จัดกลางจอ / ไม่ต้องเลื่อน ===== */
+    /* ===== FIX THANK YOU LAYOUT – จัดกลางจอ / ไม่ต้องเลื่อน ===== */
 
-/* body หน้า Thank You สูงเท่าจอ และไม่ให้มี scrollbar */
+/* body หน้า Thank You ถ้าเนื้อหาน้อยจะไม่ต้องมี scrollbar */
 body.thankyou {
   min-height: 100vh;
-  overflow-y: auto;
+  overflow-y: hidden;     /* ซ่อนแถบเลื่อนในหน้า Thank you */
 }
 
-/* Layout หน้า Thank You – ไม่ให้สูงเกินจอ และไม่ต้องมีสกอร์บาร์ถ้าเนื้อหาน้อย */
+/* Layout หน้า Thank You – สูงตามเนื้อหา + padding พอดี */
 body.thankyou .page-container{
   display: flex !important;
   flex-direction: column;
   align-items: center !important;
 
-  /* ไม่ต้องบังคับสูง 100vh แล้ว ปล่อยให้สูงตามเนื้อหา */
+  /* ไม่ต้องบังคับสูง 100vh อีกครั้ง ปล่อยให้สูงตามเนื้อหา */
   min-height: auto !important;
 
-  /* ปรับระยะบน–ล่างให้พอดีจอ (จะไม่มีขอบล่างต้องเลื่อน) */
-  padding-top: 60px !important;    /* ลดจาก 250px ลงมาเยอะ ๆ */
-  padding-bottom: 24px !important; /* ลดจาก 100px */
+  /* ระยะขอบบน–ล่างแบบพอดี ๆ */
+  padding-top: 60px !important;
+  padding-bottom: 24px !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 
@@ -3025,7 +3025,11 @@ body.thankyou .ty-wrap{
     /* จัดให้อยู่กลางเหมือนเดิม แต่ไม่สร้างกรอบ */
     margin: 0 auto !important;
 }
-
+@media (max-width: 768px){
+  body.thankyou {
+    overflow-y: auto;   /* มือถือเลื่อนได้ */
+  }
+}
     
     
     
@@ -5361,3 +5365,4 @@ function goHomeFromThanks(){
   </div>
 </body>
 </html>
+
