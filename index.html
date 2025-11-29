@@ -2990,25 +2990,21 @@ body.thankyou .ty-card .ty-row {
 /* body หน้า Thank You สูงเท่าจอ และไม่ให้มี scrollbar */
 body.thankyou {
   min-height: 100vh;
-  overflow: hidden;
   overflow-y: auto;
 }
 
-/* จัด layout หน้า Thank You ให้ไม่มีสกอร์บาร์ + ระยะบน/ล่างกำลังดี */
+/* Layout หน้า Thank You – ไม่ให้สูงเกินจอ และไม่ต้องมีสกอร์บาร์ถ้าเนื้อหาน้อย */
 body.thankyou .page-container{
   display: flex !important;
   flex-direction: column;
-
-  /* ให้การ์ดเริ่มจากด้านบนลงมา (ไม่ต้อง fix center ทั้งจอ) */
-  justify-content: flex-start !important;
   align-items: center !important;
 
-  /* ไม่บังคับให้สูง 100vh + padding อีกต่อไป จะสูงเท่าที่เนื้อหาต้องการ */
+  /* ไม่ต้องบังคับสูง 100vh แล้ว ปล่อยให้สูงตามเนื้อหา */
   min-height: auto !important;
 
-  /* ระยะบน/ล่างสำหรับเดสก์ท็อป */
-  padding-top: 80px !important;   /* ลดจาก 250px → ช่องว่างบนหายไปเยอะ */
-  padding-bottom: 40px !important;
+  /* ปรับระยะบน–ล่างให้พอดีจอ (จะไม่มีขอบล่างต้องเลื่อน) */
+  padding-top: 60px !important;    /* ลดจาก 250px ลงมาเยอะ ๆ */
+  padding-bottom: 24px !important; /* ลดจาก 100px */
   padding-left: 0 !important;
   padding-right: 0 !important;
 
