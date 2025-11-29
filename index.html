@@ -2994,18 +2994,21 @@ body.thankyou {
   overflow-y: auto;
 }
 
-/* จัดกรอบหน้าขอบคุณ (.page-container) ให้อยู่กลางจอพอดี */
+/* จัด layout หน้า Thank You ให้ไม่มีสกอร์บาร์ + ระยะบน/ล่างกำลังดี */
 body.thankyou .page-container{
   display: flex !important;
   flex-direction: column;
-  justify-content: center !important;   /* จัดกลางแนวตั้ง */
-  align-items: center !important;       /* จัดกลางแนวนอน */
 
-  min-height: 100vh !important;         /* สูงเท่าจอ */
+  /* ให้การ์ดเริ่มจากด้านบนลงมา (ไม่ต้อง fix center ทั้งจอ) */
+  justify-content: flex-start !important;
+  align-items: center !important;
 
-  /* เว้นขอบบน-ล่างนิดหน่อยให้ดูไม่ชิดเกินไป */
-  padding-top: 250px !important;
-  padding-bottom: 0 !important;
+  /* ไม่บังคับให้สูง 100vh + padding อีกต่อไป จะสูงเท่าที่เนื้อหาต้องการ */
+  min-height: auto !important;
+
+  /* ระยะบน/ล่างสำหรับเดสก์ท็อป */
+  padding-top: 80px !important;   /* ลดจาก 250px → ช่องว่างบนหายไปเยอะ */
+  padding-bottom: 40px !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 
