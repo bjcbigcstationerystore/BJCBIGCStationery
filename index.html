@@ -3809,6 +3809,7 @@ function showBlocked(info) {
 
 /* ===== CART STATE ===== */
 let CART = [];
+let ORDER_DISABLED = false;
 let CURRENT_EMP = null;
 let CURRENT_BU_ADMIN = { names: [], emails: [] };
 
@@ -3828,24 +3829,28 @@ let inflight = { categories: null, items: null };
     function findItemKey(p){ return (p.name || '').trim().toLowerCase(); }
 
     function addToCart(p, qty){
-      const key = findItemKey(p);
-      const q = Math.max(0, Number(qty)||0);
-      if(q===0) return;
-      const i = CART.findIndex(it => it.key===key);
-      if(i>-1){
-        CART[i].qty += q;
-      }else{
-        CART.push({
-          key,
-          name: p.name || '-',
-          price: Number(p.price) || 0,
-          qty: q,
-          image: p.image || '',
-          detail: p.detail || '' // ✅ เก็บรายละเอียด (คอลัมน์ I)
-        });
-      }
-      updateCartUI();
-    }
+
+  // ✅ ถ้าระบบปิดการเบิกอยู่ → ไม่ให้เพิ่มของในตะกร้า
+  if (ORDER_DISABLED) {
+    alert('ระบบปิดรับคำขอเบิกชั่วคราว กรุณาติดต่อผู้ดูแล');
+    return;
+  }
+
+  const key = findItemKey(p);
+  const q   = Math.max(0, Number(qty)||0);
+
+  if (!key || q <= 0) return;
+
+  const found = CART.find(it => it.key === key);
+
+  if (found) {
+    found.qty += q;
+  } else {
+    CART.push({ ...p, key, qty: q });
+  }
+
+  updateCartUI();
+}
 
     function removeFromCart(key){
       CART = CART.filter(it => it.key!==key);
@@ -3853,31 +3858,70 @@ let inflight = { categories: null, items: null };
     }
 
     function updateCartUI(){
+
   const n = cartCount();
-  const badge = document.getElementById('cartBadge');
+
+  const badge    = document.getElementById('cartBadge');
   const badgeHdr = document.getElementById('cartBadgeHdr');
-  const sumEl = document.getElementById('cartSum');
-  const fab = document.getElementById('cartFab');
+  const sumEl    = document.getElementById('cartSum');
 
-  // เช็คว่าตอนนี้แถบตะกร้าถูกเปิดอยู่หรือไม่
-  const mask = document.getElementById('cartMask');
-  const isCartOpen = mask && mask.classList.contains('show');
+  const fab      = document.getElementById('cartFab');
+  const mask     = document.getElementById('cartMask');
 
-  const isAllowedPage =
-    document.body.classList.contains('category') ||
-    document.body.classList.contains('products');
+  const isCartOpen = mask?.classList.contains('show');
 
-  // โชว์ปุ่มตะกร้าลอยเฉพาะตอนมีของในตะกร้า + อยู่หน้า category/products + ยังไม่ได้เปิดแถบตะกร้า
+  const allowedPages = ['category','products'];
+  const isAllowedPage = allowedPages.includes(stage);
+
+  // ✅ กรณี Admin ปิดการเบิก (Hide All) → ซ่อนปุ่มตะกร้า + reset แสดงผล
+  if (ORDER_DISABLED) {
+    if (fab) {
+      fab.classList.remove('show');
+      fab.style.display = 'none';   // ปิดปุ่มลอย
+    }
+
+    if (badge) {
+      badge.style.display = 'none';
+      badge.textContent = '0';
+    }
+
+    if (badgeHdr) {
+      badgeHdr.textContent = '0';
+    }
+
+    if (sumEl) {
+      sumEl.textContent = baht(0);
+    }
+
+    renderCartItems();
+    return;
+  } else {
+    // เปิดการเบิกตามปกติ → ให้ปุ่มกลับมาใช้ display จาก CSS class
+    if (fab) {
+      fab.style.display = '';
+    }
+  }
+
+  // ปกติ: ถ้า CART มีของ + อยู่ในหน้า category/products + ไม่ได้เปิดตะกร้าอยู่ → โชว์ปุ่ม
   if (fab) {
     fab.classList.toggle('show', n > 0 && isAllowedPage && !isCartOpen);
   }
 
-  if (badge) { badge.style.display = n > 0 ? 'flex' : 'none'; badge.textContent = n; }
-  if (badgeHdr) { badgeHdr.textContent = n; }
-  if (sumEl) { sumEl.textContent = baht(cartSum()); }
+  if (badge) {
+    badge.style.display = n > 0 ? 'flex' : 'none';
+    badge.textContent = n;
+  }
+
+  if (badgeHdr) {
+    badgeHdr.textContent = n;
+  }
+
+  if (sumEl) {
+    sumEl.textContent = baht(cartSum());
+  }
+
   renderCartItems();
 }
-
     function renderCartItems(){
       const wrap = document.getElementById('cartItems');
       if(!wrap) return;
@@ -3937,12 +3981,19 @@ function toggleBackButtons(hide){
 }
 
 function openCart(){
+
+  // ✅ ปิดการเบิก → ไม่ให้เปิดตะกร้า
+  if (ORDER_DISABLED) {
+    alert('ระบบปิดรับคำขอเบิกชั่วคราว กรุณาติดต่อผู้ดูแล');
+    return;
+  }
+
   document.getElementById('cartMask')?.classList.add('show');
-  toggleBackButtons(true);       // ซ่อนปุ่มกลับทุกอันเมื่อเปิดตะกร้า
-  
-    const fab = document.getElementById('cartFab');
+  toggleBackButtons(true);
+
+  const fab = document.getElementById('cartFab');
   if (fab) fab.classList.remove('show');
- 
+
   renderCartItems();
 }
 
@@ -4340,6 +4391,13 @@ function showLoadingProductsModal(show = true){
 }
 
     function openItem(idx){
+
+      // ✅ ปิดการเบิก → ไม่ให้เปิด modal สินค้า
+  if (ORDER_DISABLED) {
+    alert('ระบบปิดรับคำขอเบิกชั่วคราว กรุณาติดต่อผู้ดูแล');
+    return;
+  }
+      
   const p = PRODUCTS[idx];
   if (!p) return;
 
@@ -4591,6 +4649,25 @@ function goHomeFromBlocked(){
   showPage('verify');
 }
 
+    // ดึงสถานะปิด/เปิดการเบิกจาก backend (Data รายการเบิก!N1)
+async function refreshOrderToggle() {
+  try {
+    const url = `${API_BASE}?action=getordertoggle&_=${Date.now()}`;
+    const res = await fetch(url).then(r => r.json()).catch(() => null);
+
+    if (!res || res.success !== true) return;
+
+    const data = res.data || {};
+    ORDER_DISABLED = !!data.hideAll;
+  } catch (e) {
+    console.warn('refreshOrderToggle error', e);
+  } finally {
+    // อัปเดต UI ปุ่มตะกร้าให้ตรงกับสถานะล่าสุด
+    updateCartUI();
+  }
+}
+
+
    document.addEventListener('DOMContentLoaded', ()=>{
     const empInput = document.getElementById('employeeId');
     if (empInput){
@@ -4610,15 +4687,19 @@ function goHomeFromBlocked(){
         alert('เกิดข้อผิดพลาด: ไม่พบส่วนหน้า: ' + missing.join(', ') + ' กรุณาตรวจสอบ id ใน HTML');
       }
     }
-    ensurePagesExist();
-
+     ensurePagesExist();
 
   // หน้าแรก = ยืนยันตัวตน
   try { resetVerifyButton(); } catch(_) {}
-  showCheckingModal(false);                    // ⬅️ ปิดตัวโหลดเผื่อมีค้าง
-  showLoadingProductsModal(false);             // ⬅️ ปิด overlay โหลดสินค้าเผื่อค้าง
+  showCheckingModal(false);
+  showLoadingProductsModal(false);
   showPage('verify');
+
+  // อัปเดตตะกร้าตามจำนวนใน CART ก่อน
   updateCartUI();
+
+  // ✅ ดึงสถานะ Hide All จากชีต แล้วอัปเดต UI ปุ่มตะกร้า/เมนูเบิก
+  refreshOrderToggle();
 });
 
 function showBULoading(show = true, text){
@@ -4838,15 +4919,30 @@ function getCurrentAdminFromUI(){
 }
     
 function proceedCart(){
+
+  // ✅ ปิดการเบิก → ไม่ให้ไปหน้าสรุป
+  if (ORDER_DISABLED) {
+    alert('ระบบปิดรับคำขอเบิกชั่วคราว กรุณาติดต่อผู้ดูแล');
+    return;
+  }
+
   closeCart();
   closeAllModals?.();
   goToSummary();
 }
 
 function goToSummary(){
+
+  // ✅ ปิดการเบิก → ไม่ให้ไปหน้าสรุป
+  if (ORDER_DISABLED) {
+    alert('ระบบปิดรับคำขอเบิกชั่วคราว กรุณาติดต่อผู้ดูแล');
+    return;
+  }
+
   // กันไม่ให้ modal อื่นค้าง
   closeAllModals?.();
-  // เข้าหน้าสรุป — ให้ showPage เป็นคนเรียก renderSummary() เอง (ครั้งเดียว)
+
+  // เข้าหน้าสรุป
   showPage('summary');
 }
 
